@@ -8,4 +8,5 @@ xcuserdata/
 .swiftpm/
 .build/
 .tools/
-DerivedProducts/
+DerivedProducts/*
+!DerivedProducts/.metadata_never_index
