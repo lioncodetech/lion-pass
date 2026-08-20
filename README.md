@@ -23,3 +23,9 @@ O app não usa rede, analytics ou backend. A extensão AutoFill é incluída com
 Veja [THREAT_MODEL.md](THREAT_MODEL.md) para limites e decisões de segurança.
 
 > PBKDF2 foi escolhido por estar disponível nativamente e ser uma KDF consolidada. Argon2id é recomendado para uma futura migração versionada após incorporar uma implementação auditada.
+
+## Créditos
+
+Criado por [Lion Code Technology](https://lioncodetech.com.br/).
+
+© 2026 Lion Code Technology. Todos os direitos reservados.
