@@ -1,4 +1,4 @@
-# Modelo de ameaças — Lótus Password
+# Modelo de ameaças — Lion Password
 
 ## Objetivos e limites
 
