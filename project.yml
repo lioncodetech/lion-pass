@@ -1,4 +1,4 @@
-name: LotusPassword
+name: LionPassword
 options:
   bundleIdPrefix: com.example
   deploymentTarget:
@@ -8,42 +8,42 @@ settings:
     SWIFT_VERSION: "5.10"
     DEVELOPMENT_TEAM: ""
 targets:
-  LotusPassword:
+  LionPassword:
     type: application
     platform: iOS
     sources:
-      - path: Sources/LotusPassword
-      - path: Sources/LotusCore
+      - path: Sources/LionPassword
+      - path: Sources/LionCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.lotuspassword
-        INFOPLIST_FILE: Sources/LotusPassword/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/LotusPassword/LotusPassword.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.lionpassword
+        INFOPLIST_FILE: Sources/LionPassword/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/LionPassword/LionPassword.entitlements
     dependencies:
-      - target: LotusAutoFill
-  LotusAutoFill:
+      - target: LionAutoFill
+  LionAutoFill:
     type: app-extension
     platform: iOS
     sources:
-      - path: Sources/LotusAutoFill
-      - path: Sources/LotusCore
+      - path: Sources/LionAutoFill
+      - path: Sources/LionCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.lotuspassword.autofill
-        INFOPLIST_FILE: Sources/LotusAutoFill/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/LotusAutoFill/LotusAutoFill.entitlements
-  LotusCoreTests:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.lionpassword.autofill
+        INFOPLIST_FILE: Sources/LionAutoFill/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/LionAutoFill/LionAutoFill.entitlements
+  LionCoreTests:
     type: bundle.unit-test
     platform: iOS
-    sources: Tests/LotusCoreTests
+    sources: Tests/LionCoreTests
     dependencies:
-      - target: LotusPassword
+      - target: LionPassword
 schemes:
-  LotusPassword:
+  LionPassword:
     build:
       targets:
-        LotusPassword: all
-        LotusAutoFill: all
-        LotusCoreTests: [test]
+        LionPassword: all
+        LionAutoFill: all
+        LionCoreTests: [test]
     test:
-      targets: [LotusCoreTests]
+      targets: [LionCoreTests]
