@@ -42,6 +42,10 @@ import CryptoKit
 public struct BiometricKeyStore: Sendable {
     private let service = "com.example.lionpassword.biometric-key"
     public init() {}
+    public var isAvailable: Bool {
+        let context = LAContext(); var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+    }
     public var exists: Bool { SecItemCopyMatching([kSecClass: kSecClassGenericPassword, kSecAttrService: service, kSecReturnData: false] as CFDictionary, nil) == errSecSuccess }
     public func save(key: SymmetricKey) throws {
         delete(); var error: Unmanaged<CFError>?
@@ -52,7 +56,7 @@ public struct BiometricKeyStore: Sendable {
     }
     public func load() async throws -> SymmetricKey {
         try await Task.detached { let context = LAContext(); context.localizedReason = "Desbloquear seu cofre Lion"; var result: CFTypeRef?
-            let status = SecItemCopyMatching([kSecClass: kSecClassGenericPassword, kSecAttrService: self.service, kSecReturnData: true, kSecUseAuthenticationContext: context, kSecUseOperationPrompt: "Desbloquear seu cofre Lion"] as CFDictionary, &result)
+            let status = SecItemCopyMatching([kSecClass: kSecClassGenericPassword, kSecAttrService: self.service, kSecReturnData: true, kSecUseAuthenticationContext: context] as CFDictionary, &result)
             guard status == errSecSuccess, let data = result as? Data else { throw VaultError.biometricsUnavailable }; return SymmetricKey(data: data)
         }.value
     }
