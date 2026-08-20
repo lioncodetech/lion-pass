@@ -16,10 +16,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "392AA7218CC9A6DA41F14B53"
+               BlueprintIdentifier = "9622D3B8B6CFEBE968967352"
                BuildableName = "LionAutoFill.appex"
                BlueprintName = "LionAutoFill"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -30,10 +30,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61047AD635090887ABA3C91A"
+               BlueprintIdentifier = "B185C2D82779411230FCE1DC"
                BuildableName = "LionCoreTests.xctest"
                BlueprintName = "LionCoreTests"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -44,10 +44,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8EB01744A48922E4322B6620"
-               BuildableName = "LionPassword.app"
-               BlueprintName = "LionPassword"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               BlueprintIdentifier = "401B1D5C8613A7242C18C613"
+               BuildableName = "LionPass.app"
+               BlueprintName = "LionPass"
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,10 +61,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "392AA7218CC9A6DA41F14B53"
+            BlueprintIdentifier = "9622D3B8B6CFEBE968967352"
             BuildableName = "LionAutoFill.appex"
             BlueprintName = "LionAutoFill"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -73,10 +73,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "61047AD635090887ABA3C91A"
+               BlueprintIdentifier = "B185C2D82779411230FCE1DC"
                BuildableName = "LionCoreTests.xctest"
                BlueprintName = "LionCoreTests"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -98,10 +98,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "392AA7218CC9A6DA41F14B53"
+            BlueprintIdentifier = "9622D3B8B6CFEBE968967352"
             BuildableName = "LionAutoFill.appex"
             BlueprintName = "LionAutoFill"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -115,10 +115,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "392AA7218CC9A6DA41F14B53"
+            BlueprintIdentifier = "9622D3B8B6CFEBE968967352"
             BuildableName = "LionAutoFill.appex"
             BlueprintName = "LionAutoFill"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

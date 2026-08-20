@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3C2F8BFB26F725A84F9E054F"
-               BuildableName = "LionPasswordMac.app"
-               BlueprintName = "LionPasswordMac"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               BlueprintIdentifier = "87ADFDED08D87D145CFAEFB1"
+               BuildableName = "LionPassMac.app"
+               BlueprintName = "LionPassMac"
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3C2F8BFB26F725A84F9E054F"
-            BuildableName = "LionPasswordMac.app"
-            BlueprintName = "LionPasswordMac"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            BlueprintIdentifier = "87ADFDED08D87D145CFAEFB1"
+            BuildableName = "LionPassMac.app"
+            BlueprintName = "LionPassMac"
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BA7C888BDC6B1ABF6F473A0B"
+               BlueprintIdentifier = "AD91F7556C5334A0D31803AC"
                BuildableName = "LionCoreMacTests.xctest"
                BlueprintName = "LionCoreMacTests"
-               ReferencedContainer = "container:LionPassword.xcodeproj">
+               ReferencedContainer = "container:LionPass.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3C2F8BFB26F725A84F9E054F"
-            BuildableName = "LionPasswordMac.app"
-            BlueprintName = "LionPasswordMac"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            BlueprintIdentifier = "87ADFDED08D87D145CFAEFB1"
+            BuildableName = "LionPassMac.app"
+            BlueprintName = "LionPassMac"
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3C2F8BFB26F725A84F9E054F"
-            BuildableName = "LionPasswordMac.app"
-            BlueprintName = "LionPasswordMac"
-            ReferencedContainer = "container:LionPassword.xcodeproj">
+            BlueprintIdentifier = "87ADFDED08D87D145CFAEFB1"
+            BuildableName = "LionPassMac.app"
+            BlueprintName = "LionPassMac"
+            ReferencedContainer = "container:LionPass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

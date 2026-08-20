@@ -1,4 +1,4 @@
-name: LionPassword
+name: LionPass
 options:
   bundleIdPrefix: com.lioncodetech
   deploymentTarget:
@@ -11,19 +11,19 @@ settings:
     DEVELOPMENT_TEAM: 42J2NZ3WA4
     CODE_SIGN_STYLE: Automatic
 targets:
-  LionPassword:
+  LionPass:
     type: application
     platform: iOS
     sources:
-      - path: Sources/LionPassword
+      - path: Sources/LionPass
       - path: Sources/LionCore
       - path: Sources/LionAssets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lioncodetech.lionpassword
-        PRODUCT_NAME: Lion Password
-        INFOPLIST_FILE: Sources/LionPassword/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/LionPassword/LionPassword.entitlements
+        PRODUCT_NAME: Lion Pass
+        INFOPLIST_FILE: Sources/LionPass/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/LionPass/LionPass.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - target: LionAutoFill
@@ -44,11 +44,11 @@ targets:
     platform: iOS
     sources: Tests/LionCoreTests
     dependencies:
-      - target: LionPassword
+      - target: LionPass
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lion Password.app/Lion Password"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Lion Pass"
         BUNDLE_LOADER: "$(TEST_HOST)"
   LionCoreMacTests:
     type: bundle.unit-test
@@ -56,44 +56,44 @@ targets:
     deploymentTarget: "14.0"
     sources: Tests/LionCoreTests
     dependencies:
-      - target: LionPasswordMac
+      - target: LionPassMac
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lion Password.app/Contents/MacOS/Lion Password"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Contents/MacOS/Lion Pass"
         BUNDLE_LOADER: "$(TEST_HOST)"
-  LionPasswordMac:
+  LionPassMac:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
     sources:
-      - path: Sources/LionPasswordMac
+      - path: Sources/LionPassMac
       - path: Sources/LionCore
       - path: Sources/LionAssets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lioncodetech.lionpassword.mac
-        PRODUCT_NAME: Lion Password
-        INFOPLIST_FILE: Sources/LionPasswordMac/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/LionPasswordMac/LionPasswordMac.entitlements
+        PRODUCT_NAME: Lion Pass
+        INFOPLIST_FILE: Sources/LionPassMac/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/LionPassMac/LionPassMac.entitlements
         CODE_SIGNING_ALLOWED: YES
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 42J2NZ3WA4
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         REGISTER_APP_WITH_LAUNCH_SERVICES: NO
 schemes:
-  LionPassword:
+  LionPass:
     build:
       targets:
-        LionPassword: all
+        LionPass: all
         LionAutoFill: all
         LionCoreTests: [test]
     test:
       targets: [LionCoreTests]
-  LionPasswordMac:
+  LionPassMac:
     build:
       targets:
-        LionPasswordMac: all
+        LionPassMac: all
     run:
       config: Debug
     test:

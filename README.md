@@ -1,4 +1,4 @@
-# Lion Password
+# Lion Pass
 
 Gerenciador de senhas local e offline para iPhone, iPad e Mac, escrito com SwiftUI. O cofre portátil usa o formato próprio `.lionvault`, PBKDF2-HMAC-SHA256 e AES-256-GCM autenticado. Não há servidor, conta, analytics ou dependência de iCloud.
 
@@ -21,9 +21,9 @@ Gerenciador de senhas local e offline para iPhone, iPad e Mac, escrito com Swift
 
 1. Instale Xcode 16 ou mais recente e XcodeGen (`brew install xcodegen`).
 2. Execute `xcodegen generate` nesta pasta.
-3. Abra `LionPassword.xcodeproj`.
-4. Selecione sua equipe de desenvolvimento e execute **LionPassword** em iOS/iPadOS 17+ ou **LionPasswordMac** no macOS 14+.
-5. No iOS, habilite Lion Password em Ajustes → Geral → Preenchimento Automático e Senhas.
+3. Abra `LionPass.xcodeproj`.
+4. Selecione sua equipe de desenvolvimento e execute **LionPass** em iOS/iPadOS 17+ ou **LionPassMac** no macOS 14+.
+5. No iOS, habilite Lion Pass em Ajustes → Geral → Preenchimento Automático e Senhas.
 
 O projeto usa os identificadores `com.lioncodetech.lionpassword` e `group.com.lioncodetech.lionpassword`. App Groups e a extensão AutoFill precisam existir no perfil de assinatura usado para instalar em dispositivo físico.
 

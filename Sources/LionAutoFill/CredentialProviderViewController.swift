@@ -16,7 +16,7 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Lion Password"
+        title = "Lion Pass"
         view.backgroundColor = .systemBackground
 
         passwordField.placeholder = "Senha mestra"

@@ -6,8 +6,8 @@
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>1.0</string>
 <key>CFBundleVersion</key><string>1</string>
-<key>CFBundleDisplayName</key><string>Lion Password</string>
-<key>CFBundleName</key><string>Lion Password</string>
+<key>CFBundleDisplayName</key><string>Lion Pass</string>
+<key>CFBundleName</key><string>Lion Pass</string>
 <key>CFBundleDocumentTypes</key><array><dict><key>CFBundleTypeName</key><string>Lion Vault</string><key>CFBundleTypeRole</key><string>Editor</string><key>LSItemContentTypes</key><array><string>com.lioncodetech.lion-vault</string></array></dict></array>
 <key>UTExportedTypeDeclarations</key><array><dict><key>UTTypeConformsTo</key><array><string>public.data</string></array><key>UTTypeDescription</key><string>Lion encrypted vault</string><key>UTTypeIdentifier</key><string>com.lioncodetech.lion-vault</string><key>UTTypeTagSpecification</key><dict><key>public.filename-extension</key><array><string>lionvault</string></array></dict></dict></array>
 <key>NSHumanReadableCopyright</key><string>© 2026 Lion Code Technology. Todos os direitos reservados.</string>

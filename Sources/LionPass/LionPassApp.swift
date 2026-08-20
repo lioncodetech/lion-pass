@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 @main
-struct LionPasswordApp: App {
+struct LionPassApp: App {
     @StateObject private var vault = VaultService()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(LionPreferenceKey.appearance) private var appearance = "system"
@@ -67,7 +67,7 @@ struct PrivacyCoverView: View {
             Color(.systemBackground).ignoresSafeArea()
             VStack(spacing: 16) {
                 LionMark(size: 72)
-                Text("Lion Password").font(.title2.bold())
+                Text("Lion Pass").font(.title2.bold())
                 Label(
                     screenCapture ? "Conteúdo oculto durante captura de tela" : "Conteúdo protegido",
                     systemImage: screenCapture ? "record.circle" : "lock.fill"

@@ -31,7 +31,19 @@ public struct LocalVaultStorageService: VaultStorageService {
             in: .userDomainMask
         )[0]
 #endif
-        let directory = baseURL ?? root.appendingPathComponent("LionPassword", isDirectory: true)
+        let directory: URL
+        if let baseURL {
+            directory = baseURL
+        } else {
+            let preferredDirectory = root.appendingPathComponent("LionPass", isDirectory: true)
+            let legacyDirectory = root.appendingPathComponent("LionPassword", isDirectory: true)
+
+            if !FileManager.default.fileExists(atPath: preferredDirectory.path),
+               FileManager.default.fileExists(atPath: legacyDirectory.path) {
+                try? FileManager.default.moveItem(at: legacyDirectory, to: preferredDirectory)
+            }
+            directory = preferredDirectory
+        }
 #if os(iOS)
         try? FileManager.default.createDirectory(
             at: directory,

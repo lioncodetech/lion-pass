@@ -1,4 +1,4 @@
-# Modelo de ameaças — Lion Password
+# Modelo de ameaças — Lion Pass
 
 ## Objetivos e limites
 

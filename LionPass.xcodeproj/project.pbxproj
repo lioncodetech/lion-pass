@@ -1,0 +1,852 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		08B01304E1A31C41BC89A190 /* VaultStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */; };
+		0D2941AFDE6D97ACDBCE491B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5BBCA4BCD6C9E491741A4206 /* PrivacyInfo.xcprivacy */; };
+		0DAD03ABA13420DE9AA344A0 /* SecurityServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1328420E51408E71E0C66B /* SecurityServices.swift */; };
+		16EA64FD33FB7E022035CC88 /* LionAutoFill.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DACDB91A4890940989C797C9 /* LionAutoFill.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		23C2F5D198D44F307A4CE338 /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E6DBADF799238A04ADC075 /* VaultService.swift */; };
+		26C0A4B5255CD2DC8F40BABF /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08E332C1BBA66EC86F861DF /* Models.swift */; };
+		2C9D9662C88D067B411F152D /* VaultStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */; };
+		3BF154C809380D7BE3D8236D /* MacVaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FCA9AB9C4CC77C23CF7B3F /* MacVaultView.swift */; };
+		441BD30F601AC207D1727EB2 /* LionPassMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52288466F2F7F3643141BC9A /* LionPassMacApp.swift */; };
+		445BD779C0E3E462838EAA67 /* VaultCryptoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24D7FB42EBBBBD8239AC59B /* VaultCryptoTests.swift */; };
+		56E9890AAEE2C710E7671568 /* VaultCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD67C554ADE94718EA9B0AE /* VaultCryptoService.swift */; };
+		6D5BD8A4AB3A9F3275721ED1 /* VaultCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD67C554ADE94718EA9B0AE /* VaultCryptoService.swift */; };
+		6F390C1B8DA9F54FCD35889E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08E332C1BBA66EC86F861DF /* Models.swift */; };
+		7B033E1C790078DF879D0E4F /* SecurityServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1328420E51408E71E0C66B /* SecurityServices.swift */; };
+		7EFBB18983C71D842A2E3AF3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08E332C1BBA66EC86F861DF /* Models.swift */; };
+		847E2FE87A568149F3A8AA5E /* VaultCryptoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24D7FB42EBBBBD8239AC59B /* VaultCryptoTests.swift */; };
+		97600C483D1FB970DA7AD81C /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E6DBADF799238A04ADC075 /* VaultService.swift */; };
+		A366503C45AC48649CD640E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4AB4CB2BB10BA43AD87F95DB /* Assets.xcassets */; };
+		A83176D46AE9CEB2F660C9CB /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E6DBADF799238A04ADC075 /* VaultService.swift */; };
+		A95437D019CA35F726FD6049 /* VaultCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD67C554ADE94718EA9B0AE /* VaultCryptoService.swift */; };
+		ABF3EB840A2956B84B000E44 /* VaultHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 204F47DB809C4BC425F391A1 /* VaultHomeView.swift */; };
+		AF4D23F54B3AF204A77E5A4B /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E09C3352173F7DDAD87093A2 /* BrandTheme.swift */; };
+		B0A27B41112F2305647D2D38 /* WelcomeUnlockViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255FE36B015E25D3C426F141 /* WelcomeUnlockViews.swift */; };
+		B43FEB7F3874A38A2526B63C /* LionPassApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4494B128D33552E45A34D52D /* LionPassApp.swift */; };
+		B73AA24D6B6C1A57882AE4FC /* CredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21FFBD083552564699000344 /* CredentialProviderViewController.swift */; };
+		B9A1A97AC712677A5804C9C4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CFE4A0EE683BAFB4398AE456 /* PrivacyInfo.xcprivacy */; };
+		B9E042882D18651B4B31CBED /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DE5556A9E7D08CB4E6308D6 /* PrivacyInfo.xcprivacy */; };
+		BC0246D39DA89C257EC2D614 /* PasswordGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F234A58F76DE13D9E6598E /* PasswordGenerator.swift */; };
+		C88377D97ADE16E8D2DE5862 /* PasswordGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F234A58F76DE13D9E6598E /* PasswordGenerator.swift */; };
+		D9C07DA430344601D50B596E /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D248B0070B4F7E97A1F069DF /* BrandTheme.swift */; };
+		DB92EDE414EDF7FF75E60012 /* PasswordGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F234A58F76DE13D9E6598E /* PasswordGenerator.swift */; };
+		DF37DE69BE5ECDC8AA1308C3 /* SecurityServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1328420E51408E71E0C66B /* SecurityServices.swift */; };
+		E0F86B2332533573AFC4023D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4AB4CB2BB10BA43AD87F95DB /* Assets.xcassets */; };
+		F94E04979EB625B65F8D08FB /* VaultStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */; };
+		FB644B68308EDB95A6201069 /* EditorGeneratorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C32EAE4851133537C12C4DA /* EditorGeneratorSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8D4CA51D248E3D39BEDC2C3B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7522C3E02A65F719CF18B982 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 401B1D5C8613A7242C18C613;
+			remoteInfo = LionPass;
+		};
+		8E74CCF8DB77E5F22DAB2090 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7522C3E02A65F719CF18B982 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 87ADFDED08D87D145CFAEFB1;
+			remoteInfo = LionPassMac;
+		};
+		D6830E74B3715325DF05D110 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7522C3E02A65F719CF18B982 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9622D3B8B6CFEBE968967352;
+			remoteInfo = LionAutoFill;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6244C06A1F910FF46F27EC9B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				16EA64FD33FB7E022035CC88 /* LionAutoFill.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		02E6DBADF799238A04ADC075 /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
+		05FCA9AB9C4CC77C23CF7B3F /* MacVaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacVaultView.swift; sourceTree = "<group>"; };
+		0790FAF96B10ED2E68D6FC5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultStorageService.swift; sourceTree = "<group>"; };
+		1A428E37599CF1423070F58C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		204F47DB809C4BC425F391A1 /* VaultHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultHomeView.swift; sourceTree = "<group>"; };
+		21FFBD083552564699000344 /* CredentialProviderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialProviderViewController.swift; sourceTree = "<group>"; };
+		255FE36B015E25D3C426F141 /* WelcomeUnlockViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeUnlockViews.swift; sourceTree = "<group>"; };
+		4494B128D33552E45A34D52D /* LionPassApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LionPassApp.swift; sourceTree = "<group>"; };
+		4AB4CB2BB10BA43AD87F95DB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4C32EAE4851133537C12C4DA /* EditorGeneratorSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorGeneratorSettings.swift; sourceTree = "<group>"; };
+		52288466F2F7F3643141BC9A /* LionPassMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LionPassMacApp.swift; sourceTree = "<group>"; };
+		5BBCA4BCD6C9E491741A4206 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		5E54D1EAB6A87AB509BCD5AB /* LionCoreTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LionCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7567F9E582BA26D2A67ECC16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		75E8C153E5F78D66B355109B /* LionPass.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LionPass.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		76FE6ECB20006CA95CC17FF1 /* LionAutoFill.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LionAutoFill.entitlements; sourceTree = "<group>"; };
+		77C7D6918F68BBEF494599CA /* LionPassMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LionPassMac.entitlements; sourceTree = "<group>"; };
+		8A23FCF1A86D1539A90104F2 /* LionCoreMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LionCoreMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DE5556A9E7D08CB4E6308D6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A4E8CE3129998FA517D2EFEC /* LionPass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LionPass.entitlements; sourceTree = "<group>"; };
+		B24D7FB42EBBBBD8239AC59B /* VaultCryptoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultCryptoTests.swift; sourceTree = "<group>"; };
+		CFE4A0EE683BAFB4398AE456 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		D1F234A58F76DE13D9E6598E /* PasswordGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordGenerator.swift; sourceTree = "<group>"; };
+		D248B0070B4F7E97A1F069DF /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
+		DACDB91A4890940989C797C9 /* LionAutoFill.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LionAutoFill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DAD67C554ADE94718EA9B0AE /* VaultCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultCryptoService.swift; sourceTree = "<group>"; };
+		E09C3352173F7DDAD87093A2 /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
+		ED1328420E51408E71E0C66B /* SecurityServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityServices.swift; sourceTree = "<group>"; };
+		F08E332C1BBA66EC86F861DF /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		FD48433A15E37735C46517D7 /* LionPassMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LionPassMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		30B156402755B72DE6AC6FCF /* LionCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				B24D7FB42EBBBBD8239AC59B /* VaultCryptoTests.swift */,
+			);
+			name = LionCoreTests;
+			path = Tests/LionCoreTests;
+			sourceTree = "<group>";
+		};
+		43B9C27C77732A50FE44DCB6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DACDB91A4890940989C797C9 /* LionAutoFill.appex */,
+				8A23FCF1A86D1539A90104F2 /* LionCoreMacTests.xctest */,
+				5E54D1EAB6A87AB509BCD5AB /* LionCoreTests.xctest */,
+				75E8C153E5F78D66B355109B /* LionPass.app */,
+				FD48433A15E37735C46517D7 /* LionPassMac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		80C67DA2DE6D1A9760321B12 /* LionAutoFill */ = {
+			isa = PBXGroup;
+			children = (
+				21FFBD083552564699000344 /* CredentialProviderViewController.swift */,
+				0790FAF96B10ED2E68D6FC5B /* Info.plist */,
+				76FE6ECB20006CA95CC17FF1 /* LionAutoFill.entitlements */,
+				CFE4A0EE683BAFB4398AE456 /* PrivacyInfo.xcprivacy */,
+			);
+			name = LionAutoFill;
+			path = Sources/LionAutoFill;
+			sourceTree = "<group>";
+		};
+		A2E42FBF916041187E02294C = {
+			isa = PBXGroup;
+			children = (
+				C02FFB49382029590D6C3516 /* LionAssets */,
+				80C67DA2DE6D1A9760321B12 /* LionAutoFill */,
+				A317BEED0DE7057E0686D9EF /* LionCore */,
+				30B156402755B72DE6AC6FCF /* LionCoreTests */,
+				DC1FB2A12AAAE073B7EA9821 /* LionPass */,
+				E54DA74AB84C25E32B44184D /* LionPassMac */,
+				43B9C27C77732A50FE44DCB6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A317BEED0DE7057E0686D9EF /* LionCore */ = {
+			isa = PBXGroup;
+			children = (
+				F08E332C1BBA66EC86F861DF /* Models.swift */,
+				D1F234A58F76DE13D9E6598E /* PasswordGenerator.swift */,
+				ED1328420E51408E71E0C66B /* SecurityServices.swift */,
+				DAD67C554ADE94718EA9B0AE /* VaultCryptoService.swift */,
+				02E6DBADF799238A04ADC075 /* VaultService.swift */,
+				0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */,
+			);
+			name = LionCore;
+			path = Sources/LionCore;
+			sourceTree = "<group>";
+		};
+		C02FFB49382029590D6C3516 /* LionAssets */ = {
+			isa = PBXGroup;
+			children = (
+				4AB4CB2BB10BA43AD87F95DB /* Assets.xcassets */,
+			);
+			name = LionAssets;
+			path = Sources/LionAssets;
+			sourceTree = "<group>";
+		};
+		DC1FB2A12AAAE073B7EA9821 /* LionPass */ = {
+			isa = PBXGroup;
+			children = (
+				E09C3352173F7DDAD87093A2 /* BrandTheme.swift */,
+				4C32EAE4851133537C12C4DA /* EditorGeneratorSettings.swift */,
+				7567F9E582BA26D2A67ECC16 /* Info.plist */,
+				A4E8CE3129998FA517D2EFEC /* LionPass.entitlements */,
+				4494B128D33552E45A34D52D /* LionPassApp.swift */,
+				8DE5556A9E7D08CB4E6308D6 /* PrivacyInfo.xcprivacy */,
+				204F47DB809C4BC425F391A1 /* VaultHomeView.swift */,
+				255FE36B015E25D3C426F141 /* WelcomeUnlockViews.swift */,
+			);
+			name = LionPass;
+			path = Sources/LionPass;
+			sourceTree = "<group>";
+		};
+		E54DA74AB84C25E32B44184D /* LionPassMac */ = {
+			isa = PBXGroup;
+			children = (
+				D248B0070B4F7E97A1F069DF /* BrandTheme.swift */,
+				1A428E37599CF1423070F58C /* Info.plist */,
+				77C7D6918F68BBEF494599CA /* LionPassMac.entitlements */,
+				52288466F2F7F3643141BC9A /* LionPassMacApp.swift */,
+				05FCA9AB9C4CC77C23CF7B3F /* MacVaultView.swift */,
+				5BBCA4BCD6C9E491741A4206 /* PrivacyInfo.xcprivacy */,
+			);
+			name = LionPassMac;
+			path = Sources/LionPassMac;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		401B1D5C8613A7242C18C613 /* LionPass */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3DDD1776BE3D9050693630DD /* Build configuration list for PBXNativeTarget "LionPass" */;
+			buildPhases = (
+				9D2C7DBD01DF3F4057F3F0B3 /* Sources */,
+				6637F9E50ADDD078BEE2C96A /* Resources */,
+				6244C06A1F910FF46F27EC9B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8AAC761BD4A7601D6D5BCB90 /* PBXTargetDependency */,
+			);
+			name = LionPass;
+			packageProductDependencies = (
+			);
+			productName = LionPass;
+			productReference = 75E8C153E5F78D66B355109B /* LionPass.app */;
+			productType = "com.apple.product-type.application";
+		};
+		87ADFDED08D87D145CFAEFB1 /* LionPassMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2BB8D668D7F8F722E817E8D6 /* Build configuration list for PBXNativeTarget "LionPassMac" */;
+			buildPhases = (
+				30E813F4B06970C5D084FFD1 /* Sources */,
+				73DE0CFD7CC4FA10C15F1337 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LionPassMac;
+			packageProductDependencies = (
+			);
+			productName = LionPassMac;
+			productReference = FD48433A15E37735C46517D7 /* LionPassMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9622D3B8B6CFEBE968967352 /* LionAutoFill */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F20AC35938CB2571BD056F4 /* Build configuration list for PBXNativeTarget "LionAutoFill" */;
+			buildPhases = (
+				0DD62D840F6F89704CA5E101 /* Sources */,
+				E930A0116D9338B290C61452 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LionAutoFill;
+			packageProductDependencies = (
+			);
+			productName = LionAutoFill;
+			productReference = DACDB91A4890940989C797C9 /* LionAutoFill.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		AD91F7556C5334A0D31803AC /* LionCoreMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE8687A5492AA7D4F8092367 /* Build configuration list for PBXNativeTarget "LionCoreMacTests" */;
+			buildPhases = (
+				544BE98806E862520055A56D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0311C803CE29F1C097D98BD0 /* PBXTargetDependency */,
+			);
+			name = LionCoreMacTests;
+			packageProductDependencies = (
+			);
+			productName = LionCoreMacTests;
+			productReference = 8A23FCF1A86D1539A90104F2 /* LionCoreMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B185C2D82779411230FCE1DC /* LionCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 89C1A6DB7A78B7DEB89F17C3 /* Build configuration list for PBXNativeTarget "LionCoreTests" */;
+			buildPhases = (
+				0D9622449AB972BBA81E4226 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3B89453CF15D44559E2A449A /* PBXTargetDependency */,
+			);
+			name = LionCoreTests;
+			packageProductDependencies = (
+			);
+			productName = LionCoreTests;
+			productReference = 5E54D1EAB6A87AB509BCD5AB /* LionCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7522C3E02A65F719CF18B982 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					401B1D5C8613A7242C18C613 = {
+						DevelopmentTeam = 42J2NZ3WA4;
+						ProvisioningStyle = Automatic;
+					};
+					87ADFDED08D87D145CFAEFB1 = {
+						DevelopmentTeam = 42J2NZ3WA4;
+						ProvisioningStyle = Automatic;
+					};
+					9622D3B8B6CFEBE968967352 = {
+						DevelopmentTeam = 42J2NZ3WA4;
+						ProvisioningStyle = Automatic;
+					};
+					AD91F7556C5334A0D31803AC = {
+						DevelopmentTeam = 42J2NZ3WA4;
+						ProvisioningStyle = Automatic;
+					};
+					B185C2D82779411230FCE1DC = {
+						DevelopmentTeam = 42J2NZ3WA4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = EA791098294EF72B19F06110 /* Build configuration list for PBXProject "LionPass" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A2E42FBF916041187E02294C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 43B9C27C77732A50FE44DCB6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				401B1D5C8613A7242C18C613 /* LionPass */,
+				9622D3B8B6CFEBE968967352 /* LionAutoFill */,
+				B185C2D82779411230FCE1DC /* LionCoreTests */,
+				AD91F7556C5334A0D31803AC /* LionCoreMacTests */,
+				87ADFDED08D87D145CFAEFB1 /* LionPassMac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6637F9E50ADDD078BEE2C96A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A366503C45AC48649CD640E4 /* Assets.xcassets in Resources */,
+				B9E042882D18651B4B31CBED /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		73DE0CFD7CC4FA10C15F1337 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E0F86B2332533573AFC4023D /* Assets.xcassets in Resources */,
+				0D2941AFDE6D97ACDBCE491B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E930A0116D9338B290C61452 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B9A1A97AC712677A5804C9C4 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0D9622449AB972BBA81E4226 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				445BD779C0E3E462838EAA67 /* VaultCryptoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DD62D840F6F89704CA5E101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B73AA24D6B6C1A57882AE4FC /* CredentialProviderViewController.swift in Sources */,
+				7EFBB18983C71D842A2E3AF3 /* Models.swift in Sources */,
+				DB92EDE414EDF7FF75E60012 /* PasswordGenerator.swift in Sources */,
+				DF37DE69BE5ECDC8AA1308C3 /* SecurityServices.swift in Sources */,
+				56E9890AAEE2C710E7671568 /* VaultCryptoService.swift in Sources */,
+				97600C483D1FB970DA7AD81C /* VaultService.swift in Sources */,
+				2C9D9662C88D067B411F152D /* VaultStorageService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		30E813F4B06970C5D084FFD1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9C07DA430344601D50B596E /* BrandTheme.swift in Sources */,
+				441BD30F601AC207D1727EB2 /* LionPassMacApp.swift in Sources */,
+				3BF154C809380D7BE3D8236D /* MacVaultView.swift in Sources */,
+				6F390C1B8DA9F54FCD35889E /* Models.swift in Sources */,
+				BC0246D39DA89C257EC2D614 /* PasswordGenerator.swift in Sources */,
+				0DAD03ABA13420DE9AA344A0 /* SecurityServices.swift in Sources */,
+				A95437D019CA35F726FD6049 /* VaultCryptoService.swift in Sources */,
+				23C2F5D198D44F307A4CE338 /* VaultService.swift in Sources */,
+				08B01304E1A31C41BC89A190 /* VaultStorageService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		544BE98806E862520055A56D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				847E2FE87A568149F3A8AA5E /* VaultCryptoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9D2C7DBD01DF3F4057F3F0B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF4D23F54B3AF204A77E5A4B /* BrandTheme.swift in Sources */,
+				FB644B68308EDB95A6201069 /* EditorGeneratorSettings.swift in Sources */,
+				B43FEB7F3874A38A2526B63C /* LionPassApp.swift in Sources */,
+				26C0A4B5255CD2DC8F40BABF /* Models.swift in Sources */,
+				C88377D97ADE16E8D2DE5862 /* PasswordGenerator.swift in Sources */,
+				7B033E1C790078DF879D0E4F /* SecurityServices.swift in Sources */,
+				6D5BD8A4AB3A9F3275721ED1 /* VaultCryptoService.swift in Sources */,
+				ABF3EB840A2956B84B000E44 /* VaultHomeView.swift in Sources */,
+				A83176D46AE9CEB2F660C9CB /* VaultService.swift in Sources */,
+				F94E04979EB625B65F8D08FB /* VaultStorageService.swift in Sources */,
+				B0A27B41112F2305647D2D38 /* WelcomeUnlockViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0311C803CE29F1C097D98BD0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 87ADFDED08D87D145CFAEFB1 /* LionPassMac */;
+			targetProxy = 8E74CCF8DB77E5F22DAB2090 /* PBXContainerItemProxy */;
+		};
+		3B89453CF15D44559E2A449A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 401B1D5C8613A7242C18C613 /* LionPass */;
+			targetProxy = 8D4CA51D248E3D39BEDC2C3B /* PBXContainerItemProxy */;
+		};
+		8AAC761BD4A7601D6D5BCB90 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9622D3B8B6CFEBE968967352 /* LionAutoFill */;
+			targetProxy = D6830E74B3715325DF05D110 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		101D265B319CF0A528DC3BBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/LionPassMac/LionPassMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 42J2NZ3WA4;
+				INFOPLIST_FILE = Sources/LionPassMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword.mac;
+				PRODUCT_NAME = "Lion Pass";
+				REGISTER_APP_WITH_LAUNCH_SERVICES = NO;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		37B28813EC2789F62576A7FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/LionPass/LionPass.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Sources/LionPass/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword;
+				PRODUCT_NAME = "Lion Pass";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3C7E80F5191E4C8BAE76B61A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.LionCoreMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Contents/MacOS/Lion Pass";
+			};
+			name = Release;
+		};
+		53CC1203FF55B6ECCC39BD76 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/LionPassMac/LionPassMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 42J2NZ3WA4;
+				INFOPLIST_FILE = Sources/LionPassMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword.mac;
+				PRODUCT_NAME = "Lion Pass";
+				REGISTER_APP_WITH_LAUNCH_SERVICES = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		76C75041168937C70E2B3A85 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/LionAutoFill/LionAutoFill.entitlements;
+				INFOPLIST_FILE = Sources/LionAutoFill/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword.autofill;
+				PRODUCT_NAME = "Lion AutoFill";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		92466AAD7369318F570D4DB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 42J2NZ3WA4;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		9EEC8B09288C88B3D8C66426 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/LionPass/LionPass.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Sources/LionPass/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword;
+				PRODUCT_NAME = "Lion Pass";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A155E92C1D005558C9D739DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.LionCoreTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Lion Pass";
+			};
+			name = Release;
+		};
+		AEA584F82D6F206E63321030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.LionCoreMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Contents/MacOS/Lion Pass";
+			};
+			name = Debug;
+		};
+		CE80754888733E6C77B2E9E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 42J2NZ3WA4;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+		E59B9219CCD0A2210CF2E428 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/LionAutoFill/LionAutoFill.entitlements;
+				INFOPLIST_FILE = Sources/LionAutoFill/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.lionpassword.autofill;
+				PRODUCT_NAME = "Lion AutoFill";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ECDC868824FC6448183D81E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lioncodetech.LionCoreTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lion Pass.app/Lion Pass";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2BB8D668D7F8F722E817E8D6 /* Build configuration list for PBXNativeTarget "LionPassMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				101D265B319CF0A528DC3BBA /* Debug */,
+				53CC1203FF55B6ECCC39BD76 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3DDD1776BE3D9050693630DD /* Build configuration list for PBXNativeTarget "LionPass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EEC8B09288C88B3D8C66426 /* Debug */,
+				37B28813EC2789F62576A7FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F20AC35938CB2571BD056F4 /* Build configuration list for PBXNativeTarget "LionAutoFill" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E59B9219CCD0A2210CF2E428 /* Debug */,
+				76C75041168937C70E2B3A85 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		89C1A6DB7A78B7DEB89F17C3 /* Build configuration list for PBXNativeTarget "LionCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECDC868824FC6448183D81E9 /* Debug */,
+				A155E92C1D005558C9D739DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AE8687A5492AA7D4F8092367 /* Build configuration list for PBXNativeTarget "LionCoreMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEA584F82D6F206E63321030 /* Debug */,
+				3C7E80F5191E4C8BAE76B61A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EA791098294EF72B19F06110 /* Build configuration list for PBXProject "LionPass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92466AAD7369318F570D4DB8 /* Debug */,
+				CE80754888733E6C77B2E9E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7522C3E02A65F719CF18B982 /* Project object */;
+}

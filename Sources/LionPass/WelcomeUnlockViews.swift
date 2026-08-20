@@ -14,7 +14,7 @@ struct WelcomeView: View {
                 Spacer()
                 LionMark(size: 96)
                 VStack(spacing: 8) {
-                    Text("Bem-vindo ao Lion Password")
+                    Text("Bem-vindo ao Lion Pass")
                         .font(.largeTitle.bold())
                         .multilineTextAlignment(.center)
                     Text("Seu cofre. Suas chaves. Seus dados.")
@@ -138,7 +138,7 @@ struct UnlockView: View {
             VStack(spacing: 24) {
                 Spacer()
                 LionMark(size: 80)
-                Text("Lion Password").font(.title.bold())
+                Text("Lion Pass").font(.title.bold())
                 Text("Cofre local").foregroundStyle(.secondary)
                 SecureField("Senha mestra", text: $password)
                     .textContentType(.password)
@@ -297,7 +297,7 @@ struct LionMark: View {
             .frame(width: size, height: size)
             .clipShape(RoundedRectangle(cornerRadius: size * 0.22))
             .shadow(color: .lionViolet.opacity(0.28), radius: 16, y: 8)
-            .accessibilityLabel("Símbolo do Lion Password")
+            .accessibilityLabel("Símbolo do Lion Pass")
     }
 }
 

@@ -23,7 +23,7 @@ final class LionMacAppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct LionPasswordMacApp: App {
+struct LionPassMacApp: App {
     @NSApplicationDelegateAdaptor(LionMacAppDelegate.self) private var appDelegate
     @StateObject private var vault = VaultService()
 
@@ -129,7 +129,7 @@ struct MacWelcomeView: View {
         VStack(spacing: 22) {
             Spacer()
             LionMacMark()
-            Text("Lion Password").font(.largeTitle.bold())
+            Text("Lion Pass").font(.largeTitle.bold())
             Text("Cofre local e privado para seu Mac").foregroundStyle(.secondary)
             GroupBox("Criar primeiro cofre") {
                 VStack(spacing: 12) {
@@ -194,7 +194,7 @@ struct MacUnlockView: View {
         VStack(spacing: 20) {
             Spacer()
             LionMacMark()
-            Text("Lion Password").font(.largeTitle.bold())
+            Text("Lion Pass").font(.largeTitle.bold())
             if hasTouchIDKey {
                 Label("Touch ID vinculado e ativo", systemImage: "checkmark.shield.fill")
                     .foregroundStyle(.green)
@@ -365,7 +365,7 @@ struct LionAboutView: View {
     var body: some View {
         VStack(spacing: 14) {
             LionMacMark()
-            Text("Lion Password").font(.title.bold())
+            Text("Lion Pass").font(.title.bold())
             Text("Gerenciador de senhas local e privado").foregroundStyle(.secondary)
             Divider()
             Text("Criado por").font(.caption).foregroundStyle(.secondary)

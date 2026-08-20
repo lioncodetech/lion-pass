@@ -1,7 +1,7 @@
 import CryptoKit
 import LocalAuthentication
 import XCTest
-@testable import Lion_Password
+@testable import Lion_Pass
 
 final class VaultCryptoTests: XCTestCase {
     private let crypto = AppleVaultCryptoService()
