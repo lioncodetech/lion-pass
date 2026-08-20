@@ -46,7 +46,7 @@ struct UnlockView: View {
     private func unlock() { busy = true; defer { busy = false }; do { try vault.openVault(password: password); password = "" } catch { self.error = error.localizedDescription } }
 }
 
-struct LionMark: View { let size: CGFloat; var body: some View { Image(systemName: "camera.macro").font(.system(size: size * 0.62, weight: .medium)).foregroundStyle(.white).frame(width: size, height: size).background(LinearGradient(colors: [.indigo, .purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: size * 0.28)).shadow(color: .purple.opacity(0.25), radius: 16, y: 8) } }
+struct LionMark: View { let size: CGFloat; var body: some View { Image("LionLogo").resizable().scaledToFit().frame(width: size, height: size).clipShape(RoundedRectangle(cornerRadius: size * 0.22)).shadow(color: .lionViolet.opacity(0.28), radius: 16, y: 8) } }
 struct StrengthMeter: View { let score: Int; var body: some View { VStack(alignment: .leading) { HStack { ForEach(0..<4) { i in Capsule().fill(i < score ? (score < 3 ? Color.orange : Color.green) : Color.secondary.opacity(0.2)).frame(height: 5) } }; Text(["Muito fraca","Fraca","Razoável","Forte","Muito forte"][score]).font(.caption).foregroundStyle(.secondary) } } }
 
 extension UTType { static let lionVault = UTType(exportedAs: "com.example.lion-vault", conformingTo: .data) }

@@ -1,6 +1,10 @@
 import Foundation
 import LocalAuthentication
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public protocol BiometricUnlockService { func authenticate(reason: String) async throws }
 public struct AppleBiometricUnlockService: BiometricUnlockService {
@@ -15,10 +19,20 @@ public struct AppleBiometricUnlockService: BiometricUnlockService {
 @MainActor public final class ClipboardService {
     public static let shared = ClipboardService(); private var generation = UUID()
     public func copy(_ value: String, clearAfter seconds: TimeInterval?) {
+#if canImport(UIKit)
         UIPasteboard.general.setItems([[UTType.plainText.identifier: value]], options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(seconds ?? 86_400)])
+#elseif canImport(AppKit)
+        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(value, forType: .string)
+#endif
         let token = UUID(); generation = token
         guard let seconds else { return }
-        Task { try? await Task.sleep(for: .seconds(seconds)); if generation == token, UIPasteboard.general.string == value { UIPasteboard.general.items = [] } }
+        Task { try? await Task.sleep(for: .seconds(seconds)); guard generation == token else { return }
+#if canImport(UIKit)
+            if UIPasteboard.general.string == value { UIPasteboard.general.items = [] }
+#elseif canImport(AppKit)
+            if NSPasteboard.general.string(forType: .string) == value { NSPasteboard.general.clearContents() }
+#endif
+        }
     }
 }
 import UniformTypeIdentifiers

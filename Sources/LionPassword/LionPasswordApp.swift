@@ -10,7 +10,7 @@ import SwiftUI
 
     var body: some Scene {
         WindowGroup {
-            ZStack { RootView().environmentObject(vault); if isObscured { PrivacyCoverView().transition(.opacity) } }
+            ZStack { RootView().environmentObject(vault).tint(.lionBlue); if isObscured { PrivacyCoverView().transition(.opacity) } }
                 .preferredColorScheme(appearance == "dark" ? .dark : appearance == "light" ? .light : nil)
                 .privacySensitive()
                 .onChange(of: scenePhase) { _, phase in
