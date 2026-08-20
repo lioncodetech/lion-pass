@@ -1,28 +1,39 @@
 # Lion Password
 
-Gerenciador de senhas local/offline para iOS e iPadOS, escrito em SwiftUI. O cofre usa um formato próprio versionado (`.lionvault`), PBKDF2-HMAC-SHA256 para derivação de chave e AES-256-GCM para criptografia autenticada.
+Gerenciador de senhas local e offline para iPhone, iPad e Mac, escrito com SwiftUI. O cofre portátil usa o formato próprio `.lionvault`, PBKDF2-HMAC-SHA256 e AES-256-GCM autenticado. Não há servidor, conta, analytics ou dependência de iCloud.
 
-## Abrir e executar
+## Recursos
 
-1. Instale o Xcode 16 ou posterior e o XcodeGen (`brew install xcodegen`).
+- logins, cartões, notas seguras, identidades, favoritos, tags e campos personalizados;
+- categorias padrão e personalizadas;
+- pesquisa no iPhone e `NavigationSplitView` no iPad;
+- histórico opcional de senhas;
+- geradores criptograficamente seguros de senha e frase-senha;
+- Face ID/Touch ID com chave protegida no Keychain;
+- chave de recuperação local mostrada uma vez;
+- bloqueio automático, capa de privacidade e clipboard configurável;
+- importação, exportação, verificação e restauração do último cofre cifrado válido;
+- extensão Password AutoFill, App Group e sugestões pelo Credential Identity Store;
+- temas Sistema, Claro e Escuro;
+- formato v1 legível e formato v2 atual.
+
+## Gerar e executar
+
+1. Instale Xcode 16 ou mais recente e XcodeGen (`brew install xcodegen`).
 2. Execute `xcodegen generate` nesta pasta.
-3. Abra `LionPassword.xcodeproj`, selecione o target **LionPassword** e execute em iOS 17+.
-4. Para AutoFill, configure um Team e substitua `group.com.example.lionpassword` nos entitlements por um App Group próprio.
+3. Abra `LionPassword.xcodeproj`.
+4. Selecione sua equipe de desenvolvimento e execute **LionPassword** em iOS/iPadOS 17+ ou **LionPasswordMac** no macOS 14+.
+5. No iOS, habilite Lion Password em Ajustes → Geral → Preenchimento Automático e Senhas.
 
-O app não usa rede, analytics ou backend. A extensão AutoFill é incluída como target separado. O cofre nunca é persistido descriptografado.
+O projeto usa os identificadores `com.lioncodetech.lionpassword` e `group.com.lioncodetech.lionpassword`. App Groups e a extensão AutoFill precisam existir no perfil de assinatura usado para instalar em dispositivo físico.
 
 ## Segurança
 
-- AES-256-GCM via CryptoKit, nonce aleatório a cada gravação.
-- PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações via CommonCrypto.
-- Escrita atômica com última cópia criptografada válida.
-- Senha mestra mantida apenas durante a operação necessária.
-- Biometria protege no Keychain uma chave aleatória que envolve a chave derivada; não substitui a senha mestra.
-- Clipboard é limpo apenas se ainda contiver o valor copiado.
+O formato v2 gera uma chave aleatória de conteúdo para o payload e protege essa chave separadamente com a senha mestra. Isso permite trocar a senha sem invalidar a chave de recuperação. Parâmetros KDF externos são limitados antes da derivação para evitar abuso de recursos.
 
-Veja [THREAT_MODEL.md](THREAT_MODEL.md) para limites e decisões de segurança.
+PBKDF2 foi escolhido por estar disponível nativamente e ser uma KDF consolidada. Uma futura migração para Argon2id deve ser versionada e usar uma implementação auditada.
 
-> PBKDF2 foi escolhido por estar disponível nativamente e ser uma KDF consolidada. Argon2id é recomendado para uma futura migração versionada após incorporar uma implementação auditada.
+Veja [THREAT_MODEL.md](THREAT_MODEL.md) para ameaças, limites e decisões de segurança.
 
 ## Créditos
 

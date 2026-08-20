@@ -1,26 +1,433 @@
-import XCTest
 import CryptoKit
-@testable import LionPassword
+import LocalAuthentication
+import XCTest
+@testable import Lion_Password
 
 final class VaultCryptoTests: XCTestCase {
-    let crypto = AppleVaultCryptoService()
-    func testCorrectPasswordRoundTrip() throws {
-        let salt = try crypto.randomData(count: 32), parameters = KDFParameters(), password = "correct horse battery staple"
-        let key = try crypto.deriveKey(password: password, salt: salt, parameters: parameters); var payload = VaultPayload(name: "Teste"); var item = VaultItem(); item.title = "Conta"; item.password = "segredo"; payload.items = [item]
-        let encrypted = try crypto.encrypt(payload, key: key, salt: salt, parameters: parameters)
-        XCTAssertEqual(try crypto.decrypt(encrypted, password: password).0, payload); XCTAssertFalse(encrypted.contains(Data("segredo".utf8)))
+    private let crypto = AppleVaultCryptoService()
+    private let fastParameters = KDFParameters(iterations: 100_000)
+
+    func testVersion2PasswordAndRecoveryRoundTrip() throws {
+        var payload = VaultPayload(name: "Teste")
+        var item = VaultItem()
+        item.title = "Conta"
+        item.password = "segredo que não pode aparecer"
+        payload.items = [item]
+
+        let created = try crypto.createEncryptedVault(
+            payload,
+            password: "correct horse battery staple",
+            parameters: fastParameters
+        )
+        XCTAssertEqual(created.envelope.version, 2)
+        XCTAssertEqual(
+            try crypto.unlock(created.encryptedData, password: "correct horse battery staple").payload,
+            payload
+        )
+        XCTAssertEqual(
+            try crypto.unlock(created.encryptedData, recoveryKey: created.recoveryKey).payload,
+            payload
+        )
+        XCTAssertFalse(created.encryptedData.contains(Data(item.password.utf8)))
     }
-    func testWrongPasswordFails() throws { let data = try fixture(password: "certa"); XCTAssertThrowsError(try crypto.decrypt(data, password: "errada")) { XCTAssertEqual($0 as? VaultError, .wrongPasswordOrTampered) } }
-    func testTamperingFailsAuthentication() throws { var envelope = try JSONDecoder.lion.decode(VaultEnvelope.self, from: fixture(password: "senha")); var bytes = envelope.ciphertext; bytes[bytes.startIndex] ^= 1; let altered = VaultEnvelope(magic: envelope.magic, version: envelope.version, kdf: envelope.kdf, salt: envelope.salt, nonce: envelope.nonce, ciphertext: bytes, tag: envelope.tag); XCTAssertThrowsError(try crypto.decrypt(JSONEncoder.lion.encode(altered), password: "senha")) }
-    func testTruncatedFileRejected() { XCTAssertThrowsError(try crypto.decrypt(Data([1,2,3]), password: "senha")) { XCTAssertEqual($0 as? VaultError, .truncated) } }
-    private func fixture(password: String) throws -> Data { let salt = try crypto.randomData(count: 32), p = KDFParameters(), key = try crypto.deriveKey(password: password, salt: salt, parameters: p); return try crypto.encrypt(VaultPayload(name: "Teste"), key: key, salt: salt, parameters: p) }
+
+    func testLegacyVersion1RemainsReadable() throws {
+        let salt = Data(repeating: 7, count: 32)
+        let key = try crypto.deriveKey(
+            password: "senha antiga e longa",
+            salt: salt,
+            parameters: fastParameters
+        )
+        let payload = VaultPayload(name: "Legado")
+        let encrypted = try crypto.encrypt(
+            payload,
+            key: key,
+            salt: salt,
+            parameters: fastParameters
+        )
+        let unlocked = try crypto.unlock(encrypted, password: "senha antiga e longa")
+        XCTAssertEqual(unlocked.payload.id, payload.id)
+        XCTAssertEqual(unlocked.payload.name, payload.name)
+        XCTAssertEqual(unlocked.payload.items, payload.items)
+        XCTAssertEqual(unlocked.envelope.version, 1)
+    }
+
+    func testMillisecondDateVaultFromPreviousReleaseRemainsReadable() throws {
+        let salt = Data(repeating: 9, count: 32)
+        let key = try crypto.deriveKey(
+            password: "senha anterior longa",
+            salt: salt,
+            parameters: fastParameters
+        )
+        var payload = VaultPayload(name: "Formato anterior")
+        var item = VaultItem()
+        item.title = "Registro antigo"
+        payload.items = [item]
+
+        let oldEncoder = JSONEncoder()
+        oldEncoder.dateEncodingStrategy = .millisecondsSince1970
+        oldEncoder.outputFormatting = [.sortedKeys]
+        let plaintext = try oldEncoder.encode(payload)
+        let nonceData = Data(repeating: 3, count: 12)
+        let sealed = try AES.GCM.seal(
+            plaintext,
+            using: key,
+            nonce: try AES.GCM.Nonce(data: nonceData)
+        )
+        let envelope = VaultEnvelope(
+            magic: "LIONVAULT",
+            version: 1,
+            kdf: fastParameters,
+            salt: salt,
+            nonce: nonceData,
+            ciphertext: sealed.ciphertext,
+            tag: sealed.tag
+        )
+
+        let unlocked = try crypto.unlock(
+            JSONEncoder.lion.encode(envelope),
+            password: "senha anterior longa"
+        )
+        XCTAssertEqual(unlocked.payload.name, payload.name)
+        XCTAssertEqual(unlocked.payload.items.first?.title, item.title)
+        XCTAssertEqual(
+            unlocked.payload.createdAt.timeIntervalSince1970,
+            payload.createdAt.timeIntervalSince1970,
+            accuracy: 0.001
+        )
+    }
+
+    func testWrongPasswordFails() throws {
+        let created = try fixture(password: "senha correta longa")
+        XCTAssertThrowsError(try crypto.unlock(created.encryptedData, password: "senha errada longa")) {
+            XCTAssertEqual($0 as? VaultError, .wrongPasswordOrTampered)
+        }
+    }
+
+    func testPayloadTamperingFailsAuthentication() throws {
+        let created = try fixture(password: "senha correta longa")
+        let envelope = created.envelope
+        var bytes = envelope.ciphertext
+        bytes[bytes.startIndex] ^= 1
+        let altered = copy(envelope, ciphertext: bytes)
+        XCTAssertThrowsError(
+            try crypto.unlock(JSONEncoder.lion.encode(altered), password: "senha correta longa")
+        ) {
+            XCTAssertEqual($0 as? VaultError, .wrongPasswordOrTampered)
+        }
+    }
+
+    func testWrappedKeyTamperingFailsAuthentication() throws {
+        let created = try fixture(password: "senha correta longa")
+        var wrapped = try XCTUnwrap(created.envelope.wrappedKey)
+        wrapped[wrapped.startIndex] ^= 1
+        let altered = copy(created.envelope, wrappedKey: wrapped)
+        XCTAssertThrowsError(
+            try crypto.unlock(JSONEncoder.lion.encode(altered), password: "senha correta longa")
+        ) {
+            XCTAssertEqual($0 as? VaultError, .wrongPasswordOrTampered)
+        }
+    }
+
+    func testTruncatedAndCorruptFilesAreRejected() {
+        XCTAssertThrowsError(try crypto.unlock(Data([1, 2, 3]), password: "senha")) {
+            XCTAssertEqual($0 as? VaultError, .truncated)
+        }
+        XCTAssertThrowsError(
+            try crypto.unlock(Data(repeating: 0x41, count: 256), password: "senha")
+        ) {
+            XCTAssertEqual($0 as? VaultError, .invalidFormat)
+        }
+    }
+
+    func testInvalidKDFParametersAreRejectedBeforeDerivation() throws {
+        let created = try fixture(password: "senha correta longa")
+        let invalid = VaultEnvelope(
+            magic: created.envelope.magic,
+            version: created.envelope.version,
+            kdf: KDFParameters(algorithm: "PBKDF2-HMAC-SHA1", iterations: 1, keyLength: 16),
+            salt: created.envelope.salt,
+            nonce: created.envelope.nonce,
+            ciphertext: created.envelope.ciphertext,
+            tag: created.envelope.tag,
+            keyNonce: created.envelope.keyNonce,
+            wrappedKey: created.envelope.wrappedKey,
+            keyTag: created.envelope.keyTag
+        )
+        XCTAssertThrowsError(try crypto.unlock(JSONEncoder.lion.encode(invalid), password: "senha")) {
+            XCTAssertEqual($0 as? VaultError, .unsupportedKDF)
+        }
+    }
+
+    func testPBKDF2SHA256KnownVector() throws {
+        let key = try crypto.deriveKey(
+            password: "password",
+            salt: Data("salt-salt-salt-12".utf8),
+            parameters: fastParameters
+        )
+        XCTAssertEqual(
+            key.withUnsafeBytes { Data($0).hex },
+            "ae7333de5c3e8e2d45c1a9ba4223017adc04d060d1660172f6bfb41c247f6007"
+        )
+    }
+
+    func testAES256GCMNISTEmptyPlaintextVector() throws {
+        let key = SymmetricKey(data: Data(repeating: 0, count: 32))
+        let box = try AES.GCM.SealedBox(
+            nonce: AES.GCM.Nonce(data: Data(repeating: 0, count: 12)),
+            ciphertext: Data(),
+            tag: try Data(hex: "530f8afbc74536b9a963b4f1c4cb738b")
+        )
+        XCTAssertEqual(try AES.GCM.open(box, using: key), Data())
+    }
+
+    func testRecoveryKeyRejectsTypo() throws {
+        let created = try fixture(password: "senha correta longa")
+        let altered = created.recoveryKey + "A"
+        XCTAssertThrowsError(try crypto.unlock(created.encryptedData, recoveryKey: altered)) {
+            XCTAssertEqual($0 as? VaultError, .invalidRecoveryKey)
+        }
+    }
+
+    private func fixture(password: String) throws -> CreatedVault {
+        try crypto.createEncryptedVault(
+            VaultPayload(name: "Teste"),
+            password: password,
+            parameters: fastParameters
+        )
+    }
+
+    private func copy(
+        _ envelope: VaultEnvelope,
+        ciphertext: Data? = nil,
+        wrappedKey: Data? = nil
+    ) -> VaultEnvelope {
+        VaultEnvelope(
+            magic: envelope.magic,
+            version: envelope.version,
+            kdf: envelope.kdf,
+            salt: envelope.salt,
+            nonce: envelope.nonce,
+            ciphertext: ciphertext ?? envelope.ciphertext,
+            tag: envelope.tag,
+            keyNonce: envelope.keyNonce,
+            wrappedKey: wrappedKey ?? envelope.wrappedKey,
+            keyTag: envelope.keyTag
+        )
+    }
 }
 
-@MainActor final class VaultServiceTests: XCTestCase {
-    func testChangeMasterPasswordAndAtomicPersistence() throws {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString); try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true); defer { try? FileManager.default.removeItem(at: directory) }
-        let storage = LocalVaultStorageService(baseURL: directory), service = VaultService(storage: storage)
-        try service.createVault(name: "Teste", password: "uma senha longa e segura"); var item = VaultItem(); item.title = "Email"; try service.upsert(item); try service.changeMasterPassword(current: "uma senha longa e segura", new: "outra senha longa e segura"); service.lockVault()
-        XCTAssertThrowsError(try service.openVault(password: "uma senha longa e segura")); try service.openVault(password: "outra senha longa e segura"); XCTAssertEqual(service.payload?.items.count, 1)
+@MainActor
+final class VaultServiceTests: XCTestCase {
+    func testChangeMasterPasswordPreservesRecoveryKey() throws {
+        try withTemporaryStorage { storage in
+            let service = VaultService(storage: storage, biometricStore: TestBiometricStore())
+            try service.createVault(name: "Teste", password: "uma senha longa e segura")
+            let recoveryKey = try XCTUnwrap(service.pendingRecoveryKey)
+            var item = VaultItem()
+            item.title = "Email"
+            try service.upsert(item)
+            try service.changeMasterPassword(
+                current: "uma senha longa e segura",
+                new: "outra senha longa e segura"
+            )
+            service.lockVault()
+            XCTAssertThrowsError(try service.openVault(password: "uma senha longa e segura"))
+            try service.openVault(password: "outra senha longa e segura")
+            XCTAssertEqual(service.payload?.items.count, 1)
+            service.lockVault()
+            try service.openVault(recoveryKey: recoveryKey)
+            XCTAssertEqual(service.payload?.items.first?.title, "Email")
+        }
     }
+
+    func testPasswordHistoryCanBeEnabledAndDisabled() throws {
+        try withTemporaryStorage { storage in
+            let service = VaultService(storage: storage, biometricStore: TestBiometricStore())
+            try service.createVault(name: "Teste", password: "uma senha longa e segura")
+            var item = VaultItem()
+            item.title = "Login"
+            item.password = "primeira"
+            try service.upsert(item)
+            item.password = "segunda"
+            try service.upsert(item)
+            XCTAssertEqual(service.payload?.items.first?.passwordHistory.map(\.password), ["primeira"])
+
+            try service.setPasswordHistoryEnabled(false)
+            item = try XCTUnwrap(service.payload?.items.first)
+            item.password = "terceira"
+            try service.upsert(item)
+            XCTAssertEqual(service.payload?.items.first?.passwordHistory.map(\.password), ["primeira"])
+        }
+    }
+
+    func testCustomCategoryCRUDReassignsDeletedItems() throws {
+        try withTemporaryStorage { storage in
+            let service = VaultService(storage: storage, biometricStore: TestBiometricStore())
+            try service.createVault(name: "Teste", password: "uma senha longa e segura")
+            try service.addCategory("Família")
+            var item = VaultItem()
+            item.title = "Conta"
+            item.category = "Família"
+            try service.upsert(item)
+            try service.renameCategory("Família", to: "Casa")
+            XCTAssertEqual(service.payload?.items.first?.category, "Casa")
+            try service.deleteCategory("Casa")
+            XCTAssertEqual(service.payload?.items.first?.category, "Outros")
+            XCTAssertThrowsError(try service.deleteCategory("Logins")) {
+                XCTAssertEqual($0 as? VaultError, .cannotDeleteDefaultCategory)
+            }
+        }
+    }
+
+    func testAtomicStorageKeepsPreviousEncryptedVersion() throws {
+        try withTemporaryStorage { storage in
+            let first = Data("primeiro envelope".utf8)
+            let second = Data("segundo envelope".utf8)
+            try storage.writeEncryptedVaultAtomically(first)
+            try storage.writeEncryptedVaultAtomically(second)
+            XCTAssertEqual(try storage.readEncryptedVault(), second)
+            XCTAssertEqual(try storage.readPreviousBackup(), first)
+            try storage.restorePreviousBackup()
+            XCTAssertEqual(try storage.readEncryptedVault(), first)
+            XCTAssertEqual(try storage.readPreviousBackup(), second)
+        }
+    }
+
+    func testExportAndImportPreserveEncryptedBytes() throws {
+        try withTemporaryStorage { storage in
+            let data = Data((0..<255).map(UInt8.init))
+            try storage.writeEncryptedVaultAtomically(data)
+            let exportURL = storage.vaultURL.deletingLastPathComponent().appendingPathComponent("export.lionvault")
+            try storage.exportVault(to: exportURL)
+            XCTAssertEqual(try storage.importVault(from: exportURL), data)
+        }
+    }
+
+    func testInterruptedWriteDoesNotDestroyPreviousVault() throws {
+        let directory = temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let underlying = LocalVaultStorageService(baseURL: directory)
+        let storage = InterruptingStorage(underlying: underlying)
+        let service = VaultService(storage: storage, biometricStore: TestBiometricStore())
+        try service.createVault(name: "Teste", password: "uma senha longa e segura")
+        let before = try underlying.readEncryptedVault()
+        storage.failWrites = true
+        var item = VaultItem()
+        item.title = "Não persistido"
+        XCTAssertThrowsError(try service.upsert(item))
+        XCTAssertEqual(try underlying.readEncryptedVault(), before)
+        let reopened = VaultService(storage: underlying, biometricStore: TestBiometricStore())
+        try reopened.openVault(password: "uma senha longa e segura")
+        XCTAssertTrue(reopened.payload?.items.isEmpty == true)
+    }
+
+    func testAutoLockDurations() {
+        XCTAssertEqual(AutoLockDuration.immediately.seconds, 0)
+        XCTAssertEqual(AutoLockDuration.seconds30.seconds, 30)
+        XCTAssertEqual(AutoLockDuration.minute1.seconds, 60)
+        XCTAssertEqual(AutoLockDuration.minutes5.seconds, 300)
+        XCTAssertEqual(AutoLockDuration.minutes15.seconds, 900)
+    }
+
+    func testBiometricCancellationAndFailureArePropagated() async {
+        let cancelled = FakeBiometrics(error: LAError(.userCancel))
+        let failed = FakeBiometrics(error: LAError(.authenticationFailed))
+        await XCTAssertThrowsAsyncError(try await cancelled.authenticate(reason: "Teste"))
+        await XCTAssertThrowsAsyncError(try await failed.authenticate(reason: "Teste"))
+    }
+
+    func testBiometricKeyUnlocksEncryptedVault() async throws {
+        let directory = temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = TestBiometricStore()
+        let service = VaultService(
+            storage: LocalVaultStorageService(baseURL: directory),
+            biometricStore: store
+        )
+        try service.createVault(name: "Teste", password: "uma senha longa e segura")
+        try service.enableBiometricUnlock()
+        service.lockVault()
+        try await service.openVaultWithBiometrics()
+        XCTAssertTrue(service.isUnlocked)
+        XCTAssertEqual(service.payload?.name, "Teste")
+    }
+
+    private func withTemporaryStorage(
+        _ operation: (LocalVaultStorageService) throws -> Void
+    ) throws {
+        let directory = temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try operation(LocalVaultStorageService(baseURL: directory))
+    }
+
+    private func temporaryDirectory() -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try! FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+}
+
+private struct FakeBiometrics: BiometricUnlockService {
+    let error: Error
+    func authenticate(reason: String) async throws { throw error }
+}
+
+private final class TestBiometricStore: BiometricKeyStoring, @unchecked Sendable {
+    var key: SymmetricKey?
+    var isAvailable: Bool { true }
+    var exists: Bool { key != nil }
+    func save(key: SymmetricKey) throws { self.key = key }
+    func load() async throws -> SymmetricKey {
+        guard let key else { throw VaultError.biometricsUnavailable }
+        return key
+    }
+    func delete() { key = nil }
+}
+
+private final class InterruptingStorage: VaultStorageService, @unchecked Sendable {
+    let underlying: LocalVaultStorageService
+    var failWrites = false
+    init(underlying: LocalVaultStorageService) { self.underlying = underlying }
+    var vaultURL: URL { underlying.vaultURL }
+    var hasPreviousBackup: Bool { underlying.hasPreviousBackup }
+    func readEncryptedVault() throws -> Data { try underlying.readEncryptedVault() }
+    func readPreviousBackup() throws -> Data { try underlying.readPreviousBackup() }
+    func writeEncryptedVaultAtomically(_ data: Data) throws {
+        if failWrites { throw CocoaError(.fileWriteUnknown) }
+        try underlying.writeEncryptedVaultAtomically(data)
+    }
+    func restorePreviousBackup() throws { try underlying.restorePreviousBackup() }
+    func importVault(from url: URL) throws -> Data { try underlying.importVault(from: url) }
+    func exportVault(to url: URL) throws { try underlying.exportVault(to: url) }
+}
+
+private extension Data {
+    init(hex: String) throws {
+        guard hex.count.isMultiple(of: 2) else { throw VaultError.invalidFormat }
+        self.init()
+        var index = hex.startIndex
+        while index < hex.endIndex {
+            let end = hex.index(index, offsetBy: 2)
+            guard let byte = UInt8(hex[index..<end], radix: 16) else {
+                throw VaultError.invalidFormat
+            }
+            append(byte)
+            index = end
+        }
+    }
+
+    var hex: String { map { String(format: "%02x", $0) }.joined() }
+}
+
+private func XCTAssertThrowsAsyncError<T>(
+    _ expression: @autoclosure () async throws -> T,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) async {
+    do {
+        _ = try await expression()
+        XCTFail("Era esperado um erro", file: file, line: line)
+    } catch {}
 }
