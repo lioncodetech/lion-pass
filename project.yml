@@ -52,7 +52,10 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.lioncodetech.lionpassword.mac
         PRODUCT_NAME: Lion Password
         INFOPLIST_FILE: Sources/LionPasswordMac/Info.plist
-        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGN_ENTITLEMENTS: Sources/LionPasswordMac/LionPasswordMac.entitlements
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 42J2NZ3WA4
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         REGISTER_APP_WITH_LAUNCH_SERVICES: NO
 schemes:
