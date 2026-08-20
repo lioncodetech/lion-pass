@@ -31,6 +31,7 @@ struct SettingsView: View {
         Section("Aparência") { Picker("Tema", selection: $appearance) { Text("Sistema").tag("system"); Text("Claro").tag("light"); Text("Escuro").tag("dark") } }
         if let securityError { Section { Text(securityError).foregroundStyle(.red) } }
         Section("Privacidade") { LabeledContent("Rede", value: "Nenhum acesso"); LabeledContent("Analytics", value: "Desativado"); LabeledContent("Formato", value: "lionvault v1") }
+        Section("Sobre") { Link("Lion Code Technology", destination: URL(string: "https://lioncodetech.com.br/")!); Text("Criado por Lion Code Technology").foregroundStyle(.secondary) }
     }.navigationTitle("Configurações").toolbar { Button("Concluir") { dismiss() } }
       .fileExporter(isPresented: $exporting, document: VaultDocument(data: (try? vault.encryptedData()) ?? Data()), contentType: .lionVault, defaultFilename: "backup.lionvault") { _ in }
       .fileImporter(isPresented: $importing, allowedContentTypes: [.lionVault]) { result in if case .success(let url) = result { importURL = url; showImportPassword = true } }
