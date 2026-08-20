@@ -1,37 +1,20 @@
 import SwiftUI
 import AppKit
 
-final class LionMacAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    private weak var mainWindow: NSWindow?
+final class LionMacAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApplication.shared.setActivationPolicy(.regular)
+        applyDockIcon()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApplication.shared.setActivationPolicy(.regular)
         applyDockIcon()
-        DispatchQueue.main.async { [weak self] in self?.configureWindows() }
+        NSApplication.shared.activate(ignoringOtherApps: true)
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
         applyDockIcon()
-        configureWindows()
-    }
-
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        guard !flag else { return true }
-        let window = mainWindow ?? sender.windows.first(where: { $0.canBecomeMain })
-        window?.makeKeyAndOrderFront(nil)
-        return true
-    }
-
-    func windowShouldMiniaturize(_ sender: NSWindow) -> Bool {
-        mainWindow = sender
-        sender.orderOut(nil)
-        return false
-    }
-
-    private func configureWindows() {
-        for window in NSApplication.shared.windows where window.canBecomeMain {
-            if mainWindow == nil { mainWindow = window }
-            window.delegate = self
-        }
     }
 
     private func applyDockIcon() {
@@ -71,8 +54,10 @@ struct MacWelcomeView: View {
 
 struct MacUnlockView: View {
     @EnvironmentObject var vault: VaultService; @State private var password = ""; @State private var error: String?
-    var body: some View { VStack(spacing: 20) { Spacer(); LionMacMark(); Text("Lion Password").font(.largeTitle.bold()); SecureField("Senha mestra", text: $password).textFieldStyle(.roundedBorder).frame(width: 360).onSubmit(unlock); if let error { Text(error).foregroundStyle(.red) }; Button("Desbloquear") { unlock() }.buttonStyle(.borderedProminent).controlSize(.large).disabled(password.isEmpty); if BiometricKeyStore().exists { Button { unlockWithTouchID() } label: { Label("Desbloquear com Touch ID", systemImage: "touchid") }.buttonStyle(.bordered).controlSize(.large) }; Spacer() }.padding() }
-    private func unlock() { do { try vault.openVault(password: password); let store = BiometricKeyStore(); if store.isAvailable { try vault.enableBiometricUnlock() }; password = "" } catch { self.error = error.localizedDescription } }
+    private var hasTouchIDKey: Bool { BiometricKeyStore().exists }
+    var body: some View { VStack(spacing: 20) { Spacer(); LionMacMark(); Text("Lion Password").font(.largeTitle.bold()); SecureField("Senha mestra", text: $password).textFieldStyle(.roundedBorder).frame(width: 360).onSubmit(unlock); if let error { Text(error).foregroundStyle(.red) }; Button("Desbloquear") { unlock() }.buttonStyle(.borderedProminent).controlSize(.large).disabled(password.isEmpty); Button { hasTouchIDKey ? unlockWithTouchID() : activateTouchID() } label: { Label(hasTouchIDKey ? "Desbloquear com Touch ID" : "Ativar Touch ID", systemImage: "touchid") }.buttonStyle(.bordered).controlSize(.large).disabled(!hasTouchIDKey && password.isEmpty); if !hasTouchIDKey { Text("Na primeira vez, digite a senha mestra e clique em Ativar Touch ID.").font(.caption).foregroundStyle(.secondary) }; Spacer() }.padding() }
+    private func unlock() { do { try vault.openVault(password: password); let store = BiometricKeyStore(); if store.isAvailable { try? vault.enableBiometricUnlock() }; password = "" } catch { self.error = error.localizedDescription } }
+    private func activateTouchID() { do { let store = BiometricKeyStore(); guard store.isAvailable else { throw VaultError.biometricsUnavailable }; try vault.openVault(password: password); try vault.enableBiometricUnlock(); password = "" } catch { self.error = error.localizedDescription } }
     private func unlockWithTouchID() { Task { do { try await vault.openVaultWithBiometrics() } catch { self.error = error.localizedDescription } } }
 }
 

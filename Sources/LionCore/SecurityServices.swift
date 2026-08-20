@@ -52,7 +52,7 @@ public struct BiometricKeyStore: Sendable {
         guard let control = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [.biometryCurrentSet], &error) else { throw error!.takeRetainedValue() }
         let data = key.withUnsafeBytes { Data($0) }
         let status = SecItemAdd([kSecClass: kSecClassGenericPassword, kSecAttrService: service, kSecAttrAccount: "vault-key", kSecValueData: data, kSecAttrAccessControl: control] as CFDictionary, nil)
-        guard status == errSecSuccess else { throw VaultError.biometricsUnavailable }
+        guard status == errSecSuccess else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Não foi possível ativar o Touch ID no Chaveiro do macOS."]) }
     }
     public func load() async throws -> SymmetricKey {
         try await Task.detached { let context = LAContext(); context.localizedReason = "Desbloquear seu cofre Lion"; var result: CFTypeRef?
