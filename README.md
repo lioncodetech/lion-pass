@@ -1,13 +1,13 @@
-# Lótus Password
+# Lion Password
 
-Gerenciador de senhas local/offline para iOS e iPadOS, escrito em SwiftUI. O cofre usa um formato próprio versionado (`.lotusvault`), PBKDF2-HMAC-SHA256 para derivação de chave e AES-256-GCM para criptografia autenticada.
+Gerenciador de senhas local/offline para iOS e iPadOS, escrito em SwiftUI. O cofre usa um formato próprio versionado (`.lionvault`), PBKDF2-HMAC-SHA256 para derivação de chave e AES-256-GCM para criptografia autenticada.
 
 ## Abrir e executar
 
 1. Instale o Xcode 16 ou posterior e o XcodeGen (`brew install xcodegen`).
 2. Execute `xcodegen generate` nesta pasta.
-3. Abra `LotusPassword.xcodeproj`, selecione o target **LotusPassword** e execute em iOS 17+.
-4. Para AutoFill, configure um Team e substitua `group.com.example.lotuspassword` nos entitlements por um App Group próprio.
+3. Abra `LionPassword.xcodeproj`, selecione o target **LionPassword** e execute em iOS 17+.
+4. Para AutoFill, configure um Team e substitua `group.com.example.lionpassword` nos entitlements por um App Group próprio.
 
 O app não usa rede, analytics ou backend. A extensão AutoFill é incluída como target separado. O cofre nunca é persistido descriptografado.
 
