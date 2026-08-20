@@ -6,6 +6,7 @@ import AppKit
     var body: some Scene {
         WindowGroup { MacRootView().environmentObject(vault).tint(.lionBlue).frame(minWidth: 900, minHeight: 600).onAppear { if let icon = NSImage(named: "LionLogo") { NSApplication.shared.applicationIconImage = icon } } }
             .commands { CommandGroup(replacing: .newItem) { Button("Novo item") { NotificationCenter.default.post(name: .newLionItem, object: nil) }.keyboardShortcut("n") } }
+        Settings { LionAboutView() }
     }
 }
 
@@ -22,7 +23,7 @@ struct MacWelcomeView: View {
     var body: some View { VStack(spacing: 22) {
         Spacer(); LionMacMark(); Text("Lion Password").font(.largeTitle.bold()); Text("Cofre local e privado para seu Mac").foregroundStyle(.secondary)
         GroupBox("Criar primeiro cofre") { VStack(spacing: 12) { TextField("Nome do cofre", text: $name); SecureField("Senha mestra (mínimo 12 caracteres)", text: $password); SecureField("Confirmar senha", text: $confirmation); if let error { Text(error).foregroundStyle(.red) }; Button("Criar cofre") { do { try vault.createVault(name: name, password: password) } catch { self.error = error.localizedDescription } }.buttonStyle(.borderedProminent).disabled(password.count < 12 || password != confirmation || name.isEmpty) }.padding(8) }.frame(width: 420)
-        Text("Se você esquecer a senha mestra, o cofre não poderá ser recuperado.").font(.caption).foregroundStyle(.secondary); Spacer()
+        Text("Se você esquecer a senha mestra, o cofre não poderá ser recuperado.").font(.caption).foregroundStyle(.secondary); Link("Criado por Lion Code Technology", destination: URL(string: "https://lioncodetech.com.br/")!).font(.caption); Spacer()
     }.padding(40) }
 }
 
@@ -33,3 +34,7 @@ struct MacUnlockView: View {
 }
 
 struct LionMacMark: View { var body: some View { Image("LionLogo").resizable().scaledToFit().frame(width: 92, height: 92).clipShape(RoundedRectangle(cornerRadius: 20)).shadow(color: .lionViolet.opacity(0.3), radius: 14, y: 6) } }
+
+struct LionAboutView: View {
+    var body: some View { VStack(spacing: 14) { LionMacMark(); Text("Lion Password").font(.title.bold()); Text("Gerenciador de senhas local e privado").foregroundStyle(.secondary); Divider(); Text("Criado por").font(.caption).foregroundStyle(.secondary); Link("Lion Code Technology", destination: URL(string: "https://lioncodetech.com.br/")!).font(.headline); Text("© 2026 Lion Code Technology").font(.caption).foregroundStyle(.secondary) }.padding(32).frame(width: 380, height: 360) }
+}
