@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleDisplayName</key><string>Lótus Password</string>
+<key>CFBundleDocumentTypes</key><array><dict><key>CFBundleTypeName</key><string>Lótus Vault</string><key>LSHandlerRank</key><string>Owner</string><key>LSItemContentTypes</key><array><string>com.example.lotus-vault</string></array></dict></array>
+<key>UTExportedTypeDeclarations</key><array><dict><key>UTTypeConformsTo</key><array><string>public.data</string></array><key>UTTypeDescription</key><string>Lótus encrypted vault</string><key>UTTypeIdentifier</key><string>com.example.lotus-vault</string><key>UTTypeTagSpecification</key><dict><key>public.filename-extension</key><array><string>lotusvault</string></array></dict></dict></array>
+<key>NSFaceIDUsageDescription</key><string>Use o Face ID para desbloquear seu cofre local.</string>
+<key>UILaunchScreen</key><dict/><key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
+</dict></plist>
