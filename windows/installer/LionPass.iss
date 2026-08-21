@@ -17,6 +17,7 @@ AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
 AppPublisherURL={#AppURL}
+MinVersion=10.0.19041
 DefaultDirName={autopf}\Lion Pass
 DefaultGroupName=Lion Pass
 DisableProgramGroupPage=yes
