@@ -18,6 +18,7 @@ esac
 
 mkdir -p "$DERIVED_DIR"
 touch "$DERIVED_DIR/.metadata_never_index"
+xattr -cr "$DERIVED_DIR"
 
 remove_test_app() {
   if [[ -d "$APP_BUNDLE" ]]; then
