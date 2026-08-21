@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A44A007A-059C-48B2-BF50-41473E6F5605}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core", "src\LionPass.Core\LionPass.Core.csproj", "{29875B5E-4BCB-41BC-8115-639C3BFE5703}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Security", "src\LionPass.Security\LionPass.Security.csproj", "{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.App\LionPass.App.csproj", "{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB20684C-02D6-49FE-AF29-175AFA41F3CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core.Tests", "tests\LionPass.Core.Tests\LionPass.Core.Tests.csproj", "{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{47C24396-9FDC-40C3-9B3E-B4BB2FFFEF05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.FixtureGenerator", "tools\LionPass.FixtureGenerator\LionPass.FixtureGenerator.csproj", "{4399DAE3-2B2A-4B99-B529-929AC0AF2D08}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29875B5E-4BCB-41BC-8115-639C3BFE5703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29875B5E-4BCB-41BC-8115-639C3BFE5703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29875B5E-4BCB-41BC-8115-639C3BFE5703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29875B5E-4BCB-41BC-8115-639C3BFE5703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4399DAE3-2B2A-4B99-B529-929AC0AF2D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4399DAE3-2B2A-4B99-B529-929AC0AF2D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4399DAE3-2B2A-4B99-B529-929AC0AF2D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4399DAE3-2B2A-4B99-B529-929AC0AF2D08}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29875B5E-4BCB-41BC-8115-639C3BFE5703} = {A44A007A-059C-48B2-BF50-41473E6F5605}
+		{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73} = {A44A007A-059C-48B2-BF50-41473E6F5605}
+		{B9A023FE-0368-4005-A65C-F16AF2F0D4D1} = {A44A007A-059C-48B2-BF50-41473E6F5605}
+		{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF} = {FB20684C-02D6-49FE-AF29-175AFA41F3CA}
+		{4399DAE3-2B2A-4B99-B529-929AC0AF2D08} = {47C24396-9FDC-40C3-9B3E-B4BB2FFFEF05}
+	EndGlobalSection
+EndGlobal

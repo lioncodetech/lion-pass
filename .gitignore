@@ -1,5 +1,6 @@
 .DS_Store
 DerivedData/
+DerivedDataTemp/
 build/
 *.xcuserstate
 xcuserdata/
@@ -10,3 +11,22 @@ xcuserdata/
 .tools/
 DerivedProducts/*
 !DerivedProducts/.metadata_never_index
+
+# Windows / .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.pfx
+*.snk
+AppPackages/
+BundleArtifacts/
+
+# Never version real vaults or exported secrets. Only synthetic fixtures under
+# shared/test-vaults/fixtures are allowed.
+*.lionvault
+*.lionvault.tmp
+*.csv
+!shared/test-vaults/fixtures/*.lionvault
+!shared/test-vaults/fixtures/*.csv

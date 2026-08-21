@@ -1,0 +1,40 @@
+name: Windows
+
+on:
+  push:
+    paths: ["windows/**", "shared/**", ".github/workflows/windows-build.yml"]
+  pull_request:
+    paths: ["windows/**", "shared/**", ".github/workflows/windows-build.yml"]
+  workflow_dispatch:
+
+jobs:
+  build-test-package:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        architecture: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Test core
+        working-directory: windows
+        run: dotnet test tests/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+      - name: Build WinUI
+        working-directory: windows
+        run: dotnet build src/LionPass.App/LionPass.App.csproj -c Release -p:Platform=${{ matrix.architecture }}
+      - name: Install Inno Setup
+        if: matrix.architecture == 'x64'
+        run: choco install innosetup --yes --no-progress
+      - name: Build installer
+        if: matrix.architecture == 'x64'
+        working-directory: windows
+        shell: pwsh
+        run: .\scripts\build-installer.ps1 -Architecture x64
+      - uses: actions/upload-artifact@v4
+        if: matrix.architecture == 'x64'
+        with:
+          name: LionPass-Windows-x64-Setup
+          path: windows/installer/output/*.exe
+          if-no-files-found: error

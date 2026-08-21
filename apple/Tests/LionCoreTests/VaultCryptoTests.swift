@@ -4,6 +4,24 @@ import XCTest
 @testable import Lion_Pass
 
 final class VaultCryptoTests: XCTestCase {
+    func testWindowsVersionTwoFixtureIsCompatible() throws {
+        // Same synthetic bytes committed at shared/test-vaults/fixtures/windows-v2.lionvault.
+        // Embedding avoids the macOS test-host sandbox blocking repository file access.
+        let fixtureBase64 = "eyJtYWdpYyI6IkxJT05WQVVMVCIsInZlcnNpb24iOjIsImtkZiI6eyJhbGdvcml0aG0iOiJQQktERjItSE1BQy1TSEEyNTYiLCJpdGVyYXRpb25zIjoxMDAwMDAsImtleUxlbmd0aCI6MzJ9LCJzYWx0IjoiejFyeTloTlB5OGZoNzRrQjlnY2VKSmdDTTZSb3NON0FkRmVPZC9mcU10VT0iLCJub25jZSI6ImpuZDJERXY5eEJOekFHTC8iLCJjaXBoZXJ0ZXh0IjoiNTlCcFhzd29raHcrMGVoRzcwaWdoSGlkWkw1UjBWQzNrWmhSUlpjWW5URzd2QnN4c3V5Sit1anpxQ0R1ZWd1OHdiemd2S09oUFp0S3NGZFpHUjNqVGh6YXRONEI5cWNKZldnYW9ZNTAxNTl2WVNSZEc3T0hrOTFuV3JyN2JuVFdraHpHVnl1d1FUQUpyQW1QckYrK1AvdEFUQXZ0Rm5QRTJ2Zjd0YzlHWEtHbnBPVnlzamRVNStRdHdhSkFCSU02amZlN2NXeW9DajU3NlZ0R3J5NGRkSUJyOFNYTVpJSWFKbVBZUS9HT3UxV3MxUDh4UGVhd1hUM1ZCWU0zTlBLcFVUcDlvVjVTWHI3SXBSWmRqN28wQkp0eWhrZXNjWElza3dZdFh5VFdVam80a0IyV0FKc3Q4Qzd3VkNXSUx6ZnlFQVJUZ3hXTVM3SFJpRlBGWjVNaVE0OHBlMXd1ejMzSXVEV1dKTkd1QzRFT2lkaGRSSW40ZzNUS291Z2J0UXlHRmFJQnFLZGR3cllXeE1xRTBKVlJqSzBCdEF2NnEzSHc4NXdIbUt5MktwR0VodjFyL0FkcFdjdW8zd1JIVFBMbTZKc2NLYzY4clFBZFNYMmVUSk5MWmsySXZUMHljQTVVUGRBK2VwcG5mb04zNVV1SVcvUUpMa1pxMUxJMEVJdUYzTWRLejVBYXRDWHVIblNMZ2h1Q1FWSjFiNU55bVk0Mm45emhVbnhNeE9kcSswSzYvR2FBK2VwZ040MU9WcmgxRFhvaU5Lb21xN0xyMFJVa2d1dkFUN1c3RFErZzVKbDdmWXFjS01oTFY4K2RFYmRSdms3ak44TEdWeVlVTkpDa04yMG1WaFJWQW9ocW9VVG9kRzhmbDVPdzJDUlBDK3NCSlFOS1NxbE1aS1VkV2ZRNitoSXhXeVhNYmNYQlRuRGlYZlhrVG0wZVp0eVdTcVpuREFLdTd5Zk1EWXZKTjlON2hRRjhmeVI4V3VJRHlzYkxoWFNOazlBa2dtSVVpT2dxc2syZ3NDV29mOFFNQW9Rb3NWalJ3NlFGeFpnd3dHYUZoRDYyeU1Bc3NoNDlPZmNZWnI1VWRySjVaQ2FPN2pPZThLd0lVTG5vcFlhZGtaUE5DYnJvK05DVWI3Ym81REE2THpnaTd2N3djTzZ4a1pFUFVkbUJ6KzNtWDFIMXdzZDBUUUlqN2F2VCs1NzNqV21FUklIa2orZkVONmVqUHRsTTVWSXdTQlAydzNxOWo1ODVreFdtU05CUUhmMWZ3cEU4YWN5bTU2a3ljaE42ZDAxVWFLbHJBcjRKVkxCcUN1OU85SDdDcFVQNDMwanBaSWVodFkxRjg5dnpyd2dvUzV5UG9NZDJiUm1SRGxaMlljbGxRdUd2U0NiZmt3PT0iLCJ0YWciOiJMT1FaREVhWmdmSkFHci9EWTcvYlhnPT0iLCJrZXlOb25jZSI6Inc3d2ZIWFZQZmE0RUNqRjgiLCJ3cmFwcGVkS2V5IjoiNVVOcFR3WWcyV2pyNkdjY2JuZEdHd3EvbEh0VjlXWVFKOVY2NllOZWV4VT0iLCJrZXlUYWciOiI2Z0ZUVktMdEtmaDJQT1NQQVgzU09BPT0ifQ=="
+        let data = try XCTUnwrap(Data(base64Encoded: fixtureBase64))
+
+        let unlocked = try AppleVaultCryptoService().unlock(
+            data,
+            password: "Lion-Pass-Compatibility-2026!"
+        )
+
+        XCTAssertEqual(unlocked.payload.name, "Windows Compatibility Fixture")
+        XCTAssertEqual(unlocked.payload.items.count, 1)
+        XCTAssertEqual(unlocked.payload.items.first?.username, "windows@example.test")
+        XCTAssertEqual(unlocked.payload.items.first?.category, "Interoperabilidade")
+        XCTAssertEqual(unlocked.envelope.version, 2)
+    }
+
     private let crypto = AppleVaultCryptoService()
     private let fastParameters = KDFParameters(iterations: 100_000)
 

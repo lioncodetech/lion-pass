@@ -1,0 +1,24 @@
+name: Apple
+
+on:
+  push:
+    paths: ["apple/**", "shared/**", ".github/workflows/apple-build.yml"]
+  pull_request:
+    paths: ["apple/**", "shared/**", ".github/workflows/apple-build.yml"]
+
+jobs:
+  macos-tests:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test macOS and compatibility fixture
+        working-directory: apple
+        run: xcodebuild test -project LionPass.xcodeproj -scheme LionPassMac -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+
+  ios-build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build iOS without signing
+        working-directory: apple
+        run: xcodebuild build -project LionPass.xcodeproj -scheme LionPass -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
