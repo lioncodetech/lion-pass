@@ -10,6 +10,8 @@
         <SolidColorBrush x:Key="LionBlueBrush" Color="{StaticResource LionBlue}" />
         <SolidColorBrush x:Key="LionPurpleBrush" Color="{StaticResource LionPurple}" />
         <SolidColorBrush x:Key="LionPanelBrush" Color="#242126" />
+        <SolidColorBrush x:Key="LionSelectionBrush" Color="#8B3A91" />
+        <SolidColorBrush x:Key="LionIdentityBrush" Color="#77757D" />
         <LinearGradientBrush x:Key="LionGradient" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{StaticResource LionCyan}" Offset="0" />
             <GradientStop Color="{StaticResource LionBlue}" Offset="0.52" />

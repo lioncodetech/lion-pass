@@ -8,6 +8,7 @@ xcuserdata/
 *.xcscmblueprint
 .swiftpm/
 .build/
+.derived-data.noindex/
 .tools/
 DerivedProducts/*
 !DerivedProducts/.metadata_never_index

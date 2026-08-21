@@ -30,7 +30,7 @@ struct LionSidebarButtonStyle: ButtonStyle {
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(Color.lionGradient)
+                        .fill(Color.lionViolet.opacity(0.82))
                 } else if configuration.isPressed {
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
                         .fill(Color.lionViolet.opacity(0.18))
@@ -47,7 +47,7 @@ struct LionCompactActionButtonStyle: ButtonStyle {
             .foregroundStyle(.white)
             .padding(.horizontal, 11)
             .padding(.vertical, 6)
-            .background(Color.lionGradient, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(Color.lionViolet, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .opacity(configuration.isPressed ? 0.72 : 1)
     }
 }

@@ -14,7 +14,9 @@ No iOS, habilite Lion Pass em Ajustes → Geral → Preenchimento Automático e 
 ## Testes
 
 ```bash
-xcodebuild test -project LionPass.xcodeproj -scheme LionPassMac -destination 'platform=macOS'
+./scripts/test-macos.sh
 ```
+
+O script usa `apple/.derived-data.noindex`, remove o registro da build de teste no Launch Services e apaga o pacote `.app` temporário ao terminar. Não gere builds do Lion Pass em `/tmp` ou `/private/tmp`: o Spotlight pode interpretá-las como outras instalações do aplicativo.
 
 O formato do cofre é documentado em [`../shared/specifications/lionvault-v2.md`](../shared/specifications/lionvault-v2.md).

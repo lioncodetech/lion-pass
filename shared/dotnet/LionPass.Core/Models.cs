@@ -52,6 +52,16 @@ public sealed record VaultItem
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? DeletedAt { get; set; }
 
+    [JsonIgnore]
+    public string DisplayInitial
+    {
+        get
+        {
+            var value = string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim();
+            return value[..1].ToUpper(System.Globalization.CultureInfo.CurrentCulture);
+        }
+    }
+
     public bool Matches(string query)
     {
         if (string.IsNullOrWhiteSpace(query)) return true;

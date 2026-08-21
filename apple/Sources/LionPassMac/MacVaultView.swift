@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import AppKit
 
 struct MacVaultView: View {
     @EnvironmentObject private var vault: VaultService
@@ -225,10 +226,11 @@ struct MacVaultView: View {
     private var itemList: some View {
         List(items, selection: $selection) { item in
             HStack {
-                Image(systemName: item.kind.symbol)
+                Text(displayInitial(for: item))
+                    .font(.title3.weight(.bold))
                     .foregroundStyle(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Color.lionGradient, in: RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 34, height: 34)
+                    .background(Color(nsColor: .systemGray), in: RoundedRectangle(cornerRadius: 8))
                 VStack(alignment: .leading) {
                     Text(accountPrimaryText(for: item)).fontWeight(.semibold)
                     Text(accountSecondaryText(for: item))
@@ -248,6 +250,7 @@ struct MacVaultView: View {
             .tag(item.id)
             .contextMenu { itemContextMenu(item) }
         }
+        .tint(.lionViolet)
         .overlay {
             if items.isEmpty {
                 ContentUnavailableView("Nenhum item", systemImage: "lock.square")
@@ -255,9 +258,27 @@ struct MacVaultView: View {
         }
     }
 
+    private func displayInitial(for item: VaultItem) -> String {
+        let value = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? "?" : String(value.prefix(1)).uppercased()
+    }
+
     @ViewBuilder
     private func itemContextMenu(_ item: VaultItem) -> some View {
         if item.deletedAt == nil {
+            if item.kind == .login {
+                Button("Copiar usuário") { ClipboardService.shared.copy(item.username) }
+                    .disabled(item.username.isEmpty)
+                Button("Copiar senha") { ClipboardService.shared.copy(item.password) }
+                    .disabled(item.password.isEmpty)
+                Button("Copiar site") { ClipboardService.shared.copy(item.website) }
+                    .disabled(item.website.isEmpty)
+                Button("Abrir no navegador") {
+                    if let url = normalizedURL(item.website) { NSWorkspace.shared.open(url) }
+                }
+                .disabled(normalizedURL(item.website) == nil)
+                Divider()
+            }
             Button("Editar") { editing = item }
             Button("Mover para Apagados", role: .destructive) { try? vault.delete(ids: [item.id]) }
         } else {
@@ -267,6 +288,13 @@ struct MacVaultView: View {
                 selection.remove(item.id)
             }
         }
+    }
+
+    private func normalizedURL(_ value: String) -> URL? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let url = URL(string: trimmed), url.scheme != nil { return url }
+        return URL(string: "https://\(trimmed)")
     }
 
     private var collectionTitle: String {
@@ -454,8 +482,17 @@ struct MacItemDetail: View {
     var body: some View {
         Form {
             Section {
-                Text(item.title).font(.largeTitle.bold())
-                Text(item.category).foregroundStyle(.secondary)
+                VStack(spacing: 10) {
+                    Text(displayInitial)
+                        .font(.system(size: 38, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 74, height: 74)
+                        .background(Color(nsColor: .systemGray), in: RoundedRectangle(cornerRadius: 14))
+                    Text(item.title).font(.largeTitle.bold())
+                    Text(item.category).foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
             }
             if item.kind == .login {
                 Section("Credenciais") {
@@ -511,21 +548,22 @@ struct MacItemDetail: View {
             if !item.passwordHistory.isEmpty {
                 Section("Histórico de senhas") {
                     ForEach(item.passwordHistory.reversed()) { revision in
-                        HStack {
+                        HStack(spacing: 16) {
                             Text(revision.changedAt.formatted(date: .abbreviated, time: .shortened))
                             Spacer()
                             Text(revealedHistory.contains(revision.id) ? revision.password : "••••••••")
                                 .font(.body.monospaced())
-                            Button(revealedHistory.contains(revision.id) ? "Ocultar" : "Mostrar") {
+                        }
+                        .contentShape(Rectangle())
+                        .contextMenu {
+                            Button(revealedHistory.contains(revision.id) ? "Ocultar senha" : "Mostrar senha") {
                                 if revealedHistory.contains(revision.id) {
                                     revealedHistory.remove(revision.id)
                                 } else {
                                     revealedHistory.insert(revision.id)
                                 }
                             }
-                            .buttonStyle(LionCompactActionButtonStyle())
                             Button("Copiar") { ClipboardService.shared.copy(revision.password) }
-                                .buttonStyle(LionCompactActionButtonStyle())
                         }
                     }
                 }
@@ -541,49 +579,54 @@ struct MacItemDetail: View {
     }
 
     private func secretRow(_ label: String, value: String) -> some View {
-        HStack {
-            LabeledContent(label, value: reveal ? value : "••••••••••••")
-            Button(reveal ? "Ocultar" : "Mostrar") { reveal.toggle() }
-                .buttonStyle(LionCompactActionButtonStyle())
+        LabeledContent(label) {
+            Text(reveal ? value : "••••••••••••")
+                .font(.body.monospaced())
+                .privacySensitive()
+        }
+        .contentShape(Rectangle())
+        .contextMenu {
+            Button(reveal ? "Ocultar senha" : "Mostrar senha") { reveal.toggle() }
             Button("Copiar") { ClipboardService.shared.copy(value) }
-                .buttonStyle(LionCompactActionButtonStyle())
+                .disabled(value.isEmpty)
         }
     }
 
     private func copyableRow(_ label: String, value: String) -> some View {
-        HStack {
-            LabeledContent(label) {
-                Text(value)
-                    .textSelection(.enabled)
-                    .privacySensitive()
-            }
+        LabeledContent(label) {
+            Text(value)
+                .textSelection(.enabled)
+                .privacySensitive()
+        }
+        .contentShape(Rectangle())
+        .contextMenu {
             Button("Copiar") { ClipboardService.shared.copy(value) }
-                .buttonStyle(LionCompactActionButtonStyle())
                 .disabled(value.isEmpty)
-                .help("Copiar \(label.lowercased())")
         }
     }
 
     private func websiteRow(_ value: String) -> some View {
-        HStack {
-            LabeledContent("Site") {
-                Text(value)
-                    .textSelection(.enabled)
-                    .lineLimit(1)
-            }
+        LabeledContent("Site") {
+            Text(value)
+                .textSelection(.enabled)
+                .lineLimit(1)
+        }
+        .contentShape(Rectangle())
+        .contextMenu {
             Button("Copiar") { ClipboardService.shared.copy(value) }
-                .buttonStyle(LionCompactActionButtonStyle())
                 .disabled(value.isEmpty)
-                .help("Copiar URL")
             Button {
                 if let url = normalizedURL(value) { openURL(url) }
             } label: {
-                Label("Abrir", systemImage: "arrow.up.right.square")
+                Label("Abrir no navegador", systemImage: "arrow.up.right.square")
             }
-            .buttonStyle(LionCompactActionButtonStyle())
             .disabled(normalizedURL(value) == nil)
-            .help("Abrir no navegador padrão")
         }
+    }
+
+    private var displayInitial: String {
+        let value = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? "?" : String(value.prefix(1)).uppercased()
     }
 
     private func normalizedURL(_ value: String) -> URL? {

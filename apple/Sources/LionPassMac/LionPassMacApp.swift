@@ -297,53 +297,100 @@ struct MacUnlockView: View {
     @State private var attemptedAutomaticTouchID = false
     @State private var hasTouchIDKey = BiometricKeyStore().exists
     @State private var showRecovery = false
+    @FocusState private var passwordFocused: Bool
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            LionMacMark()
-            Text("Lion Pass").font(.largeTitle.bold())
-            if hasTouchIDKey {
-                Label("Touch ID vinculado e ativo", systemImage: "checkmark.shield.fill")
-                    .foregroundStyle(.green)
-            }
-            SecureField("Senha mestra", text: $password)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 360)
-                .onSubmit(unlock)
-            if let confirmation { Text(confirmation).foregroundStyle(.green) }
-            if let error { Text(error).foregroundStyle(.red).frame(maxWidth: 520) }
-            Button("Desbloquear", action: unlock)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(password.isEmpty)
-            Button {
-                hasTouchIDKey ? unlockWithTouchID() : activateTouchID()
-            } label: {
-                Label(
-                    hasTouchIDKey ? "Desbloquear com Touch ID" : "Ativar Touch ID",
-                    systemImage: "touchid"
-                )
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .disabled(!hasTouchIDKey && password.isEmpty)
-            Button("Usar chave de recuperação") { showRecovery = true }
-                .buttonStyle(.link)
-            if !hasTouchIDKey {
-                Text("Digite a senha mestra e clique em Ativar Touch ID. O vínculo será confirmado antes de retornar a esta tela.")
-                    .font(.caption)
+        ZStack {
+            Color(nsColor: .windowBackgroundColor).ignoresSafeArea()
+            VStack(spacing: 24) {
+                Spacer()
+                lockIdentity
+                Text("Lion Pass está bloqueado")
+                    .font(.system(size: 28, weight: .bold))
+                Text(unlockInstruction)
+                    .font(.title3)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 560)
+                SecureField("Digite a senha mestra", text: $password)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.title3)
+                    .frame(width: 380)
+                    .focused($passwordFocused)
+                    .onSubmit(unlock)
+                if let confirmation {
+                    Label(confirmation, systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+                if let error {
+                    Text(error)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 520)
+                }
+                HStack(spacing: 18) {
+                    Button {
+                        hasTouchIDKey ? unlockWithTouchID() : activateTouchID()
+                    } label: {
+                        Label(
+                            hasTouchIDKey ? "Usar Touch ID" : "Ativar Touch ID",
+                            systemImage: "touchid"
+                        )
+                    }
+                    .buttonStyle(.link)
+                    .disabled(!hasTouchIDKey && password.isEmpty)
+                    Button("Usar chave de recuperação") { showRecovery = true }
+                        .buttonStyle(.link)
+                }
+                Spacer()
             }
-            Spacer()
+            .padding(40)
         }
-        .padding()
         .task {
+            passwordFocused = true
             guard hasTouchIDKey, !attemptedAutomaticTouchID else { return }
             attemptedAutomaticTouchID = true
             unlockWithTouchID()
         }
         .sheet(isPresented: $showRecovery) { MacRecoveryUnlockView() }
+    }
+
+    private var lockIdentity: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Image("LionLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 112, height: 112)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .shadow(color: .black.opacity(0.28), radius: 14, y: 8)
+            if hasTouchIDKey {
+                Image(systemName: "touchid")
+                    .font(.system(size: 34, weight: .medium))
+                    .foregroundStyle(.pink)
+                    .frame(width: 60, height: 60)
+                    .background(.black.opacity(0.88), in: Circle())
+                    .overlay(Circle().stroke(.white.opacity(0.08)))
+                    .offset(x: 22, y: 16)
+            } else {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 52, height: 52)
+                    .background(.black.opacity(0.88), in: Circle())
+                    .overlay(Circle().stroke(.white.opacity(0.08)))
+                    .offset(x: 18, y: 14)
+            }
+        }
+        .padding(.trailing, 20)
+    }
+
+    private var unlockInstruction: String {
+        let user = NSFullUserName().trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = user.isEmpty ? "este usuário" : "“\(user)”"
+        if hasTouchIDKey {
+            return "Use o Touch ID ou digite a senha mestra do Lion Pass para \(name)."
+        }
+        return "Digite a senha mestra do Lion Pass para \(name)."
     }
 
     private func unlock() {

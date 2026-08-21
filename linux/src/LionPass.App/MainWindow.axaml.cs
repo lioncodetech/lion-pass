@@ -134,8 +134,22 @@ public sealed partial class MainWindow : Window
 
     private async Task RefreshKeyringAsync()
     {
-        try { KeyringButton.IsVisible = _vault.HasVault && await _keyring.ExistsAsync(); }
-        catch { KeyringButton.IsVisible = false; }
+        var user = Environment.UserName;
+        try
+        {
+            var available = _vault.HasVault && await _keyring.ExistsAsync();
+            KeyringButton.IsVisible = available;
+            KeyringBadge.IsVisible = available;
+            UnlockInstruction.Text = available
+                ? $"Use o chaveiro Linux ou digite a senha mestra do Lion Pass para “{user}”."
+                : $"Digite a senha mestra do Lion Pass para “{user}”.";
+        }
+        catch
+        {
+            KeyringButton.IsVisible = false;
+            KeyringBadge.IsVisible = false;
+            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
+        }
         RememberInKeyringCheck.IsVisible = _keyring.IsAvailable;
     }
 
@@ -153,12 +167,12 @@ public sealed partial class MainWindow : Window
         TypesPanel.Children.Clear();
         foreach (var value in Enum.GetValues<VaultItemKind>())
         {
-            var button = NavigationButton($"{TypeIcon(value)}  {TypeTitle(value)}", $"type:{value}");
+            var button = NavigationButton(TypeTitle(value), $"type:{value}");
             TypesPanel.Children.Add(button);
         }
         CategoriesPanel.Children.Clear();
         foreach (var category in _vault.Payload?.AllCategories ?? VaultPayload.DefaultCategories)
-            CategoriesPanel.Children.Add(NavigationButton($"{CategoryIcon(category)}  {category}", $"category:{category}"));
+            CategoriesPanel.Children.Add(NavigationButton(category, $"category:{category}"));
     }
 
     private Button NavigationButton(string title, string tag)
@@ -171,7 +185,7 @@ public sealed partial class MainWindow : Window
     private void Filter_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: string tag } button) return;
-        _filter = tag; CollectionTitle.Text = button.Content?.ToString()?.Replace("▣  ", "").Replace("★  ", "") ?? "Itens";
+        _filter = tag; CollectionTitle.Text = button.Content?.ToString() ?? "Itens";
         RefreshItems();
     }
 
@@ -215,15 +229,16 @@ public sealed partial class MainWindow : Window
         EmptyDetail.IsVisible = _selected is null; DetailScroll.IsVisible = _selected is not null;
         if (_selected is null) return;
         _passwordVisible = false;
+        DetailInitial.Text = _selected.DisplayInitial;
         DetailTitle.Text = _selected.Title; DetailKind.Text = TypeTitle(_selected.Kind);
         DetailUsername.Text = _selected.Username; DetailPassword.Text = Mask(_selected.Password);
-        DetailWebsite.Text = _selected.Website; DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
+        DetailWebsite.Text = _selected.Website; DetailEmail.Text = _selected.Email;
+        DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
         DetailNotes.Text = string.IsNullOrWhiteSpace(_selected.Notes) ? "Sem notas." : _selected.Notes;
-        ShowPasswordButton.Content = "Mostrar";
         RestoreButton.IsVisible = _selected.DeletedAt is not null;
         DeleteButton.Content = _selected.DeletedAt is null ? "Mover para a lixeira" : "Excluir definitivamente";
         var warning = PasswordSecurityAudit.Warning(_selected, _vault.Payload?.Items ?? []);
-        SecurityTitle.Text = warning is null ? "✓ Nenhum problema encontrado" : "⚠ Recomendação de segurança";
+        SecurityTitle.Text = warning is null ? "Nenhum problema encontrado" : "Recomendação de segurança";
         SecurityMessage.Text = warning ?? "Esta senha é exclusiva e não apresenta problemas na verificação local.";
         SecurityBorder.BorderBrush = warning is null ? Avalonia.Media.Brushes.MediumTurquoise : Avalonia.Media.Brushes.Orange;
         SecurityBorder.BorderThickness = new Avalonia.Thickness(1);
@@ -258,12 +273,12 @@ public sealed partial class MainWindow : Window
         if (_selected is null) return;
         _passwordVisible = !_passwordVisible;
         DetailPassword.Text = _passwordVisible ? _selected.Password : Mask(_selected.Password);
-        ShowPasswordButton.Content = _passwordVisible ? "Ocultar" : "Mostrar";
     }
 
     private async void CopyUsername_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Username);
     private async void CopyPassword_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Password);
     private async void CopyWebsite_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Website);
+    private async void CopyEmail_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Email);
 
     private async Task CopyAsync(string? value)
     {
@@ -380,13 +395,6 @@ public sealed partial class MainWindow : Window
     private static string Mask(string value) => value.Length == 0 ? "—" : new string('●', Math.Min(value.Length, 20));
     private static string TypeTitle(VaultItemKind value) => value switch
     { VaultItemKind.Login => "Logins", VaultItemKind.Card => "Cartões", VaultItemKind.SecureNote => "Notas seguras", VaultItemKind.Identity => "Identidades", _ => "Outros" };
-    private static string TypeIcon(VaultItemKind value) => value switch
-    { VaultItemKind.Login => "🔑", VaultItemKind.Card => "💳", VaultItemKind.SecureNote => "🔒", VaultItemKind.Identity => "🪪", _ => "▦" };
-    private static string CategoryIcon(string value) => value.ToLowerInvariant() switch
-    {
-        "e-mail" => "✉", "bancos" => "🏦", "redes sociais" => "♙", "trabalho" => "💼", "compras" => "🛍",
-        "streaming" => "▶", "wi-fi" => "⌁", "cartões" => "💳", "notas" => "📝", "identidades" => "🪪", _ => "📁"
-    };
 
     private static string SettingsPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Lion Code Technology", "Lion Pass", "linux-settings.json");

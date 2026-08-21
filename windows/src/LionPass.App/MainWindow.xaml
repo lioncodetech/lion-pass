@@ -8,21 +8,25 @@
     Title="Lion Pass">
 
     <Grid Background="#1D1A1E">
-        <Grid x:Name="UnlockView">
-            <StackPanel Width="520" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="18">
-                <Image Source="Assets/LionPass-1024.png" Width="132" Height="132" />
-                <TextBlock Text="Lion Pass" FontSize="42" FontWeight="Bold" HorizontalAlignment="Center" />
-                <TextBlock Text="Seu cofre local e protegido" Opacity="0.7" HorizontalAlignment="Center" />
-                <PasswordBox x:Name="MasterPassword" Header="Senha mestra" PlaceholderText="Digite sua senha mestra" KeyDown="MasterPassword_KeyDown" />
-                <Button x:Name="UnlockButton" Content="Desbloquear" Style="{StaticResource LionPrimaryButton}" HorizontalAlignment="Stretch" Click="Unlock_Click" />
-                <Button x:Name="HelloButton" Content="Desbloquear com Windows Hello" HorizontalAlignment="Stretch" Click="Hello_Click" />
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
-                    <Button Content="Criar novo cofre" HorizontalAlignment="Stretch" Click="Create_Click" />
-                    <Button Grid.Column="1" Content="Importar .lionvault" HorizontalAlignment="Stretch" Click="Import_Click" />
+        <Grid x:Name="UnlockView" Background="#232124">
+            <StackPanel Width="560" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="22">
+                <Grid Width="154" Height="138" HorizontalAlignment="Center">
+                    <Image Source="Assets/LionPass-1024.png" Width="112" Height="112" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                    <Border x:Name="HelloBadge" Width="58" Height="58" CornerRadius="29" Background="#121113" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed">
+                        <FontIcon Glyph="&#xE928;" FontSize="31" Foreground="#F04F74" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
                 </Grid>
-                <InfoBar x:Name="UnlockMessage" IsOpen="False" IsClosable="True" Severity="Error" />
-                <TextBlock Text="Lion Code Technology" HorizontalAlignment="Center" Opacity="0.55" />
+                <TextBlock Text="Lion Pass está bloqueado" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" />
+                <TextBlock x:Name="UnlockInstruction" Text="Digite a senha mestra para desbloquear." FontSize="18" Opacity="0.78" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="540" HorizontalAlignment="Center" />
+                <PasswordBox x:Name="MasterPassword" Width="380" PlaceholderText="Digite a senha mestra" KeyDown="MasterPassword_KeyDown" />
+                <Button x:Name="UnlockButton" Content="Desbloquear" Width="380" Background="#7C4385" Foreground="White" HorizontalAlignment="Center" Click="Unlock_Click" />
+                <Button x:Name="HelloButton" Content="Usar Windows Hello" Background="Transparent" BorderThickness="0" HorizontalAlignment="Center" Click="Hello_Click" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="14">
+                    <Button Content="Criar novo cofre" Background="Transparent" BorderThickness="0" Click="Create_Click" />
+                    <Button Content="Importar cofre" Background="Transparent" BorderThickness="0" Click="Import_Click" />
+                </StackPanel>
+                <InfoBar x:Name="UnlockMessage" Width="520" IsOpen="False" IsClosable="True" Severity="Error" />
+                <TextBlock Text="Lion Code Technology" HorizontalAlignment="Center" Opacity="0.45" />
             </StackPanel>
         </Grid>
 
@@ -83,18 +87,22 @@
                         </ComboBox>
                     </Grid>
                     <ListView x:Name="ItemsList" Grid.Row="1" Margin="0,10,0,0" SelectionChanged="ItemsList_SelectionChanged">
+                        <ListView.Resources>
+                            <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#8B3A91" />
+                            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#9846A0" />
+                            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#76317C" />
+                        </ListView.Resources>
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Padding="8" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <Border Width="40" Height="40" CornerRadius="10" Background="{StaticResource LionGradient}">
-                                        <FontIcon Glyph="&#xE192;" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <Border Width="40" Height="40" CornerRadius="10" Background="{StaticResource LionIdentityBrush}">
+                                        <TextBlock Text="{Binding DisplayInitial}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Text="{Binding Username}" Opacity="0.62" TextTrimming="CharacterEllipsis" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="2" Text="★" Foreground="#FFD84A" FontSize="20" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -108,12 +116,14 @@
                     </StackPanel>
                     <StackPanel x:Name="DetailPanel" Visibility="Collapsed" MaxWidth="760" Spacing="18">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock x:Name="DetailTitle" FontSize="34" FontWeight="Bold" />
-                                <TextBlock x:Name="DetailKind" Opacity="0.6" />
+                            <StackPanel HorizontalAlignment="Center" Spacing="8">
+                                <Border Width="78" Height="78" CornerRadius="14" Background="{StaticResource LionIdentityBrush}">
+                                    <TextBlock x:Name="DetailInitial" FontSize="42" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock x:Name="DetailTitle" FontSize="34" FontWeight="Bold" HorizontalAlignment="Center" />
+                                <TextBlock x:Name="DetailKind" Opacity="0.6" HorizontalAlignment="Center" />
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
                                 <Button Content="Editar" Click="Edit_Click" />
                                 <Button x:Name="RestoreButton" Content="Restaurar" Click="Restore_Click" Visibility="Collapsed" />
                                 <Button x:Name="DeleteButton" Content="Excluir" Click="Delete_Click" />
@@ -122,14 +132,24 @@
                         <Border Background="#2B272C" CornerRadius="16" Padding="20">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Credenciais" FontSize="20" FontWeight="SemiBold" />
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Usuário" /><TextBlock x:Name="DetailUsername" Grid.Column="1" /><Button Grid.Column="2" Content="Copiar" Click="CopyUsername_Click" /></Grid>
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Senha" /><PasswordBox x:Name="DetailPassword" Grid.Column="1" IsTabStop="False" /><Button Grid.Column="2" Content="Mostrar" Click="ShowPassword_Click" /><Button Grid.Column="3" Content="Copiar" Click="CopyPassword_Click" /></Grid>
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Site" /><TextBlock x:Name="DetailWebsite" Grid.Column="1" TextTrimming="CharacterEllipsis" /><Button Grid.Column="2" Content="Copiar" Click="CopyWebsite_Click" /><Button Grid.Column="3" Content="Abrir" Click="OpenWebsite_Click" /></Grid>
+                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="Usuário" /><TextBlock x:Name="DetailUsername" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar usuário" Click="CopyUsername_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                    </TextBlock></Grid>
+                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="Senha" /><PasswordBox x:Name="DetailPassword" Grid.Column="1" IsTabStop="False" HorizontalAlignment="Stretch">
+                                        <PasswordBox.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuFlyoutItem Text="Copiar senha" Click="CopyPassword_Click" /></MenuFlyout></PasswordBox.ContextFlyout>
+                                    </PasswordBox></Grid>
+                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="Site" /><TextBlock x:Name="DetailWebsite" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar site" Click="CopyWebsite_Click" /><MenuFlyoutItem Text="Abrir no navegador" Click="OpenWebsite_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                    </TextBlock></Grid>
+                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="E-mail" /><TextBlock x:Name="DetailEmail" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar e-mail" Click="CopyEmail_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                    </TextBlock></Grid>
                                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Modificado" /><TextBlock x:Name="DetailModified" Grid.Column="1" /></Grid>
+                                    <TextBlock Text="Modificado" /><TextBlock x:Name="DetailModified" Grid.Column="1" HorizontalAlignment="Right" /></Grid>
                                 <TextBlock x:Name="DetailNotes" TextWrapping="Wrap" Opacity="0.75" />
                             </StackPanel>
                         </Border>

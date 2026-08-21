@@ -44,8 +44,22 @@ public sealed partial class MainWindow : Window
 
     private async Task RefreshHelloAsync()
     {
-        try { HelloButton.Visibility = _hello.Exists && await _hello.IsAvailableAsync() ? Visibility.Visible : Visibility.Collapsed; }
-        catch { HelloButton.Visibility = Visibility.Collapsed; }
+        var user = Environment.UserName;
+        try
+        {
+            var available = _hello.Exists && await _hello.IsAvailableAsync();
+            HelloButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
+            HelloBadge.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
+            UnlockInstruction.Text = available
+                ? $"Use o Windows Hello ou digite a senha mestra do Lion Pass para “{user}”."
+                : $"Digite a senha mestra do Lion Pass para “{user}”.";
+        }
+        catch
+        {
+            HelloButton.Visibility = Visibility.Collapsed;
+            HelloBadge.Visibility = Visibility.Collapsed;
+            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
+        }
     }
 
     private async void Unlock_Click(object sender, RoutedEventArgs e)
@@ -199,9 +213,11 @@ public sealed partial class MainWindow : Window
         DetailPanel.Visibility = _selected is null ? Visibility.Collapsed : Visibility.Visible;
         if (_selected is null) return;
         _passwordVisible = false;
+        DetailInitial.Text = _selected.DisplayInitial;
         DetailTitle.Text = _selected.Title; DetailKind.Text = TypeTitle(_selected.Kind);
         DetailUsername.Text = _selected.Username; DetailPassword.Password = _selected.Password;
-        DetailWebsite.Text = _selected.Website; DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
+        DetailWebsite.Text = _selected.Website; DetailEmail.Text = _selected.Email;
+        DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
         DetailNotes.Text = _selected.Notes;
         RestoreButton.Visibility = _selected.DeletedAt is null ? Visibility.Collapsed : Visibility.Visible;
         DeleteButton.Content = _selected.DeletedAt is null ? "Mover para Lixeira" : "Excluir definitivamente";
@@ -286,6 +302,7 @@ public sealed partial class MainWindow : Window
     private void CopyUsername_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Username);
     private void CopyPassword_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Password);
     private void CopyWebsite_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Website);
+    private void CopyEmail_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Email);
 
     private static async void CopySecret(string? value)
     {
