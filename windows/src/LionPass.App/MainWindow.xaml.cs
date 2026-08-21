@@ -17,7 +17,7 @@ public sealed partial class MainWindow : Window
     private readonly VaultService _vault = new(new VaultCryptoService(), new VaultStorageService());
     private readonly WindowsHelloKeyStore _hello = new();
     private readonly ObservableCollection<VaultItem> _visibleItems = [];
-    private readonly DispatcherQueueTimer _autoLockTimer;
+    private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer _autoLockTimer;
     private string _filter = "all";
     private VaultItem? _selected;
     private bool _passwordVisible;
