@@ -83,8 +83,18 @@ public static class CsvTransfer
         }).ToArray();
     }
 
-    private static string Escape(string value) => value.IndexOfAny([',', '"', '\r', '\n']) >= 0
-        ? $"\"{value.Replace("\"", "\"\"")}\"" : value;
+    private static string Escape(string value)
+    {
+        var safeValue = NeutralizeFormula(value);
+        return safeValue.IndexOfAny([',', '"', '\r', '\n']) >= 0
+            ? $"\"{safeValue.Replace("\"", "\"\"")}\"" : safeValue;
+    }
+
+    private static string NeutralizeFormula(string value)
+    {
+        if (value.Length == 0) return value;
+        return value[0] is '=' or '+' or '-' or '@' or '\t' or '\r' ? "'" + value : value;
+    }
 
     private static IEnumerable<IReadOnlyList<string>> Parse(string text)
     {

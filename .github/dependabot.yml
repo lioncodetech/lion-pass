@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: nuget
+    directory: "/shared/dotnet"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: nuget
+    directory: "/windows"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: nuget
+    directory: "/linux"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5

@@ -293,8 +293,12 @@ struct MacVaultView: View {
     private func normalizedURL(_ value: String) -> URL? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
-        if let url = URL(string: trimmed), url.scheme != nil { return url }
-        return URL(string: "https://\(trimmed)")
+        let candidate = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
+        guard let url = URL(string: candidate),
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              url.host != nil else { return nil }
+        return url
     }
 
     private var collectionTitle: String {
@@ -768,8 +772,12 @@ struct MacItemDetail: View {
     private func normalizedURL(_ value: String) -> URL? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
-        if let url = URL(string: trimmed), url.scheme != nil { return url }
-        return URL(string: "https://\(trimmed)")
+        let candidate = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
+        guard let url = URL(string: candidate),
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              url.host != nil else { return nil }
+        return url
     }
 
 }
@@ -1255,10 +1263,12 @@ enum PasswordCSVCodec {
     }
 
     private static func escape(_ value: String) -> String {
-        guard value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r") else {
-            return value
+        let dangerousPrefixes: Set<Character> = ["=", "+", "-", "@", "\t", "\r"]
+        let safeValue = value.first.map(dangerousPrefixes.contains) == true ? "'" + value : value
+        guard safeValue.contains(",") || safeValue.contains("\"") || safeValue.contains("\n") || safeValue.contains("\r") else {
+            return safeValue
         }
-        return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+        return "\"" + safeValue.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 
     private static func parse(_ text: String) -> [[String]] {

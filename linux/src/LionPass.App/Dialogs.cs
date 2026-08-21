@@ -54,7 +54,6 @@ internal static class Dialogs
         var name = new TextBox { Watermark = "Nome do cofre", Text = "My Pass" };
         var password = new TextBox { Watermark = "Senha mestra — mínimo de 12 caracteres", PasswordChar = '●' };
         var confirmation = new TextBox { Watermark = "Confirmar senha", PasswordChar = '●' };
-        var keyring = new CheckBox { Content = "Salvar desbloqueio no chaveiro Linux" };
         var status = new TextBlock { Foreground = Avalonia.Media.Brushes.IndianRed, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
         var cancel = new Button { Content = "Cancelar" };
         var create = new Button { Content = "Criar", Classes = { "brand" } };
@@ -63,7 +62,7 @@ internal static class Dialogs
         {
             if ((password.Text?.Length ?? 0) < 12) { status.Text = "A senha mestra deve ter pelo menos 12 caracteres."; return; }
             if (password.Text != confirmation.Text) { status.Text = "As senhas não coincidem."; return; }
-            window.Close(new CreateVaultResult(name.Text?.Trim() ?? "My Pass", password.Text!, keyring.IsChecked == true));
+            window.Close(new CreateVaultResult(name.Text?.Trim() ?? "My Pass", password.Text!, false));
         };
         window.Content = new StackPanel
         {
@@ -71,7 +70,7 @@ internal static class Dialogs
             Children =
             {
                 new TextBlock { Text = "Criar cofre local", FontSize = 24, FontWeight = Avalonia.Media.FontWeight.Bold },
-                name, password, confirmation, keyring, status,
+                name, password, confirmation, status,
                 new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 8, Children = { cancel, create } }
             }
         };
@@ -141,22 +140,22 @@ internal static class Dialogs
         var window = BaseWindow("Configurações", 560, 430);
         var timeout = new NumericUpDown { Minimum = 1, Maximum = 120, Value = current.AutoLockMinutes, Increment = 1 };
         var history = new CheckBox { Content = "Manter histórico local de alterações de senha", IsChecked = current.PasswordHistoryEnabled };
-        var keyring = new CheckBox
+        var keyringNotice = new TextBlock
         {
-            Content = keyringAvailable ? "Permitir desbloqueio pelo chaveiro Linux" : "Chaveiro Linux indisponível — instale libsecret-tools",
-            IsChecked = current.StoreInKeyring && keyringAvailable, IsEnabled = keyringAvailable
+            Text = "Por segurança, a chave de conteúdo não é salva no chaveiro da sessão. O desbloqueio exige a senha mestra.",
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap, Classes = { "muted" }
         };
         var cancel = new Button { Content = "Cancelar" };
         var save = new Button { Content = "Salvar", Classes = { "brand" } };
         cancel.Click += (_, _) => window.Close(null);
-        save.Click += (_, _) => window.Close(new LinuxSettings((int)(timeout.Value ?? 5), history.IsChecked == true, keyring.IsChecked == true));
+        save.Click += (_, _) => window.Close(new LinuxSettings((int)(timeout.Value ?? 5), history.IsChecked == true, false));
         window.Content = new StackPanel
         {
             Margin = new Thickness(24), Spacing = 16,
             Children =
             {
                 new TextBlock { Text = "Segurança e privacidade", FontSize = 24, FontWeight = Avalonia.Media.FontWeight.Bold },
-                Label("Bloquear automaticamente após (minutos)"), timeout, history, keyring,
+                Label("Bloquear automaticamente após (minutos)"), timeout, history, keyringNotice,
                 new TextBlock { Text = "O Lion Pass funciona offline. Nenhum cofre, senha ou diagnóstico é enviado a servidores.", TextWrapping = Avalonia.Media.TextWrapping.Wrap, Classes = { "muted" } },
                 new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 8, Children = { cancel, save } }
             }

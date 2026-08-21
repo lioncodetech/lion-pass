@@ -85,6 +85,20 @@ public sealed class VaultTests : IDisposable
         Assert.Equal(original.Notes, decoded.Notes);
     }
 
+    [Theory]
+    [InlineData("=HYPERLINK(\"https://evil.example\")")]
+    [InlineData("+SUM(1,1)")]
+    [InlineData("-1+2")]
+    [InlineData("@SUM(1,1)")]
+    public void CsvExportNeutralizesSpreadsheetFormulas(string malicious)
+    {
+        var csv = CsvTransfer.Export([new VaultItem { Title = malicious, Password = malicious }]);
+        Assert.Contains("'" + malicious.Replace("\"", "\"\""), csv);
+        var decoded = CsvTransfer.Import(csv).Single();
+        Assert.Equal("'" + malicious, decoded.Title);
+        Assert.Equal("'" + malicious, decoded.Password);
+    }
+
     [Fact]
     public void ServiceSoftDeletesRestoresAndPermanentlyDeletes()
     {

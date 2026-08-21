@@ -286,6 +286,21 @@ final class VaultServiceTests: XCTestCase {
         XCTAssertEqual(decoded[0].notes, item.notes)
     }
 
+    func testPasswordCSVNeutralizesSpreadsheetFormulas() throws {
+        for malicious in ["=1+1", "+SUM(1,1)", "-1+2", "@SUM(1,1)"] {
+            var item = VaultItem()
+            item.title = malicious
+            item.password = malicious
+
+            let exported = PasswordCSVCodec.encode([item])
+            let text = try XCTUnwrap(String(data: exported, encoding: .utf8))
+            XCTAssertTrue(text.contains("'" + malicious))
+            let decoded = try PasswordCSVCodec.decode(exported)
+            XCTAssertEqual(decoded.first?.title, "'" + malicious)
+            XCTAssertEqual(decoded.first?.password, "'" + malicious)
+        }
+    }
+
     func testPasswordSecurityAuditDetectsCommonShortAndReusedPasswords() {
         var common = VaultItem()
         common.title = "Comum"

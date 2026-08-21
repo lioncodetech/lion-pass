@@ -51,7 +51,6 @@ public sealed partial class MainWindow : Window
         try
         {
             _vault.Open(MasterPasswordBox.Text ?? "");
-            if (RememberInKeyringCheck.IsChecked == true) await SaveCurrentKeyAsync();
             ShowVault();
         }
         catch (Exception error) { UnlockStatus.Text = error.Message; }
@@ -77,7 +76,6 @@ public sealed partial class MainWindow : Window
         try
         {
             var recovery = _vault.Create(result.Name, result.Password);
-            if (result.StoreInKeyring) await SaveCurrentKeyAsync();
             await Dialogs.ShowMessageAsync(this, "Chave de recuperação",
                 $"Guarde esta chave fora do computador. Ela não será exibida novamente.\n\n{recovery}");
             ShowVault();
@@ -99,7 +97,6 @@ public sealed partial class MainWindow : Window
         try
         {
             _vault.Import(file.Path.LocalPath, password);
-            if (RememberInKeyringCheck.IsChecked == true) await SaveCurrentKeyAsync();
             ShowVault();
         }
         catch (Exception error) { UnlockStatus.Text = error.Message; }
@@ -138,12 +135,10 @@ public sealed partial class MainWindow : Window
         var user = Environment.UserName;
         try
         {
-            var available = _vault.HasVault && await _keyring.ExistsAsync();
-            KeyringButton.IsVisible = available;
-            KeyringBadge.IsVisible = available;
-            UnlockInstruction.Text = available
-                ? $"Use o chaveiro Linux ou digite a senha mestra do Lion Pass para “{user}”."
-                : $"Digite a senha mestra do Lion Pass para “{user}”.";
+            await _keyring.DeleteAsync();
+            KeyringButton.IsVisible = false;
+            KeyringBadge.IsVisible = false;
+            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
         }
         catch
         {
@@ -151,7 +146,12 @@ public sealed partial class MainWindow : Window
             KeyringBadge.IsVisible = false;
             UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
         }
-        RememberInKeyringCheck.IsVisible = _keyring.IsAvailable;
+        RememberInKeyringCheck.IsVisible = false;
+        if (_settings.StoreInKeyring)
+        {
+            _settings = _settings with { StoreInKeyring = false };
+            SaveSettings(_settings);
+        }
     }
 
     private async Task SaveCurrentKeyAsync()
@@ -424,7 +424,7 @@ public sealed partial class MainWindow : Window
         try
         {
             _settings = result; _vault.Payload.PasswordHistoryEnabled = result.PasswordHistoryEnabled; _vault.Save();
-            if (result.StoreInKeyring) await SaveCurrentKeyAsync(); else await _keyring.DeleteAsync();
+            await _keyring.DeleteAsync();
             SaveSettings(_settings); ResetAutoLock(); await RefreshKeyringAsync();
         }
         catch (Exception error) { await Dialogs.ShowMessageAsync(this, "Configuração não aplicada", error.Message); }

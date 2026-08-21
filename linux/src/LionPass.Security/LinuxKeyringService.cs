@@ -5,36 +5,30 @@ public sealed class LinuxKeyringService
 {
     private static readonly string[] Attributes = ["application", "lion-pass", "vault", "default"];
 
-    public bool IsAvailable => FindSecretTool() is not null;
+    // Secret Service has no application-specific ACL after the user’s collection is unlocked.
+    public bool IsAvailable => false;
 
     public async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
     {
-        if (!IsAvailable) return false;
-        var result = await RunAsync(["lookup", .. Attributes], null, cancellationToken);
-        return result.ExitCode == 0 && !string.IsNullOrWhiteSpace(result.Output);
+        await DeleteAsync(cancellationToken);
+        return false;
     }
 
     public async Task SaveAsync(byte[] contentKey, CancellationToken cancellationToken = default)
     {
-        if (!IsAvailable)
-            throw new InvalidOperationException("O Secret Service não está disponível. Instale libsecret-tools e desbloqueie o chaveiro da sessão.");
-        var encoded = Convert.ToBase64String(contentKey);
-        var result = await RunAsync(["store", "--label=Lion Pass", .. Attributes], encoded, cancellationToken);
-        if (result.ExitCode != 0) throw new InvalidOperationException(result.Error.Trim().Length > 0 ? result.Error.Trim() : "Não foi possível salvar a chave no chaveiro Linux.");
+        await Task.CompletedTask;
+        throw new NotSupportedException("O desbloqueio persistente foi desativado no Linux por segurança.");
     }
 
     public async Task<byte[]> LoadAsync(CancellationToken cancellationToken = default)
     {
-        var result = await RunAsync(["lookup", .. Attributes], null, cancellationToken);
-        if (result.ExitCode != 0 || string.IsNullOrWhiteSpace(result.Output))
-            throw new InvalidOperationException("A chave do Lion Pass não foi encontrada no chaveiro Linux.");
-        try { return Convert.FromBase64String(result.Output.Trim()); }
-        catch (FormatException) { throw new InvalidOperationException("A chave armazenada no chaveiro Linux é inválida."); }
+        await Task.CompletedTask;
+        throw new NotSupportedException("O desbloqueio persistente foi desativado no Linux por segurança.");
     }
 
     public async Task DeleteAsync(CancellationToken cancellationToken = default)
     {
-        if (!IsAvailable) return;
+        if (FindSecretTool() is null) return;
         _ = await RunAsync(["clear", .. Attributes], null, cancellationToken);
     }
 

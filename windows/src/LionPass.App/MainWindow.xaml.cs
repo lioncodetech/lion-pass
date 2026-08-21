@@ -369,7 +369,14 @@ public sealed partial class MainWindow : Window
         if (_selected is null || string.IsNullOrWhiteSpace(_selected.Website)) return;
         var value = _selected.Website.Trim();
         if (!value.Contains("://", StringComparison.Ordinal)) value = "https://" + value;
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri)) await Launcher.LaunchUriAsync(uri);
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+            (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
+             uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
+        {
+            await Launcher.LaunchUriAsync(uri);
+            return;
+        }
+        await MessageAsync("Site inválido", "Por segurança, o Lion Pass abre somente endereços HTTP ou HTTPS.");
     }
 
     private async void Export_Click(object sender, RoutedEventArgs e)
@@ -391,6 +398,13 @@ public sealed partial class MainWindow : Window
 
     private async void ExportCsv_Click(object sender, RoutedEventArgs e)
     {
+        var warning = Dialog("Exportar senhas sem criptografia",
+            new TextBlock
+            {
+                Text = "O arquivo CSV conterá logins e senhas em texto simples. Qualquer pessoa com acesso ao arquivo poderá lê-los. Deseja continuar?",
+                TextWrapping = TextWrapping.Wrap
+            }, "Continuar");
+        if (await warning.ShowAsync() != ContentDialogResult.Primary) return;
         var picker = new FileSavePicker { SuggestedFileName = "Lion Pass Passwords" };
         picker.FileTypeChoices.Add("CSV", [".csv"]);
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
