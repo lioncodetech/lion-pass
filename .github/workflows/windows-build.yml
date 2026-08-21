@@ -7,6 +7,9 @@ on:
     paths: ["windows/**", "shared/**", ".github/workflows/windows-build.yml"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build-test-package:
     runs-on: windows-2022
@@ -56,8 +59,104 @@ jobs:
         run: .\scripts\build-installer.ps1 -Architecture x64
       # actions/upload-artifact v4
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: matrix.architecture == 'x64'
+        if: matrix.architecture == 'x64' && github.event_name == 'push'
+        with:
+          name: LionPass-Windows-x64-Unsigned
+          path: windows/installer/output/*.exe
+          if-no-files-found: error
+          retention-days: 1
+
+  sign-package:
+    if: github.event_name == 'push'
+    needs: build-test-package
+    runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # actions/download-artifact v4.3.0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: LionPass-Windows-x64-Unsigned
+          path: artifacts
+      - name: Apply optional Authenticode publisher signature
+        shell: pwsh
+        env:
+          WINDOWS_SIGNING_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_BASE64 }}
+          WINDOWS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_CERTIFICATE_BASE64)) {
+            Write-Host "Nenhum certificado Authenticode configurado; a assinatura Sigstore continuará obrigatória."
+            exit 0
+          }
+
+          $certificatePath = Join-Path $env:RUNNER_TEMP "lion-pass-signing.pfx"
+          try {
+            [IO.File]::WriteAllBytes(
+              $certificatePath,
+              [Convert]::FromBase64String($env:WINDOWS_SIGNING_CERTIFICATE_BASE64)
+            )
+            $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse |
+              Where-Object { $_.Directory.Name -eq "x64" } |
+              Sort-Object FullName -Descending |
+              Select-Object -First 1
+            if ($null -eq $signTool) { throw "signtool.exe não foi encontrado no runner." }
+
+            Get-ChildItem artifacts -Filter *.exe -File | ForEach-Object {
+              & $signTool.FullName sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com `
+                /f $certificatePath /p $env:WINDOWS_SIGNING_CERTIFICATE_PASSWORD $_.FullName
+              if ($LASTEXITCODE -ne 0) { throw "Falha ao assinar $($_.Name)." }
+              $signature = Get-AuthenticodeSignature $_.FullName
+              if ($signature.Status -ne "Valid") {
+                throw "A assinatura Authenticode de $($_.Name) não pôde ser validada: $($signature.Status)"
+              }
+            }
+          }
+          finally {
+            if (Test-Path $certificatePath) { Remove-Item -LiteralPath $certificatePath -Force }
+          }
+      - name: Generate SHA-256 checksums
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $lines = Get-ChildItem artifacts -Filter *.exe -File |
+            Sort-Object Name |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant(), $_.Name }
+          if ($lines.Count -eq 0) { throw "Nenhum instalador Windows foi encontrado." }
+          [IO.File]::WriteAllLines(
+            (Join-Path (Resolve-Path artifacts) "SHA256SUMS"),
+            $lines,
+            [Text.UTF8Encoding]::new($false)
+          )
+      # sigstore/cosign-installer v4.1.2
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+        with:
+          cosign-release: v3.1.2
+      - name: Sign and verify Windows artifacts with Sigstore
+        shell: pwsh
+        env:
+          CERTIFICATE_IDENTITY: https://github.com/${{ github.workflow_ref }}
+          CERTIFICATE_OIDC_ISSUER: https://token.actions.githubusercontent.com
+        run: |
+          $ErrorActionPreference = "Stop"
+          $artifacts = @((Get-ChildItem artifacts -Filter *.exe -File)) + @((Get-Item artifacts\SHA256SUMS))
+          foreach ($artifact in $artifacts) {
+            $bundle = "$($artifact.FullName).sigstore.json"
+            & cosign sign-blob --yes --bundle $bundle $artifact.FullName
+            if ($LASTEXITCODE -ne 0) { throw "Falha ao assinar $($artifact.Name) com Sigstore." }
+            & cosign verify-blob $artifact.FullName `
+              --bundle $bundle `
+              --certificate-identity $env:CERTIFICATE_IDENTITY `
+              --certificate-oidc-issuer $env:CERTIFICATE_OIDC_ISSUER
+            if ($LASTEXITCODE -ne 0) { throw "Falha ao verificar $($artifact.Name) com Sigstore." }
+          }
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: LionPass-Windows-x64-Setup
-          path: windows/installer/output/*.exe
+          path: |
+            artifacts/*.exe
+            artifacts/SHA256SUMS
+            artifacts/*.sigstore.json
           if-no-files-found: error

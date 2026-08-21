@@ -152,19 +152,44 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
     private func filter(_ items: [VaultItem]) -> [VaultItem] {
         let logins = items.filter { $0.kind == .login }
         guard requestedServices.isEmpty == false else { return logins }
-        let requested = Set(requestedServices.map { normalizedHost($0.identifier) })
+        let requested = Set(requestedServices.compactMap(normalizedHost(for:)))
+        guard requested.isEmpty == false else { return [] }
         return logins.filter { item in
-            let host = normalizedHost(item.website)
-            return requested.contains(where: { service in
-                host == service || host.hasSuffix(".\(service)") || service.hasSuffix(".\(host)")
-            })
+            guard let host = normalizedWebsiteHost(item.website) else { return false }
+            return requested.contains(host)
         }
     }
 
-    private func normalizedHost(_ value: String) -> String {
+    private func normalizedHost(for service: ASCredentialServiceIdentifier) -> String? {
+        switch service.type {
+        case .domain:
+            return normalizedDomain(service.identifier)
+        case .URL:
+            guard let host = URL(string: service.identifier)?.host else { return nil }
+            return normalizedDomain(host)
+        default:
+            return nil
+        }
+    }
+
+    private func normalizedWebsiteHost(_ value: String) -> String? {
         let clean = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if let host = URL(string: clean)?.host { return host }
-        if let host = URL(string: "https://\(clean)")?.host { return host }
+        if let host = URL(string: clean)?.host { return normalizedDomain(host) }
+        if let host = URL(string: "https://\(clean)")?.host { return normalizedDomain(host) }
+        return nil
+    }
+
+    private func normalizedDomain(_ value: String) -> String? {
+        let clean = value.trimmingCharacters(in: CharacterSet(charactersIn: ".")).lowercased()
+        guard clean.isEmpty == false,
+              clean.contains("."),
+              clean.utf8.count <= 253,
+              clean.split(separator: ".", omittingEmptySubsequences: false).allSatisfy({ label in
+                  label.isEmpty == false && label.utf8.count <= 63 &&
+                      label.first != "-" && label.last != "-" &&
+                      label.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" }
+              })
+        else { return nil }
         return clean
     }
 

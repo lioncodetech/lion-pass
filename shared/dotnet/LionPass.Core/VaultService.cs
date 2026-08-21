@@ -139,6 +139,7 @@ public sealed class VaultService : IDisposable
         var data = _crypto.Rewrap(_storage.Read(), unlocked.ContentKey, replacement);
         _ = _crypto.Unlock(data, replacement);
         _storage.WriteAtomically(data);
+        _storage.DeleteBackup();
         Apply(new UnlockedVault(unlocked.Payload, unlocked.ContentKey, _crypto.DecodeEnvelope(data)));
     }
 

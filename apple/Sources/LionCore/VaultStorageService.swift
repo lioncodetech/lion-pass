@@ -6,6 +6,7 @@ public protocol VaultStorageService: Sendable {
     func readEncryptedVault() throws -> Data
     func readPreviousBackup() throws -> Data
     func writeEncryptedVaultAtomically(_ data: Data) throws
+    func deletePreviousBackup() throws
     func restorePreviousBackup() throws
     func importVault(from url: URL) throws -> Data
     func exportVault(to url: URL) throws
@@ -105,6 +106,11 @@ public struct LocalVaultStorageService: VaultStorageService {
     public func restorePreviousBackup() throws {
         let previous = try readPreviousBackup()
         try writeEncryptedVaultAtomically(previous)
+    }
+
+    public func deletePreviousBackup() throws {
+        guard hasPreviousBackup else { return }
+        try FileManager.default.removeItem(at: backupURL)
     }
 
     public func importVault(from url: URL) throws -> Data {

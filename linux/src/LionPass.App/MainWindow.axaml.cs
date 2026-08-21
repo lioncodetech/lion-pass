@@ -45,7 +45,7 @@ public sealed partial class MainWindow : Window
         if (e.Key == Key.Enter) await UnlockWithPasswordAsync();
     }
 
-    private async Task UnlockWithPasswordAsync()
+    private Task UnlockWithPasswordAsync()
     {
         UnlockStatus.Text = "";
         try
@@ -54,6 +54,7 @@ public sealed partial class MainWindow : Window
             ShowVault();
         }
         catch (Exception error) { UnlockStatus.Text = error.Message; }
+        return Task.CompletedTask;
     }
 
     private async void Keyring_Click(object? sender, RoutedEventArgs e)
@@ -386,6 +387,9 @@ public sealed partial class MainWindow : Window
         var file = files.FirstOrDefault(); if (file is null) return;
         try
         {
+            var info = new FileInfo(file.Path.LocalPath);
+            if (info.Length > CsvTransfer.MaximumImportBytes)
+                throw new InvalidDataException("O arquivo CSV excede o limite de 25 MB.");
             _vault.ImportItems(CsvTransfer.Import(await File.ReadAllTextAsync(file.Path.LocalPath)));
             PopulateNavigation(); RefreshItems();
         }
@@ -395,13 +399,24 @@ public sealed partial class MainWindow : Window
     private async void ExportCsv_Click(object? sender, RoutedEventArgs e)
     {
         if (_vault.Payload is null) return;
+        var confirmed = await Dialogs.ConfirmAsync(
+            this,
+            "Exportar senhas sem criptografia",
+            "O arquivo CSV conterá logins e senhas em texto simples. Qualquer pessoa com acesso ao arquivo poderá lê-los. Deseja continuar?"
+        );
+        if (!confirmed) return;
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "Exportar senhas para CSV", SuggestedFileName = "lion-pass.csv",
             FileTypeChoices = [new FilePickerFileType("Arquivo CSV") { Patterns = ["*.csv"] }]
         });
         if (file is null) return;
-        await File.WriteAllTextAsync(file.Path.LocalPath, CsvTransfer.Export(_vault.Payload.Items.Where(x => x.DeletedAt is null)));
+        var path = file.Path.LocalPath;
+        await File.WriteAllTextAsync(path, CsvTransfer.Export(_vault.Payload.Items.Where(x => x.DeletedAt is null)));
+        if (OperatingSystem.IsLinux())
+        {
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
         await Dialogs.ShowMessageAsync(this, "Exportação concluída", "O CSV contém senhas em texto simples. Guarde-o com segurança e apague-o após o uso.");
     }
 

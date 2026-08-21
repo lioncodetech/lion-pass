@@ -52,6 +52,10 @@ public static class PasswordSecurityAudit
 
 public static class CsvTransfer
 {
+    public const long MaximumImportBytes = 25 * 1024 * 1024;
+    private const int MaximumRows = 100_000;
+    private const int MaximumColumns = 256;
+    private const int MaximumFieldCharacters = 1_048_576;
     private static readonly string[] Header = ["title", "username", "password", "website", "email", "notes", "category", "favorite"];
 
     public static string Export(IEnumerable<VaultItem> items)
@@ -67,6 +71,8 @@ public static class CsvTransfer
 
     public static IReadOnlyList<VaultItem> Import(string csv)
     {
+        if (csv.Length > MaximumImportBytes)
+            throw new InvalidDataException("O arquivo CSV excede o limite de 25 MB.");
         var rows = Parse(csv).ToList();
         if (rows.Count == 0) return [];
         var header = rows[0].Select((name, index) => (name, index))
@@ -86,14 +92,20 @@ public static class CsvTransfer
     private static string Escape(string value)
     {
         var safeValue = NeutralizeFormula(value);
-        return safeValue.IndexOfAny([',', '"', '\r', '\n']) >= 0
-            ? $"\"{safeValue.Replace("\"", "\"\"")}\"" : safeValue;
+        return $"\"{safeValue.Replace("\"", "\"\"")}\"";
     }
 
     private static string NeutralizeFormula(string value)
     {
-        if (value.Length == 0) return value;
-        return value[0] is '=' or '+' or '-' or '@' or '\t' or '\r' ? "'" + value : value;
+        foreach (var character in value)
+        {
+            if (char.IsWhiteSpace(character)) continue;
+            return character is '=' or '+' or '-' or '@'
+                or '\uFF1D' or '\uFF0B' or '\uFF0D' or '\uFF20'
+                or '\uFE62' or '\uFE63' or '\uFE66' or '\uFE6B'
+                ? "'" + value : value;
+        }
+        return value;
     }
 
     private static IEnumerable<IReadOnlyList<string>> Parse(string text)
@@ -101,20 +113,48 @@ public static class CsvTransfer
         var row = new List<string>();
         var field = new StringBuilder();
         var quoted = false;
+        var rowCount = 0;
+
+        void AddField()
+        {
+            if (row.Count >= MaximumColumns)
+                throw new InvalidDataException("O arquivo CSV contém colunas demais.");
+            row.Add(field.ToString());
+            field.Clear();
+        }
+
+        void Append(char value)
+        {
+            if (field.Length >= MaximumFieldCharacters)
+                throw new InvalidDataException("Um campo do CSV excede o limite de 1 MB.");
+            field.Append(value);
+        }
+
         for (var index = 0; index < text.Length; index++)
         {
             var current = text[index];
             if (quoted && current == '"' && index + 1 < text.Length && text[index + 1] == '"')
-            { field.Append('"'); index++; }
+            { Append('"'); index++; }
             else if (current == '"') quoted = !quoted;
-            else if (!quoted && current == ',') { row.Add(field.ToString()); field.Clear(); }
+            else if (!quoted && current == ',') AddField();
             else if (!quoted && (current == '\r' || current == '\n'))
             {
                 if (current == '\r' && index + 1 < text.Length && text[index + 1] == '\n') index++;
-                row.Add(field.ToString()); field.Clear(); yield return row; row = [];
+                AddField();
+                if (++rowCount > MaximumRows)
+                    throw new InvalidDataException("O arquivo CSV excede o limite de 100.000 linhas.");
+                yield return row;
+                row = [];
             }
-            else field.Append(current);
+            else Append(current);
         }
-        if (field.Length > 0 || row.Count > 0) { row.Add(field.ToString()); yield return row; }
+        if (quoted) throw new InvalidDataException("O arquivo CSV contém um campo entre aspas incompleto.");
+        if (field.Length > 0 || row.Count > 0)
+        {
+            AddField();
+            if (++rowCount > MaximumRows)
+                throw new InvalidDataException("O arquivo CSV excede o limite de 100.000 linhas.");
+            yield return row;
+        }
     }
 }

@@ -287,18 +287,33 @@ final class VaultServiceTests: XCTestCase {
     }
 
     func testPasswordCSVNeutralizesSpreadsheetFormulas() throws {
-        for malicious in ["=1+1", "+SUM(1,1)", "-1+2", "@SUM(1,1)"] {
+        for malicious in [
+            "=1+1",
+            "+SUM(1,1)",
+            "-1+2",
+            "@SUM(1,1)",
+            "  =HYPERLINK(\"https://evil.example\")",
+            "\n+SUM(1,1)",
+            "＝1+1",
+            "﹫SUM(1,1)"
+        ] {
             var item = VaultItem()
             item.title = malicious
             item.password = malicious
 
             let exported = PasswordCSVCodec.encode([item])
             let text = try XCTUnwrap(String(data: exported, encoding: .utf8))
-            XCTAssertTrue(text.contains("'" + malicious))
+            let serialized = "\"'" + malicious.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+            XCTAssertTrue(text.contains(serialized))
             let decoded = try PasswordCSVCodec.decode(exported)
             XCTAssertEqual(decoded.first?.title, "'" + malicious)
             XCTAssertEqual(decoded.first?.password, "'" + malicious)
         }
+    }
+
+    func testPasswordCSVRejectsOversizedInput() {
+        let oversized = Data(repeating: 0x41, count: PasswordCSVCodec.maximumImportBytes + 1)
+        XCTAssertThrowsError(try PasswordCSVCodec.decode(oversized))
     }
 
     func testPasswordSecurityAuditDetectsCommonShortAndReusedPasswords() {
@@ -339,6 +354,7 @@ final class VaultServiceTests: XCTestCase {
                 current: "uma senha longa e segura",
                 new: "outra senha longa e segura"
             )
+            XCTAssertFalse(storage.hasPreviousBackup)
             service.lockVault()
             XCTAssertThrowsError(try service.openVault(password: "uma senha longa e segura"))
             try service.openVault(password: "outra senha longa e segura")
@@ -506,6 +522,7 @@ private final class InterruptingStorage: VaultStorageService, @unchecked Sendabl
         if failWrites { throw CocoaError(.fileWriteUnknown) }
         try underlying.writeEncryptedVaultAtomically(data)
     }
+    func deletePreviousBackup() throws { try underlying.deletePreviousBackup() }
     func restorePreviousBackup() throws { try underlying.restorePreviousBackup() }
     func importVault(from url: URL) throws -> Data { try underlying.importVault(from: url) }
     func exportVault(to url: URL) throws { try underlying.exportVault(to: url) }

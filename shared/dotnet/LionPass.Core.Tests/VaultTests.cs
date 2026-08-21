@@ -90,6 +90,10 @@ public sealed class VaultTests : IDisposable
     [InlineData("+SUM(1,1)")]
     [InlineData("-1+2")]
     [InlineData("@SUM(1,1)")]
+    [InlineData("  =HYPERLINK(\"https://evil.example\")")]
+    [InlineData("\n+SUM(1,1)")]
+    [InlineData("＝1+1")]
+    [InlineData("﹫SUM(1,1)")]
     public void CsvExportNeutralizesSpreadsheetFormulas(string malicious)
     {
         var csv = CsvTransfer.Export([new VaultItem { Title = malicious, Password = malicious }]);
@@ -97,6 +101,13 @@ public sealed class VaultTests : IDisposable
         var decoded = CsvTransfer.Import(csv).Single();
         Assert.Equal("'" + malicious, decoded.Title);
         Assert.Equal("'" + malicious, decoded.Password);
+    }
+
+    [Fact]
+    public void CsvImportRejectsOversizedInput()
+    {
+        var oversized = new string('A', checked((int)CsvTransfer.MaximumImportBytes + 1));
+        Assert.Throws<InvalidDataException>(() => CsvTransfer.Import(oversized));
     }
 
     [Fact]
@@ -114,6 +125,24 @@ public sealed class VaultTests : IDisposable
         service.SoftDelete([item.Id]);
         service.PermanentlyDelete([item.Id]);
         Assert.Empty(service.Payload.Items);
+    }
+
+    [Fact]
+    public void ChangingMasterPasswordRemovesBackupEncryptedWithOldPassword()
+    {
+        Directory.CreateDirectory(_directory);
+        var storage = new VaultStorageService(_directory);
+        using var service = new VaultService(new VaultCryptoService(), storage);
+        service.Create("Test", Password);
+        service.Upsert(new VaultItem { Title = "Email", Password = "Long-Enough-Password" });
+
+        service.ChangeMasterPassword(Password, "Another-Strong-Master-Password-2026!");
+
+        Assert.False(storage.HasBackup);
+        service.Lock();
+        Assert.Throws<VaultException>(() => service.Open(Password));
+        service.Open("Another-Strong-Master-Password-2026!");
+        Assert.Single(service.Payload!.Items);
     }
 
     [Fact]

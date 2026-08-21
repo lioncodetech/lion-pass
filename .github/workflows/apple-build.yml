@@ -6,6 +6,9 @@ on:
   pull_request:
     paths: ["apple/**", "shared/**", ".github/workflows/apple-build.yml"]
 
+permissions:
+  contents: read
+
 jobs:
   macos-tests:
     runs-on: macos-15
@@ -14,7 +17,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
       - name: Test macOS and compatibility fixture
         working-directory: apple
-        run: xcodebuild test -project LionPass.xcodeproj -scheme LionPassMac -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+        run: ./scripts/test-macos.sh CODE_SIGNING_ALLOWED=NO
 
   ios-build:
     runs-on: macos-15

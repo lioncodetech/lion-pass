@@ -392,7 +392,14 @@ public sealed partial class MainWindow : Window
         var picker = new FileOpenPicker(); picker.FileTypeFilter.Add(".csv");
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
         var file = await picker.PickSingleFileAsync(); if (file is null) return;
-        try { _vault.ImportItems(CsvTransfer.Import(await File.ReadAllTextAsync(file.Path))); RefreshItems(); }
+        try
+        {
+            var properties = await file.GetBasicPropertiesAsync();
+            if (properties.Size > (ulong)CsvTransfer.MaximumImportBytes)
+                throw new InvalidDataException("O arquivo CSV excede o limite de 25 MB.");
+            _vault.ImportItems(CsvTransfer.Import(await File.ReadAllTextAsync(file.Path)));
+            RefreshItems();
+        }
         catch (Exception error) { await MessageAsync("Importação", error.Message); }
     }
 

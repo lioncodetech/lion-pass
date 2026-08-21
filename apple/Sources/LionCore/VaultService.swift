@@ -264,6 +264,7 @@ public final class VaultService: ObservableObject {
         )
         _ = try crypto.unlock(rewrapped, password: new)
         try storage.writeEncryptedVaultAtomically(rewrapped)
+        try storage.deletePreviousBackup()
         apply(
             UnlockedVault(
                 payload: unlocked.payload,

@@ -18,6 +18,7 @@ struct MacVaultView: View {
     @State private var showSettings = false
     @State private var exporting = false
     @State private var exportingPasswords = false
+    @State private var showPasswordExportWarning = false
     @State private var importingPasswords = false
     @State private var passwordExportItems: [VaultItem] = []
     @State private var showNewGroup = false
@@ -180,6 +181,16 @@ struct MacVaultView: View {
         } message: {
             Text("O grupo será criado como uma categoria local e poderá ser compartilhado por exportação.")
         }
+        .alert("Exportar senhas sem criptografia", isPresented: $showPasswordExportWarning) {
+            Button("Cancelar", role: .cancel) {
+                passwordExportItems = []
+            }
+            Button("Continuar", role: .destructive) {
+                exportingPasswords = true
+            }
+        } message: {
+            Text("O arquivo CSV conterá logins e senhas em texto simples. Qualquer pessoa com acesso ao arquivo poderá lê-los. Deseja continuar?")
+        }
         .alert("Não foi possível concluir", isPresented: commandErrorPresented) {
             Button("OK") { commandError = nil }
         } message: {
@@ -334,13 +345,18 @@ struct MacVaultView: View {
 
     private func exportVisibleOrSelectedPasswords() {
         let candidateIDs = selection.isEmpty ? Set(items.map(\.id)) : selection
-        passwordExportItems = (vault.payload?.items ?? []).filter {
+        requestPasswordExport((vault.payload?.items ?? []).filter {
             candidateIDs.contains($0.id) && $0.deletedAt == nil && $0.kind == .login
-        }
-        if passwordExportItems.isEmpty {
+        })
+    }
+
+    private func requestPasswordExport(_ candidates: [VaultItem]) {
+        passwordExportItems = candidates
+        if candidates.isEmpty {
             commandError = "Selecione ao menos uma credencial de login para compartilhar."
+            passwordExportItems = []
         } else {
-            exportingPasswords = true
+            showPasswordExportWarning = true
         }
     }
 
@@ -395,15 +411,13 @@ struct MacVaultView: View {
         case .importPasswords:
             importingPasswords = true
         case .exportAllPasswords:
-            passwordExportItems = (vault.payload?.items ?? []).filter {
+            requestPasswordExport((vault.payload?.items ?? []).filter {
                 $0.deletedAt == nil && $0.kind == .login
-            }
-            exportingPasswords = true
+            })
         case .exportSelectedPasswords:
-            passwordExportItems = (vault.payload?.items ?? []).filter {
+            requestPasswordExport((vault.payload?.items ?? []).filter {
                 selection.contains($0.id) && $0.deletedAt == nil && $0.kind == .login
-            }
-            exportingPasswords = !passwordExportItems.isEmpty
+            })
         case .exportVault:
             exporting = true
         case .copyUsername:
@@ -428,7 +442,16 @@ struct MacVaultView: View {
     }
 
     private func handlePasswordExport(_ result: Result<URL, Error>) {
-        if case let .failure(error) = result { commandError = error.localizedDescription }
+        do {
+            let url = try result.get()
+            try FileManager.default.setAttributes(
+                [.posixPermissions: 0o600],
+                ofItemAtPath: url.path
+            )
+            passwordExportItems = []
+        } catch {
+            commandError = error.localizedDescription
+        }
     }
 
     private func importPasswords(_ result: Result<URL, Error>) {
@@ -436,7 +459,12 @@ struct MacVaultView: View {
             let url = try result.get()
             let accessing = url.startAccessingSecurityScopedResource()
             defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-            try vault.importItems(try PasswordCSVCodec.decode(Data(contentsOf: url)))
+            let values = try url.resourceValues(forKeys: [.fileSizeKey])
+            if let size = values.fileSize, size > PasswordCSVCodec.maximumImportBytes {
+                throw PasswordCSVCodec.CodecError.fileTooLarge
+            }
+            let data = try Data(contentsOf: url, options: .mappedIfSafe)
+            try vault.importItems(try PasswordCSVCodec.decode(data))
         } catch { commandError = error.localizedDescription }
     }
 
@@ -1220,6 +1248,28 @@ struct PasswordCSVDocument: FileDocument {
 }
 
 enum PasswordCSVCodec {
+    static let maximumImportBytes = 25 * 1024 * 1024
+    private static let maximumRows = 100_000
+    private static let maximumColumns = 256
+    private static let maximumFieldCharacters = 1_048_576
+
+    enum CodecError: LocalizedError {
+        case fileTooLarge
+        case tooManyRows
+        case tooManyColumns
+        case fieldTooLarge
+        case malformedQuotes
+
+        var errorDescription: String? {
+            switch self {
+            case .fileTooLarge: "O arquivo CSV excede o limite de 25 MB."
+            case .tooManyRows: "O arquivo CSV excede o limite de 100.000 linhas."
+            case .tooManyColumns: "O arquivo CSV contém colunas demais."
+            case .fieldTooLarge: "Um campo do CSV excede o limite de 1 MB."
+            case .malformedQuotes: "O arquivo CSV contém um campo entre aspas incompleto."
+            }
+        }
+    }
     private static let headers = ["title", "username", "password", "website", "email", "category", "notes"]
 
     static func encode(_ items: [VaultItem]) -> Data {
@@ -1231,14 +1281,18 @@ enum PasswordCSVCodec {
     }
 
     static func decode(_ data: Data) throws -> [VaultItem] {
+        guard data.count <= maximumImportBytes else { throw CodecError.fileTooLarge }
         guard let text = String(data: data, encoding: .utf8) else {
             throw CocoaError(.fileReadInapplicableStringEncoding)
         }
-        let rows = parse(text)
+        let rows = try parse(text)
         guard let first = rows.first else { return [] }
         let normalizedHeaders = first.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).localizedLowercase }
         let hasHeader = normalizedHeaders.contains("password") || normalizedHeaders.contains("senha")
-        let index: [String: Int] = Dictionary(uniqueKeysWithValues: normalizedHeaders.enumerated().map { ($1, $0) })
+        var index: [String: Int] = [:]
+        for (position, name) in normalizedHeaders.enumerated() where index[name] == nil {
+            index[name] = position
+        }
 
         func value(_ row: [String], names: [String], fallback: Int) -> String {
             let position = names.compactMap { index[$0] }.first ?? fallback
@@ -1263,51 +1317,75 @@ enum PasswordCSVCodec {
     }
 
     private static func escape(_ value: String) -> String {
-        let dangerousPrefixes: Set<Character> = ["=", "+", "-", "@", "\t", "\r"]
-        let safeValue = value.first.map(dangerousPrefixes.contains) == true ? "'" + value : value
-        guard safeValue.contains(",") || safeValue.contains("\"") || safeValue.contains("\n") || safeValue.contains("\r") else {
-            return safeValue
-        }
+        let safeValue = neutralizeFormula(value)
         return "\"" + safeValue.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 
-    private static func parse(_ text: String) -> [[String]] {
+    private static func neutralizeFormula(_ value: String) -> String {
+        let dangerousPrefixes: Set<Character> = [
+            "=", "+", "-", "@", "＝", "＋", "－", "＠", "﹢", "﹣", "﹦", "﹫"
+        ]
+        for character in value {
+            if character.isWhitespace { continue }
+            return dangerousPrefixes.contains(character) ? "'" + value : value
+        }
+        return value
+    }
+
+    private static func parse(_ text: String) throws -> [[String]] {
         var rows: [[String]] = []
         var row: [String] = []
         var field = ""
+        var fieldCharacters = 0
         var quoted = false
         var index = text.startIndex
+
+        func appendCharacter(_ character: Character) throws {
+            guard fieldCharacters < maximumFieldCharacters else { throw CodecError.fieldTooLarge }
+            field.append(character)
+            fieldCharacters += 1
+        }
+
+        func finishField() throws {
+            guard row.count < maximumColumns else { throw CodecError.tooManyColumns }
+            row.append(field)
+            field = ""
+            fieldCharacters = 0
+        }
+
+        func finishRow() throws {
+            try finishField()
+            guard rows.count < maximumRows else { throw CodecError.tooManyRows }
+            rows.append(row)
+            row = []
+        }
 
         while index < text.endIndex {
             let character = text[index]
             if character == "\"" {
                 let next = text.index(after: index)
                 if quoted, next < text.endIndex, text[next] == "\"" {
-                    field.append("\"")
+                    try appendCharacter("\"")
                     index = next
                 } else {
                     quoted.toggle()
                 }
             } else if character == ",", !quoted {
-                row.append(field)
-                field = ""
+                try finishField()
             } else if (character == "\n" || character == "\r"), !quoted {
                 if character == "\r" {
                     let next = text.index(after: index)
                     if next < text.endIndex, text[next] == "\n" { index = next }
                 }
-                row.append(field)
-                rows.append(row)
-                row = []
-                field = ""
+                try finishRow()
             } else {
-                field.append(character)
+                try appendCharacter(character)
             }
             index = text.index(after: index)
         }
+        guard quoted == false else { throw CodecError.malformedQuotes }
         if !field.isEmpty || !row.isEmpty {
-            row.append(field)
-            rows.append(row)
+            try finishRow()
         }
         return rows
     }

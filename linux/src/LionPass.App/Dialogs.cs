@@ -27,6 +27,30 @@ internal static class Dialogs
         await window.ShowDialog(owner);
     }
 
+    public static async Task<bool> ConfirmAsync(Window owner, string title, string message, string confirmLabel = "Continuar")
+    {
+        var window = BaseWindow(title, 500, 280);
+        var cancel = new Button { Content = "Cancelar" };
+        var confirm = new Button { Content = confirmLabel, Classes = { "brand" } };
+        cancel.Click += (_, _) => window.Close(false);
+        confirm.Click += (_, _) => window.Close(true);
+        window.Content = new StackPanel
+        {
+            Margin = new Thickness(24), Spacing = 18,
+            Children =
+            {
+                new TextBlock { Text = title, FontSize = 24, FontWeight = Avalonia.Media.FontWeight.Bold },
+                new TextBlock { Text = message, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+                new StackPanel
+                {
+                    Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right,
+                    Spacing = 8, Children = { cancel, confirm }
+                }
+            }
+        };
+        return await window.ShowDialog<bool>(owner);
+    }
+
     public static async Task<string?> PromptAsync(Window owner, string title, string label, bool password = false)
     {
         var window = BaseWindow(title, 460, 220);

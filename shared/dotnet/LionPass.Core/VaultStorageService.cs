@@ -20,6 +20,11 @@ public sealed class VaultStorageService
     public byte[] Read() => File.ReadAllBytes(VaultPath);
     public byte[] ReadBackup() => File.ReadAllBytes(BackupPath);
 
+    public void DeleteBackup()
+    {
+        if (File.Exists(BackupPath)) File.Delete(BackupPath);
+    }
+
     public void WriteAtomically(byte[] data)
     {
         if (data.Length == 0) throw VaultException.InvalidFormat();
