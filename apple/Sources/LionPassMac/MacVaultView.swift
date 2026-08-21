@@ -471,6 +471,11 @@ struct MacVaultView: View {
 }
 
 struct MacItemDetail: View {
+    private struct CopyConfirmation: Identifiable, Equatable {
+        let id = UUID()
+        let message: String
+    }
+
     let item: VaultItem
     let edit: () -> Void
     @EnvironmentObject private var vault: VaultService
@@ -478,6 +483,9 @@ struct MacItemDetail: View {
     @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
     @State private var reveal = false
     @State private var revealedHistory: Set<UUID> = []
+    @State private var hoveredCopyRow: String?
+    @State private var copyConfirmation: CopyConfirmation?
+    @State private var showingWebsiteActions = false
 
     var body: some View {
         Form {
@@ -571,49 +579,160 @@ struct MacItemDetail: View {
         }
         .formStyle(.grouped)
         .padding()
+        .overlay(alignment: .top) {
+            if let copyConfirmation {
+                Label(copyConfirmation.message, systemImage: "checkmark.circle.fill")
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(.regularMaterial, in: Capsule())
+                    .overlay {
+                        Capsule().stroke(.quaternary, lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .task(id: copyConfirmation?.id) {
+            guard copyConfirmation != nil else { return }
+            try? await Task.sleep(for: .seconds(1.6))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.2)) {
+                copyConfirmation = nil
+            }
+        }
         .toolbar { Button("Editar", action: edit) }
         .onDisappear {
             reveal = false
             revealedHistory.removeAll()
+            hoveredCopyRow = nil
+            copyConfirmation = nil
+            showingWebsiteActions = false
         }
     }
 
     private func secretRow(_ label: String, value: String) -> some View {
         LabeledContent(label) {
-            Text(reveal ? value : "••••••••••••")
-                .font(.body.monospaced())
-                .privacySensitive()
+            HStack(spacing: 8) {
+                Text(reveal ? value : "••••••••••••")
+                    .font(.body.monospaced())
+                    .privacySensitive()
+                if hoveredCopyRow == label, !value.isEmpty {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
+                }
+            }
         }
         .contentShape(Rectangle())
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(hoveredCopyRow == label ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.12)) {
+                hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
+            }
+        }
+        .onTapGesture { copy(value, confirmation: "Senha copiada") }
+        .help(value.isEmpty ? "Sem valor para copiar" : "Clique para copiar a senha")
         .contextMenu {
             Button(reveal ? "Ocultar senha" : "Mostrar senha") { reveal.toggle() }
-            Button("Copiar") { ClipboardService.shared.copy(value) }
+            Button("Copiar") { copy(value, confirmation: "Senha copiada") }
                 .disabled(value.isEmpty)
         }
     }
 
     private func copyableRow(_ label: String, value: String) -> some View {
         LabeledContent(label) {
-            Text(value)
-                .textSelection(.enabled)
-                .privacySensitive()
+            HStack(spacing: 8) {
+                Text(value)
+                    .privacySensitive()
+                if hoveredCopyRow == label, !value.isEmpty {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
+                }
+            }
         }
         .contentShape(Rectangle())
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(hoveredCopyRow == label ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.12)) {
+                hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
+            }
+        }
+        .onTapGesture { copy(value, confirmation: "\(label) copiado") }
+        .help(value.isEmpty ? "Sem valor para copiar" : "Clique para copiar \(label.lowercased())")
         .contextMenu {
-            Button("Copiar") { ClipboardService.shared.copy(value) }
+            Button("Copiar") { copy(value, confirmation: "\(label) copiado") }
                 .disabled(value.isEmpty)
+        }
+    }
+
+    private func copy(_ value: String, confirmation message: String) {
+        guard !value.isEmpty else { return }
+        ClipboardService.shared.copy(value)
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.86)) {
+            copyConfirmation = CopyConfirmation(message: message)
         }
     }
 
     private func websiteRow(_ value: String) -> some View {
         LabeledContent("Site") {
-            Text(value)
-                .textSelection(.enabled)
-                .lineLimit(1)
+            HStack(spacing: 8) {
+                Text(value)
+                    .lineLimit(1)
+                if hoveredCopyRow == "Site", !value.isEmpty {
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
+                }
+            }
         }
         .contentShape(Rectangle())
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(hoveredCopyRow == "Site" ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.12)) {
+                hoveredCopyRow = hovering ? "Site" : (hoveredCopyRow == "Site" ? nil : hoveredCopyRow)
+            }
+        }
+        .onTapGesture {
+            guard !value.isEmpty else { return }
+            showingWebsiteActions = true
+        }
+        .help(value.isEmpty ? "Nenhum site cadastrado" : "Clique para ver as opções do site")
+        .popover(isPresented: $showingWebsiteActions, arrowEdge: .trailing) {
+            VStack(alignment: .leading, spacing: 2) {
+                websiteAction("Abrir site", systemImage: "safari") {
+                    showingWebsiteActions = false
+                    if let url = normalizedURL(value) { openURL(url) }
+                }
+                .disabled(normalizedURL(value) == nil)
+
+                websiteAction("Copiar site", systemImage: "doc.on.doc") {
+                    showingWebsiteActions = false
+                    copy(value, confirmation: "Site copiado")
+                }
+
+                Divider().padding(.vertical, 2)
+
+                websiteAction("Editar site", systemImage: "pencil") {
+                    showingWebsiteActions = false
+                    edit()
+                }
+            }
+            .padding(8)
+            .frame(minWidth: 180)
+        }
         .contextMenu {
-            Button("Copiar") { ClipboardService.shared.copy(value) }
+            Button("Copiar site") { copy(value, confirmation: "Site copiado") }
                 .disabled(value.isEmpty)
             Button {
                 if let url = normalizedURL(value) { openURL(url) }
@@ -621,7 +740,24 @@ struct MacItemDetail: View {
                 Label("Abrir no navegador", systemImage: "arrow.up.right.square")
             }
             .disabled(normalizedURL(value) == nil)
+            Divider()
+            Button("Editar site", action: edit)
         }
+    }
+
+    private func websiteAction(
+        _ title: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
     }
 
     private var displayInitial: String {

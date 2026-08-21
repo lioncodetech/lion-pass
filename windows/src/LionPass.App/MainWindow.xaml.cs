@@ -21,6 +21,7 @@ public sealed partial class MainWindow : Window
     private string _filter = "all";
     private VaultItem? _selected;
     private bool _passwordVisible;
+    private int _copyConfirmationVersion;
 
     public MainWindow()
     {
@@ -299,15 +300,45 @@ public sealed partial class MainWindow : Window
         await Task.CompletedTask;
     }
 
-    private void CopyUsername_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Username);
-    private void CopyPassword_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Password);
-    private void CopyWebsite_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Website);
-    private void CopyEmail_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Email);
+    private void CopyUsername_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Username, "Usuário copiado");
+    private void CopyPassword_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Password, "Senha copiada");
+    private void CopyWebsite_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Website, "Site copiado");
+    private void CopyEmail_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Email, "E-mail copiado");
 
-    private static async void CopySecret(string? value)
+    private void UsernameRow_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        CopySecret(_selected?.Username, "Usuário copiado");
+        e.Handled = true;
+    }
+
+    private void PasswordRow_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        CopySecret(_selected?.Password, "Senha copiada");
+        e.Handled = true;
+    }
+
+    private void WebsiteRow_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (_selected is null || string.IsNullOrWhiteSpace(_selected.Website)) return;
+        if (sender is FrameworkElement target) WebsiteFlyout.ShowAt(target);
+        e.Handled = true;
+    }
+
+    private static void CopyableRow_PointerEntered(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, true);
+    private static void CopyableRow_PointerExited(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, false);
+
+    private static void SetCopyHint(object sender, bool visible)
+    {
+        if (sender is not Grid grid) return;
+        var hint = grid.Children.OfType<FontIcon>().FirstOrDefault(icon => icon.Tag as string == "CopyHint");
+        if (hint is not null) hint.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void CopySecret(string? value, string confirmation)
     {
         if (string.IsNullOrEmpty(value)) return;
         var package = new DataPackage(); package.SetText(value); Clipboard.SetContent(package);
+        ShowCopyConfirmation(confirmation);
         await Task.Delay(TimeSpan.FromSeconds(30));
         try
         {
@@ -315,6 +346,15 @@ public sealed partial class MainWindow : Window
             if (current == value) Clipboard.Clear();
         }
         catch { }
+    }
+
+    private async void ShowCopyConfirmation(string message)
+    {
+        var version = ++_copyConfirmationVersion;
+        CopyConfirmation.Title = message;
+        CopyConfirmation.IsOpen = true;
+        await Task.Delay(TimeSpan.FromSeconds(1.6));
+        if (version == _copyConfirmationVersion) CopyConfirmation.IsOpen = false;
     }
 
     private void ShowPassword_Click(object sender, RoutedEventArgs e)

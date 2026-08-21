@@ -122,6 +122,9 @@
           </StackPanel>
           <ScrollViewer x:Name="DetailScroll" IsVisible="False">
             <StackPanel Spacing="16" MaxWidth="760">
+              <Border x:Name="CopyConfirmation" IsVisible="False" Background="#253D36" BorderBrush="#54D4BC" BorderThickness="1" CornerRadius="10" Padding="12,8">
+                <TextBlock x:Name="CopyConfirmationText" FontWeight="SemiBold" HorizontalAlignment="Center" />
+              </Border>
               <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                   <Border Width="78" Height="78" CornerRadius="14" Background="#77757D" HorizontalAlignment="Center">
@@ -137,18 +140,31 @@
                 <StackPanel Spacing="12">
                   <TextBlock Text="Credenciais" FontSize="19" FontWeight="Bold" />
                   <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
-                    <TextBlock Text="Usuário" />
-                    <TextBlock x:Name="DetailUsername" Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Right">
-                      <TextBlock.ContextMenu><ContextMenu><MenuItem Header="Copiar usuário" Click="CopyUsername_Click" /></ContextMenu></TextBlock.ContextMenu>
-                    </TextBlock>
-                    <TextBlock Grid.Row="1" Text="Senha" />
-                    <TextBlock x:Name="DetailPassword" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right">
-                      <TextBlock.ContextMenu><ContextMenu><MenuItem Header="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuItem Header="Copiar senha" Click="CopyPassword_Click" /></ContextMenu></TextBlock.ContextMenu>
-                    </TextBlock>
-                    <TextBlock Grid.Row="2" Text="Site" />
-                    <TextBlock x:Name="DetailWebsite" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Right">
-                      <TextBlock.ContextMenu><ContextMenu><MenuItem Header="Copiar site" Click="CopyWebsite_Click" /><MenuItem Header="Abrir no navegador" Click="OpenWebsite_Click" /></ContextMenu></TextBlock.ContextMenu>
-                    </TextBlock>
+                    <Grid Grid.ColumnSpan="2" Background="Transparent" ColumnDefinitions="110,*,Auto" Cursor="Hand" PointerEntered="CopyableRow_PointerEntered" PointerExited="CopyableRow_PointerExited" PointerPressed="UsernameRow_PointerPressed">
+                      <TextBlock Text="Usuário" />
+                      <TextBlock x:Name="DetailUsername" Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Right" />
+                      <TextBlock Grid.Column="2" Classes="copyHint muted" Text="⧉" Margin="8,0,0,0" IsVisible="False" />
+                      <Grid.ContextMenu><ContextMenu><MenuItem Header="Copiar usuário" Click="CopyUsername_Click" /></ContextMenu></Grid.ContextMenu>
+                    </Grid>
+                    <Grid Grid.Row="1" Grid.ColumnSpan="2" Background="Transparent" ColumnDefinitions="110,*,Auto" Cursor="Hand" PointerEntered="CopyableRow_PointerEntered" PointerExited="CopyableRow_PointerExited" PointerPressed="PasswordRow_PointerPressed">
+                      <TextBlock Text="Senha" />
+                      <TextBlock x:Name="DetailPassword" Grid.Column="1" HorizontalAlignment="Right" />
+                      <TextBlock Grid.Column="2" Classes="copyHint muted" Text="⧉" Margin="8,0,0,0" IsVisible="False" />
+                      <Grid.ContextMenu><ContextMenu><MenuItem Header="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuItem Header="Copiar senha" Click="CopyPassword_Click" /></ContextMenu></Grid.ContextMenu>
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="Transparent" ColumnDefinitions="110,*,Auto" Cursor="Hand" PointerEntered="CopyableRow_PointerEntered" PointerExited="CopyableRow_PointerExited" PointerPressed="WebsiteRow_PointerPressed">
+                      <TextBlock Text="Site" />
+                      <TextBlock x:Name="DetailWebsite" Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Right" />
+                      <TextBlock Grid.Column="2" Classes="copyHint muted" Text="⌄" Margin="8,0,0,0" IsVisible="False" />
+                      <Grid.ContextMenu>
+                        <ContextMenu>
+                          <MenuItem Header="Abrir site" Click="OpenWebsite_Click" />
+                          <MenuItem Header="Copiar site" Click="CopyWebsite_Click" />
+                          <Separator />
+                          <MenuItem Header="Editar site" Click="Edit_Click" />
+                        </ContextMenu>
+                      </Grid.ContextMenu>
+                    </Grid>
                     <TextBlock Grid.Row="3" Text="E-mail" />
                     <TextBlock x:Name="DetailEmail" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" HorizontalAlignment="Right">
                       <TextBlock.ContextMenu><ContextMenu><MenuItem Header="Copiar e-mail" Click="CopyEmail_Click" /></ContextMenu></TextBlock.ContextMenu>

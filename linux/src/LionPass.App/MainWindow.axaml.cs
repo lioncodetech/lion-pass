@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
     private bool _passwordVisible;
     private LinuxSettings _settings = LoadSettings();
     private CancellationTokenSource? _clipboardClearCancellation;
+    private int _copyConfirmationVersion;
 
     public MainWindow()
     {
@@ -275,24 +276,66 @@ public sealed partial class MainWindow : Window
         DetailPassword.Text = _passwordVisible ? _selected.Password : Mask(_selected.Password);
     }
 
-    private async void CopyUsername_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Username);
-    private async void CopyPassword_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Password);
-    private async void CopyWebsite_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Website);
-    private async void CopyEmail_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Email);
+    private async void CopyUsername_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Username, "Usuário copiado");
+    private async void CopyPassword_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Password, "Senha copiada");
+    private async void CopyWebsite_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Website, "Site copiado");
+    private async void CopyEmail_Click(object? sender, RoutedEventArgs e) => await CopyAsync(_selected?.Email, "E-mail copiado");
 
-    private async Task CopyAsync(string? value)
+    private async void UsernameRow_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control target || !e.GetCurrentPoint(target).Properties.IsLeftButtonPressed) return;
+        e.Handled = true;
+        await CopyAsync(_selected?.Username, "Usuário copiado");
+    }
+
+    private async void PasswordRow_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control target || !e.GetCurrentPoint(target).Properties.IsLeftButtonPressed) return;
+        e.Handled = true;
+        await CopyAsync(_selected?.Password, "Senha copiada");
+    }
+
+    private void WebsiteRow_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (_selected is null || string.IsNullOrWhiteSpace(_selected.Website) || sender is not Control target) return;
+        if (!e.GetCurrentPoint(target).Properties.IsLeftButtonPressed) return;
+        target.ContextMenu?.Open(target);
+        e.Handled = true;
+    }
+
+    private static void CopyableRow_PointerEntered(object? sender, PointerEventArgs e) => SetCopyHint(sender, true);
+    private static void CopyableRow_PointerExited(object? sender, PointerEventArgs e) => SetCopyHint(sender, false);
+
+    private static void SetCopyHint(object? sender, bool visible)
+    {
+        if (sender is not Grid grid) return;
+        var hint = grid.Children.OfType<TextBlock>().FirstOrDefault(text => text.Classes.Contains("copyHint"));
+        if (hint is not null) hint.IsVisible = visible;
+    }
+
+    private async Task CopyAsync(string? value, string confirmation)
     {
         if (string.IsNullOrEmpty(value) || Clipboard is null) return;
         _clipboardClearCancellation?.Cancel();
         _clipboardClearCancellation = new CancellationTokenSource();
         var cancellation = _clipboardClearCancellation.Token;
         await Clipboard.SetTextAsync(value); ResetAutoLock();
+        ShowCopyConfirmation(confirmation);
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(30), cancellation);
             if (await Clipboard.TryGetTextAsync() == value) await Clipboard.ClearAsync();
         }
         catch (OperationCanceledException) { }
+    }
+
+    private async void ShowCopyConfirmation(string message)
+    {
+        var version = ++_copyConfirmationVersion;
+        CopyConfirmationText.Text = message;
+        CopyConfirmation.IsVisible = true;
+        await Task.Delay(TimeSpan.FromSeconds(1.6));
+        if (version == _copyConfirmationVersion) CopyConfirmation.IsVisible = false;
     }
 
     private async void OpenWebsite_Click(object? sender, RoutedEventArgs e)
