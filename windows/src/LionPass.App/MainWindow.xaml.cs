@@ -324,8 +324,8 @@ public sealed partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private static void CopyableRow_PointerEntered(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, true);
-    private static void CopyableRow_PointerExited(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, false);
+    private void CopyableRow_PointerEntered(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, true);
+    private void CopyableRow_PointerExited(object sender, PointerRoutedEventArgs e) => SetCopyHint(sender, false);
 
     private static void SetCopyHint(object sender, bool visible)
     {
