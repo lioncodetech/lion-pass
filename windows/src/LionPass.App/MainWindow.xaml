@@ -110,51 +110,53 @@
                 </Grid>
 
                 <ScrollViewer Grid.Column="2" Padding="36,24">
-                    <StackPanel x:Name="EmptyDetail" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                        <FontIcon Glyph="&#xE72E;" FontSize="54" Opacity="0.45" />
-                        <TextBlock Text="Selecione um item" FontSize="28" FontWeight="SemiBold" Opacity="0.65" />
-                    </StackPanel>
-                    <StackPanel x:Name="DetailPanel" Visibility="Collapsed" MaxWidth="760" Spacing="18">
-                        <Grid>
-                            <StackPanel HorizontalAlignment="Center" Spacing="8">
-                                <Border Width="78" Height="78" CornerRadius="14" Background="{StaticResource LionIdentityBrush}">
-                                    <TextBlock x:Name="DetailInitial" FontSize="42" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                                <TextBlock x:Name="DetailTitle" FontSize="34" FontWeight="Bold" HorizontalAlignment="Center" />
-                                <TextBlock x:Name="DetailKind" Opacity="0.6" HorizontalAlignment="Center" />
-                            </StackPanel>
-                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-                                <Button Content="Editar" Click="Edit_Click" />
-                                <Button x:Name="RestoreButton" Content="Restaurar" Click="Restore_Click" Visibility="Collapsed" />
-                                <Button x:Name="DeleteButton" Content="Excluir" Click="Delete_Click" />
-                            </StackPanel>
-                        </Grid>
-                        <Border Background="#2B272C" CornerRadius="16" Padding="20">
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Credenciais" FontSize="20" FontWeight="SemiBold" />
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Usuário" /><TextBlock x:Name="DetailUsername" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
-                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar usuário" Click="CopyUsername_Click" /></MenuFlyout></TextBlock.ContextFlyout>
-                                    </TextBlock></Grid>
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Senha" /><PasswordBox x:Name="DetailPassword" Grid.Column="1" IsTabStop="False" HorizontalAlignment="Stretch">
-                                        <PasswordBox.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuFlyoutItem Text="Copiar senha" Click="CopyPassword_Click" /></MenuFlyout></PasswordBox.ContextFlyout>
-                                    </PasswordBox></Grid>
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Site" /><TextBlock x:Name="DetailWebsite" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
-                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar site" Click="CopyWebsite_Click" /><MenuFlyoutItem Text="Abrir no navegador" Click="OpenWebsite_Click" /></MenuFlyout></TextBlock.ContextFlyout>
-                                    </TextBlock></Grid>
-                                <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="E-mail" /><TextBlock x:Name="DetailEmail" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
-                                        <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar e-mail" Click="CopyEmail_Click" /></MenuFlyout></TextBlock.ContextFlyout>
-                                    </TextBlock></Grid>
-                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Modificado" /><TextBlock x:Name="DetailModified" Grid.Column="1" HorizontalAlignment="Right" /></Grid>
-                                <TextBlock x:Name="DetailNotes" TextWrapping="Wrap" Opacity="0.75" />
-                            </StackPanel>
-                        </Border>
-                        <InfoBar x:Name="SecurityCard" IsOpen="True" IsClosable="False" />
-                    </StackPanel>
+                    <Grid>
+                        <StackPanel x:Name="EmptyDetail" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                            <FontIcon Glyph="&#xE72E;" FontSize="54" Opacity="0.45" />
+                            <TextBlock Text="Selecione um item" FontSize="28" FontWeight="SemiBold" Opacity="0.65" />
+                        </StackPanel>
+                        <StackPanel x:Name="DetailPanel" Visibility="Collapsed" MaxWidth="760" Spacing="18">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                                    <Border Width="78" Height="78" CornerRadius="14" Background="{StaticResource LionIdentityBrush}">
+                                        <TextBlock x:Name="DetailInitial" FontSize="42" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock x:Name="DetailTitle" FontSize="34" FontWeight="Bold" HorizontalAlignment="Center" />
+                                    <TextBlock x:Name="DetailKind" Opacity="0.6" HorizontalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Editar" Click="Edit_Click" />
+                                    <Button x:Name="RestoreButton" Content="Restaurar" Click="Restore_Click" Visibility="Collapsed" />
+                                    <Button x:Name="DeleteButton" Content="Excluir" Click="Delete_Click" />
+                                </StackPanel>
+                            </Grid>
+                            <Border Background="#2B272C" CornerRadius="16" Padding="20">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Credenciais" FontSize="20" FontWeight="SemiBold" />
+                                    <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Usuário" /><TextBlock x:Name="DetailUsername" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                            <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar usuário" Click="CopyUsername_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                        </TextBlock></Grid>
+                                    <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Senha" /><PasswordBox x:Name="DetailPassword" Grid.Column="1" IsTabStop="False" HorizontalAlignment="Stretch">
+                                            <PasswordBox.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuFlyoutItem Text="Copiar senha" Click="CopyPassword_Click" /></MenuFlyout></PasswordBox.ContextFlyout>
+                                        </PasswordBox></Grid>
+                                    <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Site" /><TextBlock x:Name="DetailWebsite" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                            <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar site" Click="CopyWebsite_Click" /><MenuFlyoutItem Text="Abrir no navegador" Click="OpenWebsite_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                        </TextBlock></Grid>
+                                    <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="E-mail" /><TextBlock x:Name="DetailEmail" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
+                                            <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar e-mail" Click="CopyEmail_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                        </TextBlock></Grid>
+                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Modificado" /><TextBlock x:Name="DetailModified" Grid.Column="1" HorizontalAlignment="Right" /></Grid>
+                                    <TextBlock x:Name="DetailNotes" TextWrapping="Wrap" Opacity="0.75" />
+                                </StackPanel>
+                            </Border>
+                            <InfoBar x:Name="SecurityCard" IsOpen="True" IsClosable="False" />
+                        </StackPanel>
+                    </Grid>
                 </ScrollViewer>
             </Grid>
         </Grid>
