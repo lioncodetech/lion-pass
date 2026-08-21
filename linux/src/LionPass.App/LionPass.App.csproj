@@ -16,7 +16,7 @@
     </PackageReference>
     <!-- Avalonia 11.3.9 resolves 0.21.2 transitively. Pin the security
          backport that fixes GHSA-xrw6-gwf8-vvr9. -->
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.0" />
     <ProjectReference Include="..\..\..\shared\dotnet\LionPass.Core\LionPass.Core.csproj" />
     <ProjectReference Include="..\LionPass.Security\LionPass.Security.csproj" />
     <AvaloniaResource Include="Assets\**" />
