@@ -6,7 +6,7 @@ Aplicação nativa para Windows 10 (build 19041+) e Windows 11, construída com 
 
 - criação, desbloqueio e bloqueio de cofres `.lionvault` v1/v2;
 - interoperabilidade criptográfica com macOS/iOS;
-- Windows Hello com a chave protegida por DPAPI para o usuário atual;
+- Windows Hello com chave RSA não exportável no Microsoft Passport KSP, protegida pelo PIN/biometria e pelo TPM quando disponível;
 - logins, cartões, notas seguras, identidades, favoritos e categorias;
 - pesquisa, filtros, ordenação, auditoria local e gerador seguro;
 - copiar usuário, senha e site com limpeza automática do clipboard;
@@ -46,4 +46,4 @@ O resultado será criado em `windows/installer/output/LionPass-Windows-x64-Setup
 
 ## Dados locais
 
-O cofre e o backup ficam em `%LOCALAPPDATA%\Lion Code Technology\Lion Pass`. A chave do Windows Hello é cifrada pelo DPAPI e vinculada ao usuário do Windows; ela não é portátil e nunca substitui a senha mestra ou a chave de recuperação.
+O cofre e o backup ficam em `%LOCALAPPDATA%\Lion Code Technology\Lion Pass`. O arquivo `hello-key.dat` contém somente a chave do cofre cifrada com a chave pública RSA; a chave privada não exportável fica no Microsoft Passport Key Storage Provider e exige Windows Hello a cada uso. Registros DPAPI de versões anteriores são removidos e o Windows Hello precisa ser reativado uma vez após a atualização. Esse recurso nunca substitui a senha mestra ou a chave de recuperação.

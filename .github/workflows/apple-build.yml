@@ -10,7 +10,8 @@ jobs:
   macos-tests:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
       - name: Test macOS and compatibility fixture
         working-directory: apple
         run: xcodebuild test -project LionPass.xcodeproj -scheme LionPassMac -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
@@ -18,7 +19,8 @@ jobs:
   ios-build:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
       - name: Build iOS without signing
         working-directory: apple
         run: xcodebuild build -project LionPass.xcodeproj -scheme LionPass -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO

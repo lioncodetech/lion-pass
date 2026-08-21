@@ -3,6 +3,10 @@ name: Linux
 env:
   AVALONIA_TELEMETRY_OPTOUT: "1"
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  APPIMAGETOOL_VERSION: "1.9.1"
+  APPIMAGETOOL_SHA256: "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
+  APPIMAGE_RUNTIME_VERSION: "20251108"
+  APPIMAGE_RUNTIME_SHA256: "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
 
 on:
   push:
@@ -15,27 +19,41 @@ jobs:
   build-test-package:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-dotnet v5
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "8.0.424"
       - name: Test shared core
         run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
       - name: Build Linux application
         run: dotnet build linux/src/LionPass.App/LionPass.App.csproj -c Release
       - name: Install packaging dependencies
         run: sudo apt-get update && sudo apt-get install --yes libsecret-tools
-      - name: Download AppImage tool
+      - name: Download and verify pinned AppImage tools
+        shell: bash
         run: |
-          curl -fL -o "$RUNNER_TEMP/appimagetool" https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x "$RUNNER_TEMP/appimagetool"
+          set -euo pipefail
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+            --output "$RUNNER_TEMP/appimagetool" \
+            "https://github.com/AppImage/appimagetool/releases/download/$APPIMAGETOOL_VERSION/appimagetool-x86_64.AppImage"
+          echo "$APPIMAGETOOL_SHA256  $RUNNER_TEMP/appimagetool" | sha256sum --check --strict
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+            --output "$RUNNER_TEMP/appimage-runtime" \
+            "https://github.com/AppImage/type2-runtime/releases/download/$APPIMAGE_RUNTIME_VERSION/runtime-x86_64"
+          echo "$APPIMAGE_RUNTIME_SHA256  $RUNNER_TEMP/appimage-runtime" | sha256sum --check --strict
+          chmod 0755 "$RUNNER_TEMP/appimagetool"
+          chmod 0644 "$RUNNER_TEMP/appimage-runtime"
       - name: Build DEB, AppImage and portable archive
         env:
           APPIMAGETOOL: ${{ runner.temp }}/appimagetool
+          APPIMAGETOOL_RUNTIME_FILE: ${{ runner.temp }}/appimage-runtime
           APPIMAGE_EXTRACT_AND_RUN: "1"
           ARCH: x86_64
         run: linux/scripts/build-packages.sh linux-x64
-      - uses: actions/upload-artifact@v4
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: LionPass-Linux-x64
           path: |

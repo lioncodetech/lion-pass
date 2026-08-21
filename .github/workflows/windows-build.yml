@@ -15,24 +15,47 @@ jobs:
       matrix:
         architecture: [x64, arm64]
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-dotnet v5
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "8.0.424"
       - name: Test core
         run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
       - name: Build WinUI
         working-directory: windows
         run: dotnet build src/LionPass.App/LionPass.App.csproj -c Release -p:Platform=${{ matrix.architecture }}
-      - name: Install Inno Setup
+      - name: Install verified Inno Setup
         if: matrix.architecture == 'x64'
-        run: choco install innosetup --yes --no-progress
+        shell: pwsh
+        env:
+          INNO_VERSION: "6.7.3"
+          INNO_SHA256: "9c73c3bae7ed48d44112a0f48e66742c00090bdb5bef71d9d3c056c66e97b732"
+        run: |
+          $ErrorActionPreference = "Stop"
+          $installer = Join-Path $env:RUNNER_TEMP "innosetup-$env:INNO_VERSION.exe"
+          $url = "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-$env:INNO_VERSION.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          $actualHash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+          if ($actualHash -ne $env:INNO_SHA256) {
+            throw "SHA-256 inválido para Inno Setup: $actualHash"
+          }
+          $signature = Get-AuthenticodeSignature $installer
+          if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Pyrsys B\.V\.") {
+            throw "Assinatura Authenticode inválida para Inno Setup: $($signature.Status)"
+          }
+          $process = Start-Process -FilePath $installer -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-" -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "Instalação do Inno Setup falhou com código $($process.ExitCode)"
+          }
       - name: Build installer
         if: matrix.architecture == 'x64'
         working-directory: windows
         shell: pwsh
         run: .\scripts\build-installer.ps1 -Architecture x64
-      - uses: actions/upload-artifact@v4
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: matrix.architecture == 'x64'
         with:
           name: LionPass-Windows-x64-Setup

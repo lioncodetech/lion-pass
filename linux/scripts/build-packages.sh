@@ -51,7 +51,18 @@ if [[ -n "$APPIMAGE_TOOL" && "$RID" == "linux-x64" ]]; then
   cp "$LINUX_DIR/packaging/appimage/lion-pass.desktop" "$APPDIR/lion-pass.desktop"
   cp "$OUTPUT_DIR/lion-pass.png" "$APPDIR/lion-pass.png"
   cp "$OUTPUT_DIR/lion-pass.png" "$APPDIR/usr/share/icons/hicolor/512x512/apps/lion-pass.png"
-  ARCH=x86_64 "$APPIMAGE_TOOL" "$APPDIR" "$OUTPUT_DIR/LionPass-$VERSION-x86_64.AppImage"
+
+  appimage_runtime_args=()
+  if [[ -n "${APPIMAGETOOL_RUNTIME_FILE:-}" ]]; then
+    if [[ ! -f "$APPIMAGETOOL_RUNTIME_FILE" ]]; then
+      echo "Runtime AppImage fixado não encontrado: $APPIMAGETOOL_RUNTIME_FILE" >&2
+      exit 1
+    fi
+    appimage_runtime_args=(--runtime-file "$APPIMAGETOOL_RUNTIME_FILE")
+  fi
+
+  ARCH=x86_64 "$APPIMAGE_TOOL" "${appimage_runtime_args[@]}" \
+    "$APPDIR" "$OUTPUT_DIR/LionPass-$VERSION-x86_64.AppImage"
 fi
 
 echo "Pacotes gerados em $OUTPUT_DIR"
