@@ -453,8 +453,8 @@ public sealed partial class MainWindow : Window
     private static Symbol CategorySymbol(string category) => category.ToLowerInvariant() switch
     {
         "e-mail" => Symbol.Mail, "bancos" => Symbol.Library, "redes sociais" => Symbol.People,
-        "trabalho" => Symbol.Briefcase, "compras" => Symbol.Shop, "streaming" => Symbol.Video,
-        "wi-fi" => Symbol.Wifi, "cartões" => Symbol.ContactInfo, "notas" => Symbol.Document,
+        "trabalho" => Symbol.Admin, "compras" => Symbol.Shop, "streaming" => Symbol.Video,
+        "wi-fi" => Symbol.Globe, "cartões" => Symbol.ContactInfo, "notas" => Symbol.Document,
         "identidades" => Symbol.Contact, _ => Symbol.Folder
     };
 }

@@ -11,6 +11,7 @@ jobs:
   build-test-package:
     runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
         architecture: [x64, arm64]
     steps:
