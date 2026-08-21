@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 final class LionMacAppDelegate: NSObject, NSApplicationDelegate {
@@ -26,28 +27,135 @@ final class LionMacAppDelegate: NSObject, NSApplicationDelegate {
 struct LionPassMacApp: App {
     @NSApplicationDelegateAdaptor(LionMacAppDelegate.self) private var appDelegate
     @StateObject private var vault = VaultService()
+    @AppStorage(LionPreferenceKey.showInMenuBar) private var showInMenuBar = false
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup("Lion Pass", id: "main") {
             MacAppContent()
                 .environmentObject(vault)
-                .tint(.lionBlue)
+                .tint(.lionAccent)
                 .frame(minWidth: 900, minHeight: 600)
         }
-        .commands {
-            CommandGroup(replacing: .newItem) {
-                Button("Novo item") {
-                    NotificationCenter.default.post(name: .newLionItem, object: nil)
-                }
-                .keyboardShortcut("n")
-            }
+        .commands { LionPassCommands() }
+        MenuBarExtra(
+            "Lion Pass",
+            systemImage: "key.fill",
+            isInserted: $showInMenuBar
+        ) {
+            LionMenuBarView().environmentObject(vault)
         }
-        Settings { LionAboutView() }
+        Settings { MacSettingsView().environmentObject(vault) }
+    }
+}
+
+struct LionMenuBarView: View {
+    @EnvironmentObject private var vault: VaultService
+
+    var body: some View {
+        Button("Abrir Lion Pass") {
+            NSApplication.shared.setActivationPolicy(.regular)
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            NSApplication.shared.windows.first(where: { $0.canBecomeMain })?.makeKeyAndOrderFront(nil)
+        }
+        if vault.isUnlocked {
+            Button("Bloquear cofre") { vault.lockVault() }
+        }
+        Divider()
+        Button("Sair do Lion Pass") { NSApplication.shared.terminate(nil) }
     }
 }
 
 extension Notification.Name {
     static let newLionItem = Notification.Name("newLionItem")
+}
+
+enum LionMenuCommand {
+    case newItem, newGroup, importPasswords, exportAllPasswords, exportSelectedPasswords, exportVault
+    case copyUsername, copyPassword, copyWebsite, editCurrent, deleteSelected, selectAll, find
+    case showCollection(String), sort(String)
+}
+
+final class LionCommandCenter {
+    static let shared = LionCommandCenter()
+    let commands = PassthroughSubject<LionMenuCommand, Never>()
+    private init() {}
+}
+
+struct LionPassCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.openURL) private var openURL
+
+    var body: some Commands {
+        CommandGroup(replacing: .newItem) {
+            Button("Nova credencial…") { send(.newItem) }
+                .keyboardShortcut("n")
+            Button("Nova janela") { openWindow(id: "main") }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("Novo grupo local…") { send(.newGroup) }
+        }
+        CommandGroup(replacing: .importExport) {
+            Button("Importar senhas de arquivo…") { send(.importPasswords) }
+            Divider()
+            Button("Exportar todas as senhas…") { send(.exportAllPasswords) }
+            Button("Exportar senhas selecionadas…") { send(.exportSelectedPasswords) }
+            Divider()
+            Button("Exportar cofre criptografado…") { send(.exportVault) }
+        }
+        CommandGroup(after: .pasteboard) {
+            Divider()
+            Button("Copiar usuário") { send(.copyUsername) }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+            Button("Copiar senha") { send(.copyPassword) }
+                .keyboardShortcut("c", modifiers: [.command, .option])
+            Button("Copiar site") { send(.copyWebsite) }
+                .keyboardShortcut("c", modifiers: [.command, .option, .shift])
+            Divider()
+            Button("Editar item atual") { send(.editCurrent) }
+                .keyboardShortcut("e", modifiers: [.command, .shift])
+            Button("Mover para Apagados") { send(.deleteSelected) }
+            Button("Selecionar tudo") { send(.selectAll) }
+                .keyboardShortcut("a")
+            Button("Buscar") { send(.find) }
+                .keyboardShortcut("f")
+        }
+        CommandGroup(before: .sidebar) {
+            Button("Todos os itens") { show("all") }.keyboardShortcut("1")
+            Button("Logins") { show("logins") }.keyboardShortcut("2")
+            Button("Cartões") { show("cards") }.keyboardShortcut("3")
+            Button("Notas seguras") { show("notes") }.keyboardShortcut("4")
+            Button("Wi-Fi") { show("wifi") }
+            Button("Segurança") { show("security") }.keyboardShortcut("5")
+            Button("Apagados") { show("deleted") }.keyboardShortcut("6")
+            Divider()
+            Menu("Ordenar por") {
+                Button("Título") { sort("title") }
+                Button("Mais recentes") { sort("recent") }
+                Button("Mais antigos") { sort("oldest") }
+            }
+            Divider()
+        }
+        CommandGroup(replacing: .help) {
+            Button("Ajuda do Lion Pass") {
+                if let url = URL(string: "https://lioncodetech.com.br/") { openURL(url) }
+            }
+                .keyboardShortcut("?", modifiers: .command)
+            Button("Bem-vindo ao Lion Pass") {
+                NSApplication.shared.orderFrontStandardAboutPanel(nil)
+            }
+        }
+    }
+
+    private func send(_ command: LionMenuCommand) {
+        LionCommandCenter.shared.commands.send(command)
+    }
+
+    private func show(_ collection: String) {
+        send(.showCollection(collection))
+    }
+
+    private func sort(_ order: String) {
+        send(.sort(order))
+    }
 }
 
 struct MacAppContent: View {

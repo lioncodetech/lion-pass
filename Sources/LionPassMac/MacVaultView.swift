@@ -3,28 +3,49 @@ import UniformTypeIdentifiers
 
 struct MacVaultView: View {
     @EnvironmentObject private var vault: VaultService
-    @State private var selection: UUID?
+    @AppStorage(LionPreferenceKey.accountDisplayStyle) private var accountDisplayStyle = AccountDisplayStyle.titles.rawValue
+    @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
+    @State private var selection: Set<UUID> = []
     @State private var query = ""
     @State private var kind: VaultItemKind?
     @State private var category: String?
     @State private var favoritesOnly = false
+    @State private var collection = "all"
+    @State private var sortOrder = "title"
     @State private var editing: VaultItem?
     @State private var showGenerator = false
     @State private var showSettings = false
     @State private var exporting = false
+    @State private var exportingPasswords = false
+    @State private var importingPasswords = false
+    @State private var passwordExportItems: [VaultItem] = []
+    @State private var showNewGroup = false
+    @State private var newGroupName = ""
+    @State private var commandError: String?
+    @State private var typesExpanded = false
+    @State private var categoriesExpanded = false
 
     private var items: [VaultItem] {
-        (vault.payload?.items ?? [])
+        let allItems = vault.payload?.items ?? []
+        return allItems
             .filter {
-                (kind == nil || $0.kind == kind)
+                (collection == "deleted" ? $0.deletedAt != nil : $0.deletedAt == nil)
+                    && (collection != "security" || PasswordSecurityAudit.warning(for: $0, in: allItems) != nil)
+                    && (kind == nil || $0.kind == kind)
                     && (category == nil || $0.category == category)
                     && (!favoritesOnly || $0.isFavorite)
                     && (query.isEmpty || $0.matches(query))
             }
             .sorted {
+                if sortOrder == "recent" { return $0.updatedAt > $1.updatedAt }
+                if sortOrder == "oldest" { return $0.updatedAt < $1.updatedAt }
                 if $0.isFavorite != $1.isFavorite { return $0.isFavorite }
                 return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
             }
+    }
+
+    private var allItemsSelected: Bool {
+        collection == "all" && kind == nil && category == nil && !favoritesOnly
     }
 
     var body: some View {
@@ -33,64 +54,74 @@ struct MacVaultView: View {
                 Button { resetFilters() } label: {
                     Label("Todos os itens", systemImage: "tray.full.fill")
                 }
+                .buttonStyle(LionSidebarButtonStyle(isSelected: allItemsSelected))
                 Button {
                     resetFilters()
                     favoritesOnly = true
                 } label: {
                     Label("Favoritos", systemImage: "star.fill")
                 }
-                Section("Tipos") {
-                    ForEach(VaultItemKind.allCases) { value in
-                        Button {
-                            resetFilters()
-                            kind = value
-                        } label: {
-                            Label(value.title, systemImage: value.symbol)
-                        }
+                .buttonStyle(LionSidebarButtonStyle(isSelected: favoritesOnly))
+                Button { showCollection("security") } label: {
+                    HStack {
+                        Label("Segurança", systemImage: "exclamationmark.shield.fill")
+                        Spacer()
+                        Text("\(PasswordSecurityAudit.vulnerableCount(in: vault.payload?.items ?? []))")
+                            .font(.caption.monospacedDigit())
                     }
                 }
-                Section("Categorias") {
-                    ForEach(vault.payload?.allCategories ?? [], id: \.self) { value in
-                        Button {
-                            resetFilters()
-                            category = value
-                        } label: {
-                            Label(value, systemImage: "folder")
-                        }
+                .buttonStyle(LionSidebarButtonStyle(isSelected: collection == "security"))
+                Button { showCollection("deleted") } label: {
+                    HStack {
+                        Label("Apagados", systemImage: "trash.fill")
+                        Spacer()
+                        Text("\((vault.payload?.items ?? []).filter { $0.deletedAt != nil }.count)")
+                            .font(.caption.monospacedDigit())
                     }
+                }
+                .buttonStyle(LionSidebarButtonStyle(isSelected: collection == "deleted"))
+                Section {
+                    DisclosureGroup(isExpanded: $typesExpanded) {
+                        ForEach(VaultItemKind.allCases) { value in
+                            Button {
+                                resetFilters()
+                                kind = value
+                            } label: {
+                                Label(value.title, systemImage: value.symbol)
+                            }
+                            .buttonStyle(LionSidebarButtonStyle(isSelected: kind == value))
+                        }
+                    } label: {
+                        Label("Tipos", systemImage: "square.stack.3d.up.fill")
+                            .fontWeight(.semibold)
+                    }
+                    .tint(.lionCyan)
+                }
+                Section {
+                    DisclosureGroup(isExpanded: $categoriesExpanded) {
+                        ForEach(vault.payload?.allCategories ?? [], id: \.self) { value in
+                            Button {
+                                resetFilters()
+                                category = value
+                            } label: {
+                                Label(value, systemImage: VaultPayload.categorySymbol(for: value))
+                            }
+                            .buttonStyle(LionSidebarButtonStyle(isSelected: category == value))
+                        }
+                    } label: {
+                        Label("Categorias", systemImage: "square.grid.2x2")
+                            .fontWeight(.semibold)
+                    }
+                    .tint(.lionCyan)
                 }
             }
+            .listStyle(.sidebar)
             .navigationTitle("Lion")
         } content: {
-            List(items, selection: $selection) { item in
-                HStack {
-                    Image(systemName: item.kind.symbol).foregroundStyle(Color.lionBlue)
-                    VStack(alignment: .leading) {
-                        Text(item.title).fontWeight(.semibold)
-                        Text(item.username.isEmpty ? item.website : item.username)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if item.isFavorite {
-                        Image(systemName: "star.fill").foregroundStyle(.yellow)
-                    }
-                }
-                .tag(item.id)
-                .contextMenu {
-                    Button("Editar") { editing = item }
-                    Button("Apagar", role: .destructive) { try? vault.delete(ids: [item.id]) }
-                }
-            }
-            .searchable(text: $query, prompt: "Pesquisar…")
-            .navigationTitle(vault.payload?.name ?? "Meu cofre")
-            .overlay {
-                if items.isEmpty {
-                    ContentUnavailableView("Nenhum item", systemImage: "lock.square")
-                }
-            }
+            contentColumn
         } detail: {
-            if let id = selection,
+            if selection.count == 1,
+               let id = selection.first,
                let item = vault.payload?.items.first(where: { $0.id == id }) {
                 MacItemDetail(item: item) { editing = item }
             } else {
@@ -104,18 +135,13 @@ struct MacVaultView: View {
                 }
                 Menu {
                     ForEach(VaultItemKind.allCases) { value in
-                        Button(value.title) {
-                            var item = VaultItem()
-                            item.kind = value
-                            item.category = defaultCategory(for: value)
-                            editing = item
-                        }
+                        Button(value.title) { createItem(of: value) }
                     }
                 } label: {
                     Label("Novo item", systemImage: "plus")
                 }
-                Button { exporting = true } label: {
-                    Label("Exportar", systemImage: "square.and.arrow.up")
+                Button(action: exportVisibleOrSelectedPasswords) {
+                    Label("Compartilhar", systemImage: "square.and.arrow.up")
                 }
                 Button { showSettings = true } label: {
                     Label("Configurações", systemImage: "gear")
@@ -125,9 +151,7 @@ struct MacVaultView: View {
                 }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newLionItem)) { _ in
-            editing = VaultItem()
-        }
+        .onReceive(LionCommandCenter.shared.commands, perform: handleMenuCommand)
         .sheet(item: $editing) { MacItemEditor(item: $0) }
         .sheet(isPresented: $showGenerator) { MacGeneratorView() }
         .sheet(isPresented: $showSettings) { MacSettingsView() }
@@ -137,6 +161,128 @@ struct MacVaultView: View {
             contentType: .lionVault,
             defaultFilename: "backup.lionvault"
         ) { _ in }
+        .fileExporter(
+            isPresented: $exportingPasswords,
+            document: PasswordCSVDocument(items: passwordExportItems),
+            contentType: .commaSeparatedText,
+            defaultFilename: "lion-pass-passwords.csv"
+        ) { handlePasswordExport($0) }
+        .fileImporter(
+            isPresented: $importingPasswords,
+            allowedContentTypes: [.commaSeparatedText, .plainText],
+            onCompletion: importPasswords
+        )
+        .alert("Novo grupo local", isPresented: $showNewGroup) {
+            TextField("Nome do grupo", text: $newGroupName)
+            Button("Cancelar", role: .cancel) { newGroupName = "" }
+            Button("Criar", action: createLocalGroup)
+        } message: {
+            Text("O grupo será criado como uma categoria local e poderá ser compartilhado por exportação.")
+        }
+        .alert("Não foi possível concluir", isPresented: commandErrorPresented) {
+            Button("OK") { commandError = nil }
+        } message: {
+            Text(commandError ?? "Erro desconhecido")
+        }
+    }
+
+    private var contentColumn: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(collectionTitle).font(.headline)
+                    Text("\(items.count) item(ns)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Menu {
+                    Button("Título") { sortOrder = "title" }
+                    Button("Mais recentes") { sortOrder = "recent" }
+                    Button("Mais antigos") { sortOrder = "oldest" }
+                } label: {
+                    Label("Ordenar", systemImage: "arrow.up.arrow.down")
+                }
+                .menuStyle(.borderlessButton)
+                Menu {
+                    ForEach(VaultItemKind.allCases) { value in
+                        Button(value.title) { createItem(of: value) }
+                    }
+                } label: {
+                    Label("Novo", systemImage: "plus")
+                }
+                .menuStyle(.borderlessButton)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            Divider()
+            itemList
+        }
+        .searchable(text: $query, prompt: "Pesquisar…")
+        .navigationTitle(vault.payload?.name ?? "Meu cofre")
+    }
+
+    private var itemList: some View {
+        List(items, selection: $selection) { item in
+            HStack {
+                Image(systemName: item.kind.symbol)
+                    .foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(Color.lionGradient, in: RoundedRectangle(cornerRadius: 8))
+                VStack(alignment: .leading) {
+                    Text(accountPrimaryText(for: item)).fontWeight(.semibold)
+                    Text(accountSecondaryText(for: item))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if detectCompromisedPasswords,
+                   PasswordSecurityAudit.warning(for: item, in: vault.payload?.items ?? []) != nil {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundStyle(.red)
+                        .help("Esta credencial precisa de atenção")
+                } else if item.isFavorite {
+                    Image(systemName: "star.fill").foregroundStyle(.yellow)
+                }
+            }
+            .tag(item.id)
+            .contextMenu { itemContextMenu(item) }
+        }
+        .overlay {
+            if items.isEmpty {
+                ContentUnavailableView("Nenhum item", systemImage: "lock.square")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func itemContextMenu(_ item: VaultItem) -> some View {
+        if item.deletedAt == nil {
+            Button("Editar") { editing = item }
+            Button("Mover para Apagados", role: .destructive) { try? vault.delete(ids: [item.id]) }
+        } else {
+            Button("Restaurar") { try? vault.restore(ids: [item.id]) }
+            Button("Apagar definitivamente", role: .destructive) {
+                try? vault.permanentlyDelete(ids: [item.id])
+                selection.remove(item.id)
+            }
+        }
+    }
+
+    private var collectionTitle: String {
+        if collection == "security" { return "Segurança" }
+        if collection == "deleted" { return "Apagados" }
+        if favoritesOnly { return "Favoritos" }
+        if let category { return category }
+        if let kind { return kind.title }
+        return "Todos os itens"
+    }
+
+    private var commandErrorPresented: Binding<Bool> {
+        Binding(
+            get: { commandError != nil },
+            set: { presented in if !presented { commandError = nil } }
+        )
     }
 
     private func resetFilters() {
@@ -144,6 +290,129 @@ struct MacVaultView: View {
         category = nil
         favoritesOnly = false
         query = ""
+        collection = "all"
+    }
+
+    private func createItem(of kind: VaultItemKind) {
+        var item = VaultItem()
+        item.kind = kind
+        item.category = defaultCategory(for: kind)
+        editing = item
+    }
+
+    private func exportVisibleOrSelectedPasswords() {
+        let candidateIDs = selection.isEmpty ? Set(items.map(\.id)) : selection
+        passwordExportItems = (vault.payload?.items ?? []).filter {
+            candidateIDs.contains($0.id) && $0.deletedAt == nil && $0.kind == .login
+        }
+        if passwordExportItems.isEmpty {
+            commandError = "Selecione ao menos uma credencial de login para compartilhar."
+        } else {
+            exportingPasswords = true
+        }
+    }
+
+    private func showCollection(_ requested: String) {
+        kind = nil
+        category = nil
+        favoritesOnly = false
+        collection = requested
+        switch requested {
+        case "logins": kind = .login; collection = "all"
+        case "cards": kind = .card; collection = "all"
+        case "notes": kind = .secureNote; collection = "all"
+        case "wifi": category = "Wi-Fi"; collection = "all"
+        default: break
+        }
+        selection.removeAll()
+    }
+
+    private func selectedItem() -> VaultItem? {
+        guard selection.count == 1, let id = selection.first else { return nil }
+        return vault.payload?.items.first { $0.id == id }
+    }
+
+    private func copySelected(_ keyPath: KeyPath<VaultItem, String>) {
+        guard let value = selectedItem()?[keyPath: keyPath], !value.isEmpty else { return }
+        ClipboardService.shared.copy(value)
+    }
+
+    private func editSelected() {
+        guard let item = selectedItem(), item.deletedAt == nil else { return }
+        editing = item
+    }
+
+    private func deleteSelected() {
+        guard !selection.isEmpty else { return }
+        do {
+            if collection == "deleted" {
+                try vault.permanentlyDelete(ids: selection)
+            } else {
+                try vault.delete(ids: selection)
+            }
+            selection.removeAll()
+        } catch { commandError = error.localizedDescription }
+    }
+
+    private func handleMenuCommand(_ command: LionMenuCommand) {
+        switch command {
+        case .newItem:
+            editing = VaultItem()
+        case .newGroup:
+            showNewGroup = true
+        case .importPasswords:
+            importingPasswords = true
+        case .exportAllPasswords:
+            passwordExportItems = (vault.payload?.items ?? []).filter {
+                $0.deletedAt == nil && $0.kind == .login
+            }
+            exportingPasswords = true
+        case .exportSelectedPasswords:
+            passwordExportItems = (vault.payload?.items ?? []).filter {
+                selection.contains($0.id) && $0.deletedAt == nil && $0.kind == .login
+            }
+            exportingPasswords = !passwordExportItems.isEmpty
+        case .exportVault:
+            exporting = true
+        case .copyUsername:
+            copySelected(\.username)
+        case .copyPassword:
+            copySelected(\.password)
+        case .copyWebsite:
+            copySelected(\.website)
+        case .editCurrent:
+            editSelected()
+        case .deleteSelected:
+            deleteSelected()
+        case .selectAll:
+            selection = Set(items.map(\.id))
+        case .find:
+            NSApplication.shared.sendAction(#selector(NSSearchField.selectText(_:)), to: nil, from: nil)
+        case let .showCollection(requested):
+            showCollection(requested)
+        case let .sort(order):
+            sortOrder = order
+        }
+    }
+
+    private func handlePasswordExport(_ result: Result<URL, Error>) {
+        if case let .failure(error) = result { commandError = error.localizedDescription }
+    }
+
+    private func importPasswords(_ result: Result<URL, Error>) {
+        do {
+            let url = try result.get()
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+            try vault.importItems(try PasswordCSVCodec.decode(Data(contentsOf: url)))
+        } catch { commandError = error.localizedDescription }
+    }
+
+    private func createLocalGroup() {
+        do {
+            try vault.addCategory(newGroupName)
+            newGroupName = ""
+        } catch { commandError = error.localizedDescription }
     }
 
     private func defaultCategory(for kind: VaultItemKind) -> String {
@@ -155,11 +424,30 @@ struct MacVaultView: View {
         case .other: "Outros"
         }
     }
+
+    private func accountPrimaryText(for item: VaultItem) -> String {
+        switch AccountDisplayStyle(rawValue: accountDisplayStyle) ?? .titles {
+        case .titles: item.title.isEmpty ? "Sem título" : item.title
+        case .websites: item.website.isEmpty ? (item.title.isEmpty ? "Sem site" : item.title) : item.website
+        case .usernames: item.username.isEmpty ? (item.title.isEmpty ? "Sem usuário" : item.title) : item.username
+        }
+    }
+
+    private func accountSecondaryText(for item: VaultItem) -> String {
+        switch AccountDisplayStyle(rawValue: accountDisplayStyle) ?? .titles {
+        case .titles: item.username.isEmpty ? item.website : item.username
+        case .websites: item.username.isEmpty ? item.title : item.username
+        case .usernames: item.website.isEmpty ? item.title : item.website
+        }
+    }
 }
 
 struct MacItemDetail: View {
     let item: VaultItem
     let edit: () -> Void
+    @EnvironmentObject private var vault: VaultService
+    @Environment(\.openURL) private var openURL
+    @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
     @State private var reveal = false
     @State private var revealedHistory: Set<UUID> = []
 
@@ -171,10 +459,29 @@ struct MacItemDetail: View {
             }
             if item.kind == .login {
                 Section("Credenciais") {
-                    LabeledContent("Usuário", value: item.username)
+                    copyableRow("Usuário", value: item.username)
                     secretRow("Senha", value: item.password)
-                    LabeledContent("Site", value: item.website)
-                    LabeledContent("E-mail", value: item.email)
+                    websiteRow(item.website)
+                    copyableRow("E-mail", value: item.email)
+                    LabeledContent(
+                        "Modificado",
+                        value: item.updatedAt.formatted(date: .abbreviated, time: .shortened)
+                    )
+                }
+                if detectCompromisedPasswords {
+                    Section("Segurança") {
+                        if let warning = PasswordSecurityAudit.warning(for: item, in: vault.payload?.items ?? []) {
+                        Label(warning, systemImage: "exclamationmark.shield.fill")
+                            .foregroundStyle(.orange)
+                        } else {
+                            Label("Nenhum problema encontrado", systemImage: "checkmark.shield.fill")
+                                .font(.headline)
+                                .foregroundStyle(.green)
+                            Text("A senha não é curta, não aparece na lista local de senhas muito comprometidas e não está sendo reutilizada em outra conta do cofre.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
             if item.kind == .card {
@@ -216,7 +523,9 @@ struct MacItemDetail: View {
                                     revealedHistory.insert(revision.id)
                                 }
                             }
+                            .buttonStyle(LionCompactActionButtonStyle())
                             Button("Copiar") { ClipboardService.shared.copy(revision.password) }
+                                .buttonStyle(LionCompactActionButtonStyle())
                         }
                     }
                 }
@@ -235,8 +544,53 @@ struct MacItemDetail: View {
         HStack {
             LabeledContent(label, value: reveal ? value : "••••••••••••")
             Button(reveal ? "Ocultar" : "Mostrar") { reveal.toggle() }
+                .buttonStyle(LionCompactActionButtonStyle())
             Button("Copiar") { ClipboardService.shared.copy(value) }
+                .buttonStyle(LionCompactActionButtonStyle())
         }
+    }
+
+    private func copyableRow(_ label: String, value: String) -> some View {
+        HStack {
+            LabeledContent(label) {
+                Text(value)
+                    .textSelection(.enabled)
+                    .privacySensitive()
+            }
+            Button("Copiar") { ClipboardService.shared.copy(value) }
+                .buttonStyle(LionCompactActionButtonStyle())
+                .disabled(value.isEmpty)
+                .help("Copiar \(label.lowercased())")
+        }
+    }
+
+    private func websiteRow(_ value: String) -> some View {
+        HStack {
+            LabeledContent("Site") {
+                Text(value)
+                    .textSelection(.enabled)
+                    .lineLimit(1)
+            }
+            Button("Copiar") { ClipboardService.shared.copy(value) }
+                .buttonStyle(LionCompactActionButtonStyle())
+                .disabled(value.isEmpty)
+                .help("Copiar URL")
+            Button {
+                if let url = normalizedURL(value) { openURL(url) }
+            } label: {
+                Label("Abrir", systemImage: "arrow.up.right.square")
+            }
+            .buttonStyle(LionCompactActionButtonStyle())
+            .disabled(normalizedURL(value) == nil)
+            .help("Abrir no navegador padrão")
+        }
+    }
+
+    private func normalizedURL(_ value: String) -> URL? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let url = URL(string: trimmed), url.scheme != nil { return url }
+        return URL(string: "https://\(trimmed)")
     }
 
 }
@@ -246,6 +600,7 @@ struct MacItemEditor: View {
     @Environment(\.dismiss) private var dismiss
     @State var item: VaultItem
     @State private var error: String?
+    @AppStorage(LionPreferenceKey.suggestStrongPasswords) private var suggestStrongPasswords = true
 
     var body: some View {
         VStack {
@@ -257,7 +612,17 @@ struct MacItemEditor: View {
                 Toggle("Favorito", isOn: $item.isFavorite)
                 if item.kind == .login {
                     TextField("Usuário", text: $item.username)
-                    SecureField("Senha", text: $item.password)
+                    HStack {
+                        SecureField("Senha", text: $item.password)
+                        if suggestStrongPasswords {
+                            Button {
+                                item.password = (try? SecurePasswordGenerator.password(options: PasswordOptions())) ?? item.password
+                            } label: {
+                                Label("Sugerir senha forte", systemImage: "wand.and.stars")
+                            }
+                            .buttonStyle(LionCompactActionButtonStyle())
+                        }
+                    }
                     TextField("Site", text: $item.website)
                     TextField("E-mail", text: $item.email)
                 }
@@ -381,6 +746,13 @@ struct MacSettingsView: View {
     @AppStorage(LionPreferenceKey.autoLock) private var autoLock = AutoLockDuration.immediately.rawValue
     @AppStorage(LionPreferenceKey.clipboard) private var clipboard = 30
     @AppStorage(LionPreferenceKey.privacyCover) private var privacyCover = true
+    @AppStorage(LionPreferenceKey.accountDisplayStyle) private var accountDisplayStyle = AccountDisplayStyle.titles.rawValue
+    @AppStorage(LionPreferenceKey.passwordSaveBehavior) private var passwordSaveBehavior = PasswordSaveBehavior.ask.rawValue
+    @AppStorage(LionPreferenceKey.showInMenuBar) private var showInMenuBar = false
+    @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
+    @AppStorage(LionPreferenceKey.suggestStrongPasswords) private var suggestStrongPasswords = true
+    @AppStorage(LionPreferenceKey.automaticPasskeyUpgrades) private var automaticPasskeyUpgrades = false
+    @AppStorage(LionPreferenceKey.allowContactingWebsites) private var allowContactingWebsites = false
     @State private var biometrics = BiometricKeyStore().exists
     @State private var showChangePassword = false
     @State private var showCategories = false
@@ -391,6 +763,39 @@ struct MacSettingsView: View {
 
     var body: some View {
         Form {
+            Section("Senhas e contas") {
+                Picker("Mostrar contas como", selection: $accountDisplayStyle) {
+                    ForEach(AccountDisplayStyle.allCases) { style in
+                        Text(style.title).tag(style.rawValue)
+                    }
+                }
+                Picker("Salvar senhas", selection: $passwordSaveBehavior) {
+                    ForEach(PasswordSaveBehavior.allCases) { behavior in
+                        Text(behavior.title).tag(behavior.rawValue)
+                    }
+                }
+                Text("Esta preferência é usada pelo AutoFill; credenciais criadas manualmente continuam sob seu controle.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Toggle("Mostrar Lion Pass na barra de menus", isOn: $showInMenuBar)
+                Toggle("Detectar senhas comprometidas", isOn: $detectCompromisedPasswords)
+                if detectCompromisedPasswords {
+                    let count = PasswordSecurityAudit.vulnerableCount(in: vault.payload?.items ?? [])
+                    Text(count == 0 ? "Nenhuma senha vulnerável detectada localmente." : "(count) senha(s) precisam de atenção.")
+                        .font(.caption)
+                        .foregroundStyle(count == 0 ? Color.secondary : Color.orange)
+                }
+                Toggle("Sugerir senhas fortes", isOn: $suggestStrongPasswords)
+                Toggle("Permitir upgrades automáticos para passkeys", isOn: $automaticPasskeyUpgrades)
+                    .disabled(true)
+                Text("Passkeys automáticas exigem uma extensão de provedor e assinatura Apple Developer; esta instalação pessoal mantém a opção desativada.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Toggle("Permitir contato com sites", isOn: $allowContactingWebsites)
+                Text("Autoriza futuras consultas de nomes e ícones. O Lion Pass não envia senhas e não faz consultas em segundo plano nesta versão.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Section("Segurança") {
                 Toggle("Touch ID", isOn: Binding(
                     get: { biometrics },
@@ -444,7 +849,7 @@ struct MacSettingsView: View {
         }
         .formStyle(.grouped)
         .padding()
-        .frame(width: 600, height: 620)
+        .frame(width: 640, height: 780)
         .toolbar { Button("Concluir") { dismiss() } }
         .sheet(isPresented: $showChangePassword) { MacChangePasswordView() }
         .sheet(isPresented: $showCategories) { MacCategoryManagerView() }
@@ -607,5 +1012,114 @@ struct MacVaultDocument: FileDocument {
     }
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: data)
+    }
+}
+
+struct PasswordCSVDocument: FileDocument {
+    static var readableContentTypes: [UTType] = [.commaSeparatedText]
+    var data: Data
+
+    init(items: [VaultItem]) {
+        data = PasswordCSVCodec.encode(items)
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        data = configuration.file.regularFileContents ?? Data()
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
+
+enum PasswordCSVCodec {
+    private static let headers = ["title", "username", "password", "website", "email", "category", "notes"]
+
+    static func encode(_ items: [VaultItem]) -> Data {
+        let rows = [headers] + items.map {
+            [$0.title, $0.username, $0.password, $0.website, $0.email, $0.category, $0.notes]
+        }
+        let text = rows.map { $0.map(escape).joined(separator: ",") }.joined(separator: "\n")
+        return Data(text.utf8)
+    }
+
+    static func decode(_ data: Data) throws -> [VaultItem] {
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw CocoaError(.fileReadInapplicableStringEncoding)
+        }
+        let rows = parse(text)
+        guard let first = rows.first else { return [] }
+        let normalizedHeaders = first.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).localizedLowercase }
+        let hasHeader = normalizedHeaders.contains("password") || normalizedHeaders.contains("senha")
+        let index: [String: Int] = Dictionary(uniqueKeysWithValues: normalizedHeaders.enumerated().map { ($1, $0) })
+
+        func value(_ row: [String], names: [String], fallback: Int) -> String {
+            let position = names.compactMap { index[$0] }.first ?? fallback
+            return row.indices.contains(position) ? row[position] : ""
+        }
+
+        return rows.dropFirst(hasHeader ? 1 : 0).compactMap { row in
+            guard row.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else { return nil }
+            var item = VaultItem()
+            item.kind = .login
+            item.title = value(row, names: ["title", "titulo", "título", "name", "nome"], fallback: 0)
+            item.username = value(row, names: ["username", "usuario", "usuário", "login"], fallback: 1)
+            item.password = value(row, names: ["password", "senha"], fallback: 2)
+            item.website = value(row, names: ["website", "site", "url"], fallback: 3)
+            item.email = value(row, names: ["email", "e-mail"], fallback: 4)
+            item.category = value(row, names: ["category", "categoria"], fallback: 5)
+            if item.category.isEmpty { item.category = "Logins" }
+            item.notes = value(row, names: ["notes", "notas", "observacoes", "observações"], fallback: 6)
+            if item.title.isEmpty { item.title = item.website.isEmpty ? item.username : item.website }
+            return item
+        }
+    }
+
+    private static func escape(_ value: String) -> String {
+        guard value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r") else {
+            return value
+        }
+        return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+    }
+
+    private static func parse(_ text: String) -> [[String]] {
+        var rows: [[String]] = []
+        var row: [String] = []
+        var field = ""
+        var quoted = false
+        var index = text.startIndex
+
+        while index < text.endIndex {
+            let character = text[index]
+            if character == "\"" {
+                let next = text.index(after: index)
+                if quoted, next < text.endIndex, text[next] == "\"" {
+                    field.append("\"")
+                    index = next
+                } else {
+                    quoted.toggle()
+                }
+            } else if character == ",", !quoted {
+                row.append(field)
+                field = ""
+            } else if (character == "\n" || character == "\r"), !quoted {
+                if character == "\r" {
+                    let next = text.index(after: index)
+                    if next < text.endIndex, text[next] == "\n" { index = next }
+                }
+                row.append(field)
+                rows.append(row)
+                row = []
+                field = ""
+            } else {
+                field.append(character)
+            }
+            index = text.index(after: index)
+        }
+        if !field.isEmpty || !row.isEmpty {
+            row.append(field)
+            rows.append(row)
+        }
+        return rows
     }
 }

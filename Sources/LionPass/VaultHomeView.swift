@@ -10,11 +10,14 @@ struct VaultHomeView: View {
     @State private var editorItem: VaultItem?
     @State private var showSettings = false
     @State private var showGenerator = false
+    @State private var typesExpanded = false
+    @State private var categoriesExpanded = false
 
     private var items: [VaultItem] {
         (vault.payload?.items ?? [])
             .filter {
-                (!favoriteOnly || $0.isFavorite)
+                $0.deletedAt == nil
+                    && (!favoriteOnly || $0.isFavorite)
                     && (kind == nil || $0.kind == kind)
                     && (category == nil || $0.category == category)
                     && (query.isEmpty || $0.matches(query))
@@ -25,6 +28,10 @@ struct VaultHomeView: View {
             }
     }
 
+    private var allItemsSelected: Bool {
+        kind == nil && category == nil && !favoriteOnly
+    }
+
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
@@ -32,6 +39,7 @@ struct VaultHomeView: View {
                     Button { showAll() } label: {
                         Label("Todos os itens", systemImage: "tray.full.fill")
                     }
+                    .buttonStyle(LionSidebarButtonStyle(isSelected: allItemsSelected))
                     Button {
                         favoriteOnly = true
                         kind = nil
@@ -39,30 +47,45 @@ struct VaultHomeView: View {
                     } label: {
                         Label("Favoritos", systemImage: "star.fill")
                     }
+                    .buttonStyle(LionSidebarButtonStyle(isSelected: favoriteOnly))
                 }
-                Section("Tipos") {
-                    ForEach(VaultItemKind.allCases) { value in
-                        Button {
-                            kind = value
-                            category = nil
-                            favoriteOnly = false
-                            query = ""
-                        } label: {
-                            Label(value.title, systemImage: value.symbol)
+                Section {
+                    DisclosureGroup(isExpanded: $typesExpanded) {
+                        ForEach(VaultItemKind.allCases) { value in
+                            Button {
+                                kind = value
+                                category = nil
+                                favoriteOnly = false
+                                query = ""
+                            } label: {
+                                Label(value.title, systemImage: value.symbol)
+                            }
+                            .buttonStyle(LionSidebarButtonStyle(isSelected: kind == value))
                         }
+                    } label: {
+                        Label("Tipos", systemImage: "square.stack.3d.up.fill")
+                            .fontWeight(.semibold)
                     }
+                    .tint(.lionCyan)
                 }
-                Section("Categorias") {
-                    ForEach(vault.payload?.allCategories ?? [], id: \.self) { value in
-                        Button {
-                            category = value
-                            kind = nil
-                            favoriteOnly = false
-                            query = ""
-                        } label: {
-                            Label(value, systemImage: "folder")
+                Section {
+                    DisclosureGroup(isExpanded: $categoriesExpanded) {
+                        ForEach(vault.payload?.allCategories ?? [], id: \.self) { value in
+                            Button {
+                                category = value
+                                kind = nil
+                                favoriteOnly = false
+                                query = ""
+                            } label: {
+                                Label(value, systemImage: VaultPayload.categorySymbol(for: value))
+                            }
+                            .buttonStyle(LionSidebarButtonStyle(isSelected: category == value))
                         }
+                    } label: {
+                        Label("Categorias", systemImage: "square.grid.2x2")
+                            .fontWeight(.semibold)
                     }
+                    .tint(.lionCyan)
                 }
             }
             .navigationTitle("Lion")
@@ -151,6 +174,7 @@ struct VaultHomeView: View {
 
 struct VaultRow: View {
     let item: VaultItem
+    @AppStorage(LionPreferenceKey.accountDisplayStyle) private var accountDisplayStyle = AccountDisplayStyle.titles.rawValue
 
     var body: some View {
         HStack(spacing: 12) {
@@ -160,8 +184,8 @@ struct VaultRow: View {
                 .background(Color.lionGradient, in: RoundedRectangle(cornerRadius: 10))
                 .accessibilityHidden(true)
             VStack(alignment: .leading) {
-                Text(item.title.isEmpty ? "Sem título" : item.title).fontWeight(.semibold)
-                Text(item.username.isEmpty ? item.website : item.username)
+                Text(primaryText).fontWeight(.semibold)
+                Text(secondaryText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -174,11 +198,29 @@ struct VaultRow: View {
             }
         }
     }
+
+    private var primaryText: String {
+        switch AccountDisplayStyle(rawValue: accountDisplayStyle) ?? .titles {
+        case .titles: item.title.isEmpty ? "Sem título" : item.title
+        case .websites: item.website.isEmpty ? (item.title.isEmpty ? "Sem site" : item.title) : item.website
+        case .usernames: item.username.isEmpty ? (item.title.isEmpty ? "Sem usuário" : item.title) : item.username
+        }
+    }
+
+    private var secondaryText: String {
+        switch AccountDisplayStyle(rawValue: accountDisplayStyle) ?? .titles {
+        case .titles: item.username.isEmpty ? item.website : item.username
+        case .websites: item.username.isEmpty ? item.title : item.username
+        case .usernames: item.website.isEmpty ? item.title : item.website
+        }
+    }
 }
 
 struct ItemDetailView: View {
     let item: VaultItem
     let edit: () -> Void
+    @EnvironmentObject private var vault: VaultService
+    @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
     @State private var showSecrets = false
     @State private var revealedHistory: Set<UUID> = []
 
@@ -188,7 +230,9 @@ struct ItemDetailView: View {
                 HStack {
                     Image(systemName: item.kind.symbol)
                         .font(.title)
-                        .foregroundStyle(Color.lionBlue)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.lionGradient, in: RoundedRectangle(cornerRadius: 12))
                     VStack(alignment: .leading) {
                         Text(item.title).font(.title2.bold())
                         Text(item.category).foregroundStyle(.secondary)
@@ -200,10 +244,26 @@ struct ItemDetailView: View {
                 Section("Credenciais") {
                     CopyableValueRow(label: "Usuário", value: item.username)
                     SecretValueRow(label: "Senha", value: item.password, revealed: $showSecrets)
-                    CopyableValueRow(label: "Site", value: item.website)
+                    WebsiteValueRow(value: item.website)
                     CopyableValueRow(label: "E-mail", value: item.email)
-                    if let url = normalizedURL(item.website) {
-                        Link(destination: url) { Label("Abrir site", systemImage: "safari") }
+                    LabeledContent(
+                        "Modificado",
+                        value: item.updatedAt.formatted(date: .abbreviated, time: .shortened)
+                    )
+                }
+                if detectCompromisedPasswords {
+                    Section("Segurança") {
+                        if let warning = PasswordSecurityAudit.warning(for: item, in: vault.payload?.items ?? []) {
+                            Label(warning, systemImage: "exclamationmark.shield.fill")
+                                .foregroundStyle(.orange)
+                        } else {
+                            Label("Nenhum problema encontrado", systemImage: "checkmark.shield.fill")
+                                .font(.headline)
+                                .foregroundStyle(.green)
+                            Text("A senha não é curta, não aparece na lista local de senhas muito comprometidas e não está sendo reutilizada.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
@@ -263,10 +323,12 @@ struct ItemDetailView: View {
                             } label: {
                                 Image(systemName: revealedHistory.contains(revision.id) ? "eye.slash" : "eye")
                             }
+                            .buttonStyle(LionCompactActionButtonStyle())
                             .accessibilityLabel(revealedHistory.contains(revision.id) ? "Ocultar senha anterior" : "Mostrar senha anterior")
                             Button { ClipboardService.shared.copy(revision.password) } label: {
                                 Image(systemName: "doc.on.doc")
                             }
+                            .buttonStyle(LionCompactActionButtonStyle())
                             .accessibilityLabel("Copiar senha anterior")
                         }
                     }
@@ -281,11 +343,6 @@ struct ItemDetailView: View {
         }
     }
 
-    private func normalizedURL(_ value: String) -> URL? {
-        guard !value.isEmpty else { return nil }
-        if let url = URL(string: value), url.scheme != nil { return url }
-        return URL(string: "https://\(value)")
-    }
 }
 
 struct CopyableValueRow: View {
@@ -301,9 +358,45 @@ struct CopyableValueRow: View {
                 }
                 Spacer()
                 Button { ClipboardService.shared.copy(value) } label: {
-                    Image(systemName: "doc.on.doc")
+                    Label("Copiar", systemImage: "doc.on.doc")
                 }
+                .buttonStyle(LionCompactActionButtonStyle())
                 .accessibilityLabel("Copiar \(label)")
+            }
+        }
+    }
+}
+
+struct WebsiteValueRow: View {
+    let value: String
+
+    private var url: URL? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let url = URL(string: trimmed), url.scheme != nil { return url }
+        return URL(string: "https://\(trimmed)")
+    }
+
+    var body: some View {
+        if !value.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Site").font(.caption).foregroundStyle(.secondary)
+                Text(value)
+                    .textSelection(.enabled)
+                    .lineLimit(2)
+                HStack {
+                    Button { ClipboardService.shared.copy(value) } label: {
+                        Label("Copiar URL", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(LionCompactActionButtonStyle())
+                    if let url {
+                        Link(destination: url) {
+                            Label("Abrir", systemImage: "arrow.up.right.square")
+                        }
+                        .buttonStyle(LionCompactActionButtonStyle())
+                        .accessibilityHint("Abre o site no navegador padrão")
+                    }
+                }
             }
         }
     }
@@ -327,10 +420,12 @@ struct SecretValueRow: View {
                 Button { revealed.toggle() } label: {
                     Image(systemName: revealed ? "eye.slash" : "eye")
                 }
+                .buttonStyle(LionCompactActionButtonStyle())
                 .accessibilityLabel(revealed ? "Ocultar \(label)" : "Mostrar \(label)")
                 Button { ClipboardService.shared.copy(value) } label: {
                     Image(systemName: "doc.on.doc")
                 }
+                .buttonStyle(LionCompactActionButtonStyle())
                 .accessibilityLabel("Copiar \(label)")
             }
         }

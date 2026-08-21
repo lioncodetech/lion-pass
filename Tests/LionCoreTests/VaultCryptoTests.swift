@@ -219,6 +219,65 @@ final class VaultCryptoTests: XCTestCase {
 
 @MainActor
 final class VaultServiceTests: XCTestCase {
+    func testDeletedItemsCanBeRestoredOrPermanentlyRemoved() throws {
+        try withTemporaryStorage { storage in
+            let service = VaultService(storage: storage, biometricStore: TestBiometricStore())
+            try service.createVault(name: "Teste", password: "uma senha longa e segura")
+            var item = VaultItem()
+            item.title = "Conta apagável"
+            try service.upsert(item)
+
+            try service.delete(ids: [item.id])
+            XCTAssertNotNil(service.payload?.items.first?.deletedAt)
+            try service.restore(ids: [item.id])
+            XCTAssertNil(service.payload?.items.first?.deletedAt)
+            try service.delete(ids: [item.id])
+            try service.permanentlyDelete(ids: [item.id])
+            XCTAssertTrue(service.payload?.items.isEmpty == true)
+        }
+    }
+
+    func testPasswordCSVRoundTripPreservesQuotedFields() throws {
+        var item = VaultItem()
+        item.title = "Conta, principal"
+        item.username = "usuário"
+        item.password = "segredo,\"forte\""
+        item.website = "https://example.com"
+        item.notes = "linha 1\nlinha 2"
+
+        let decoded = try PasswordCSVCodec.decode(PasswordCSVCodec.encode([item]))
+        XCTAssertEqual(decoded.count, 1)
+        XCTAssertEqual(decoded[0].title, item.title)
+        XCTAssertEqual(decoded[0].password, item.password)
+        XCTAssertEqual(decoded[0].notes, item.notes)
+    }
+
+    func testPasswordSecurityAuditDetectsCommonShortAndReusedPasswords() {
+        var common = VaultItem()
+        common.title = "Comum"
+        common.password = "123456"
+
+        var reusedA = VaultItem()
+        reusedA.title = "Reutilizada A"
+        reusedA.password = "Senha-Longa-Reutilizada-2026!"
+
+        var reusedB = VaultItem()
+        reusedB.title = "Reutilizada B"
+        reusedB.password = reusedA.password
+
+        let items = [common, reusedA, reusedB]
+        XCTAssertNotNil(PasswordSecurityAudit.warning(for: common, in: items))
+        XCTAssertNotNil(PasswordSecurityAudit.warning(for: reusedA, in: items))
+        XCTAssertEqual(PasswordSecurityAudit.vulnerableCount(in: items), 3)
+    }
+
+    func testPasswordSecurityAuditAcceptsUniqueStrongPassword() {
+        var item = VaultItem()
+        item.title = "Segura"
+        item.password = "Unica-Forte-2026!Chave"
+        XCTAssertNil(PasswordSecurityAudit.warning(for: item, in: [item]))
+    }
+
     func testChangeMasterPasswordPreservesRecoveryKey() throws {
         try withTemporaryStorage { storage in
             let service = VaultService(storage: storage, biometricStore: TestBiometricStore())

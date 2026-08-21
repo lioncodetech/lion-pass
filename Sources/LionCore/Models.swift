@@ -84,6 +84,7 @@ public struct VaultItem: Codable, Identifiable, Hashable, Sendable {
     public var cardBrand = ""
     public var createdAt = Date()
     public var updatedAt = Date()
+    public var deletedAt: Date?
 
     public init() {}
 
@@ -97,6 +98,36 @@ public struct VaultItem: Codable, Identifiable, Hashable, Sendable {
             .appending(" " + tags.joined(separator: " "))
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
         return searchable.contains(foldedQuery)
+    }
+}
+
+public enum PasswordSecurityAudit {
+    private static let commonlyCompromised = Set([
+        "123456", "12345678", "123456789", "1234567890", "password", "password1",
+        "qwerty", "qwerty123", "abc123", "111111", "000000", "admin", "letmein",
+        "welcome", "iloveyou", "senha", "senha123", "changeme"
+    ])
+
+    public static func warning(for item: VaultItem, in items: [VaultItem]) -> String? {
+        guard item.kind == .login, item.deletedAt == nil, !item.password.isEmpty else { return nil }
+        if commonlyCompromised.contains(item.password.localizedLowercase) {
+            return "Esta senha aparece em listas locais de senhas muito comprometidas. Troque-a imediatamente."
+        }
+        if item.password.count < 12 {
+            return "Esta senha é curta. Use pelo menos 12 caracteres e prefira uma senha gerada."
+        }
+        let reused = items.contains {
+            $0.id != item.id && $0.kind == .login && $0.deletedAt == nil
+                && !$0.password.isEmpty && $0.password == item.password
+        }
+        if reused {
+            return "Esta senha está sendo reutilizada em outra conta. Use uma senha exclusiva."
+        }
+        return nil
+    }
+
+    public static func vulnerableCount(in items: [VaultItem]) -> Int {
+        items.filter { warning(for: $0, in: items) != nil }.count
     }
 }
 
@@ -123,6 +154,41 @@ public struct VaultPayload: Codable, Equatable, Sendable {
         return (Self.defaultCategories + customCategories)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty && seen.insert($0.localizedLowercase).inserted }
+    }
+
+    public static func categorySymbol(for category: String) -> String {
+        let normalized = category
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        switch normalized {
+        case "logins", "login", "senhas", "senha":
+            return "key.fill"
+        case "e-mail", "email", "emails":
+            return "envelope.fill"
+        case "bancos", "banco", "financas", "financeiro":
+            return "building.columns.fill"
+        case "redes sociais", "rede social", "social":
+            return "person.2.fill"
+        case "trabalho", "profissional", "empresa":
+            return "briefcase.fill"
+        case "compras", "compra", "lojas", "loja":
+            return "cart.fill"
+        case "streaming", "filmes", "series":
+            return "play.tv.fill"
+        case "wi-fi", "wifi", "internet":
+            return "wifi"
+        case "cartoes", "cartao":
+            return "creditcard.fill"
+        case "notas", "nota":
+            return "note.text"
+        case "identidades", "identidade", "documentos", "documento":
+            return "person.text.rectangle.fill"
+        case "outros", "outro":
+            return "square.grid.2x2.fill"
+        default:
+            return "folder.badge.gearshape"
+        }
     }
 }
 

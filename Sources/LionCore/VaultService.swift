@@ -156,7 +156,42 @@ public final class VaultService: ObservableObject {
 
     public func delete(ids: Set<UUID>) throws {
         guard var currentPayload = payload else { throw VaultError.notOpen }
-        currentPayload.items.removeAll { ids.contains($0.id) }
+        let now = Date()
+        for index in currentPayload.items.indices where ids.contains(currentPayload.items[index].id) {
+            currentPayload.items[index].deletedAt = now
+            currentPayload.items[index].updatedAt = now
+        }
+        payload = currentPayload
+        try saveVault()
+    }
+
+    public func restore(ids: Set<UUID>) throws {
+        guard var currentPayload = payload else { throw VaultError.notOpen }
+        for index in currentPayload.items.indices where ids.contains(currentPayload.items[index].id) {
+            currentPayload.items[index].deletedAt = nil
+            currentPayload.items[index].updatedAt = Date()
+        }
+        payload = currentPayload
+        try saveVault()
+    }
+
+    public func permanentlyDelete(ids: Set<UUID>) throws {
+        guard var currentPayload = payload else { throw VaultError.notOpen }
+        currentPayload.items.removeAll { ids.contains($0.id) && $0.deletedAt != nil }
+        payload = currentPayload
+        try saveVault()
+    }
+
+    public func importItems(_ items: [VaultItem]) throws {
+        guard var currentPayload = payload else { throw VaultError.notOpen }
+        let existingIDs = Set(currentPayload.items.map(\.id))
+        currentPayload.items.append(contentsOf: items.map { source in
+            var item = source
+            if existingIDs.contains(item.id) { item.id = UUID() }
+            item.deletedAt = nil
+            item.updatedAt = Date()
+            return item
+        })
         payload = currentPayload
         try saveVault()
     }
@@ -290,7 +325,7 @@ public final class VaultService: ObservableObject {
 
     private func syncAutoFillIdentities() {
 #if os(iOS)
-        let items = payload?.items ?? []
+        let items = (payload?.items ?? []).filter { $0.deletedAt == nil }
         Task { try? await AutoFillIdentityService.sync(items: items) }
 #endif
     }

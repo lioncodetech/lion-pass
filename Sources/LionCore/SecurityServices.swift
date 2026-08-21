@@ -19,6 +19,43 @@ public enum LionPreferenceKey {
     public static let biometrics = "biometrics"
     public static let privacyCover = "privacyCover"
     public static let biometricMarker = "biometricKeyStored"
+    public static let accountDisplayStyle = "accountDisplayStyle"
+    public static let passwordSaveBehavior = "passwordSaveBehavior"
+    public static let showInMenuBar = "showPasswordsInMenuBar"
+    public static let detectCompromisedPasswords = "detectCompromisedPasswords"
+    public static let suggestStrongPasswords = "suggestStrongPasswords"
+    public static let automaticPasskeyUpgrades = "automaticPasskeyUpgrades"
+    public static let allowContactingWebsites = "allowContactingWebsites"
+}
+
+public enum AccountDisplayStyle: String, CaseIterable, Identifiable, Sendable {
+    case titles
+    case websites
+    case usernames
+
+    public var id: String { rawValue }
+    public var title: String {
+        switch self {
+        case .titles: "Títulos"
+        case .websites: "Sites"
+        case .usernames: "Usuários"
+        }
+    }
+}
+
+public enum PasswordSaveBehavior: String, CaseIterable, Identifiable, Sendable {
+    case ask
+    case always
+    case never
+
+    public var id: String { rawValue }
+    public var title: String {
+        switch self {
+        case .ask: "Perguntar ao iniciar sessão"
+        case .always: "Salvar automaticamente"
+        case .never: "Nunca salvar automaticamente"
+        }
+    }
 }
 
 public protocol BiometricUnlockService {

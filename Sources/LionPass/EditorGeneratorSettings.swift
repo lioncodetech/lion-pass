@@ -9,6 +9,7 @@ struct ItemEditorView: View {
     @State private var showPassword = false
     @State private var generator = false
     @State private var error: String?
+    @AppStorage(LionPreferenceKey.suggestStrongPasswords) private var suggestStrongPasswords = true
 
     private var categories: [String] {
         var values = vault.payload?.allCategories ?? VaultPayload.defaultCategories
@@ -146,10 +147,12 @@ struct ItemEditorView: View {
                         Image(systemName: showPassword ? "eye.slash" : "eye")
                     }
                     .accessibilityLabel(showPassword ? "Ocultar senha" : "Mostrar senha")
-                    Button { generator = true } label: {
-                        Image(systemName: "wand.and.stars")
+                    if suggestStrongPasswords {
+                        Button { generator = true } label: {
+                            Image(systemName: "wand.and.stars")
+                        }
+                        .accessibilityLabel("Gerar senha")
                     }
-                    .accessibilityLabel("Gerar senha")
                 }
                 TextField("Site / URL", text: $item.website)
                     .textContentType(.URL)
@@ -292,6 +295,12 @@ struct SettingsView: View {
     @AppStorage(LionPreferenceKey.autoLock) private var autoLock = AutoLockDuration.immediately.rawValue
     @AppStorage(LionPreferenceKey.clipboard) private var clipboard = 30
     @AppStorage(LionPreferenceKey.privacyCover) private var privacyCover = true
+    @AppStorage(LionPreferenceKey.accountDisplayStyle) private var accountDisplayStyle = AccountDisplayStyle.titles.rawValue
+    @AppStorage(LionPreferenceKey.passwordSaveBehavior) private var passwordSaveBehavior = PasswordSaveBehavior.ask.rawValue
+    @AppStorage(LionPreferenceKey.detectCompromisedPasswords) private var detectCompromisedPasswords = true
+    @AppStorage(LionPreferenceKey.suggestStrongPasswords) private var suggestStrongPasswords = true
+    @AppStorage(LionPreferenceKey.automaticPasskeyUpgrades) private var automaticPasskeyUpgrades = false
+    @AppStorage(LionPreferenceKey.allowContactingWebsites) private var allowContactingWebsites = false
     @State private var biometrics = false
     @State private var exporting = false
     @State private var importing = false
@@ -306,6 +315,35 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Senhas e contas") {
+                Picker("Mostrar contas como", selection: $accountDisplayStyle) {
+                    ForEach(AccountDisplayStyle.allCases) { style in
+                        Text(style.title).tag(style.rawValue)
+                    }
+                }
+                Picker("Salvar senhas", selection: $passwordSaveBehavior) {
+                    ForEach(PasswordSaveBehavior.allCases) { behavior in
+                        Text(behavior.title).tag(behavior.rawValue)
+                    }
+                }
+                Toggle("Detectar senhas comprometidas", isOn: $detectCompromisedPasswords)
+                if detectCompromisedPasswords {
+                    let count = PasswordSecurityAudit.vulnerableCount(in: vault.payload?.items ?? [])
+                    Text(count == 0 ? "Nenhuma senha vulnerável detectada localmente." : "(count) senha(s) precisam de atenção.")
+                        .font(.caption)
+                        .foregroundStyle(count == 0 ? Color.secondary : Color.orange)
+                }
+                Toggle("Sugerir senhas fortes", isOn: $suggestStrongPasswords)
+                Toggle("Permitir upgrades automáticos para passkeys", isOn: $automaticPasskeyUpgrades)
+                    .disabled(true)
+                Text("Passkeys automáticas exigem uma extensão compatível e assinatura Apple Developer.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Toggle("Permitir contato com sites", isOn: $allowContactingWebsites)
+                Text("O Lion Pass não envia senhas e não faz consultas em segundo plano nesta versão.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Section("Segurança") {
                 Toggle("Face ID / Touch ID", isOn: Binding(
                     get: { biometrics },

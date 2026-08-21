@@ -15,7 +15,7 @@ struct LionPassApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                RootView().environmentObject(vault).tint(.lionBlue)
+                RootView().environmentObject(vault).tint(.lionAccent)
                 if isObscured || screenIsCaptured {
                     PrivacyCoverView(screenCapture: screenIsCaptured).transition(.opacity)
                 }
