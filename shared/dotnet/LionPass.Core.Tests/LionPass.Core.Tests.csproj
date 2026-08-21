@@ -11,7 +11,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\src\LionPass.Core\LionPass.Core.csproj" />
-    <Content Include="..\..\..\shared\test-vaults\fixtures\apple-v2.lionvault" Link="apple-v2.lionvault" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\LionPass.Core\LionPass.Core.csproj" />
+    <Content Include="..\..\test-vaults\fixtures\apple-v2.lionvault" Link="apple-v2.lionvault" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\test-vaults\fixtures\linux-v2.lionvault" Link="linux-v2.lionvault" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

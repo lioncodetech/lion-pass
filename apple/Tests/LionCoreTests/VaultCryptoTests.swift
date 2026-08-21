@@ -22,6 +22,22 @@ final class VaultCryptoTests: XCTestCase {
         XCTAssertEqual(unlocked.envelope.version, 2)
     }
 
+    func testLinuxVersionTwoFixtureIsCompatible() throws {
+        // Same synthetic bytes committed at shared/test-vaults/fixtures/linux-v2.lionvault.
+        let fixtureBase64 = "eyJtYWdpYyI6IkxJT05WQVVMVCIsInZlcnNpb24iOjIsImtkZiI6eyJhbGdvcml0aG0iOiJQQktERjItSE1BQy1TSEEyNTYiLCJpdGVyYXRpb25zIjoxMDAwMDAsImtleUxlbmd0aCI6MzJ9LCJzYWx0IjoiNWZVY3pUZVpzcWoxbmZUc1gra3JRbE8veE05WFNIUlBnUEl3b0xsaE1HMD0iLCJub25jZSI6InpZRTRpcThkTGhWT0VXWFMiLCJjaXBoZXJ0ZXh0IjoibEVFZDlQbjAweEtuQmF3YXZNSEFmWXJqZGpPUjhJM0E3UThUOUJPZGxzN0ZYNG9SeXhLRWlodDlDWW5HbmNBc1k1S2gvTW51eGo3Q29Ya1dzN3JJWm5iVHdOVytvK3lRVHcvZjNtK3BUZXltU3o2WC9TVnB1Q3ZPNCs1dFpEaW9tVkhhazVxK3VzSFdNS2hJWWVQTENZeDBpSDFmY2dmZGR2Q2t3ZkozdUJORUZXTEdsWllJTzdMNWxna3AwdU1JRVpGbFNKODZtdWVyVElsbXNkdytJMDFPakFWeWRtb3lrWS9oR3ptMmJkZXRaWUQ2aWpCVkp0QjVWaDBTQnRmOCtPb0J0WjVoanhlYjNpRmJoN0ZWTEdJNTd1UDNKUnJ4NVVTRXBZWTd2ZU84NXpEelp5cXF3RFhNQWh1YXVKTDJvNWlaeVJ3azNyL1FXZmdwU2hEZjBoOVo3YmZEdEQ4ZjR6a1R6aFFrTFFvU1pDeXdRbDYwVzFkekh2dFRHbU5OMzg1YXhpdEdwdnZEMmhmeUZiUThKQlgyRWV5ZG9yRmk3aTNPUElLdEt3THUwdGlaZlhXb1p4Mnd1U2hrTGRoZlFlZW1tU2ZqbmVGckdrVVFFc1VOaE5uREFTZkR2T1Ztc3BqOHBKVlJiL0F5ZlkyNXBtZXNaUnJsWkttYWRVRVo1bHBQTzhSZm9UaTFZQ3VHeEk1Y1VvZ1k0ZHdGUG5XamJHQWtwcmpSeHFMcCtOUnAzWU54K0U5bGJmRUovYXpPTUxsU2JDbkFHVjR0L0plM21VUVNQR1hoL3Y2VSszdEo2VDAreHh5QUlKUjdLU083aGpoWjBTQ0hsQjZrNWpVaXkzYXFsZ2x3eFBjdElObGlZOEVaV3VONUNHa2N4ZVNkTWdRUWNyVVZLQUh1cFpydlNxanBIUGVFUTgza05YUEJhck5DcHp2OUs2WnJaUmJicldBWVZYMVpKN08xV3NYSlZLaXhOU2o4Tzd2RjRxaW9HUy9jODR1Y2JhLzFEZzkvN1JIdEs5Ym42c281UnhqTWY5QkFtZUJyR2JSR1g4RGd4SmtSako1dnExaWMySnNmazV0bEhtWTJYUEE2Ums2K0J3MkFXaHhHWHNXeFNiekFHOUR5c1MwQVNnRmh3WGtKbmRlVFB0YU9XSWlFMTJVTjNWVlEyVmtWZnNGSVlvby9Vamp0MHJWKzVyb0xENDJkNE5SNytTZEY4NFQ3RzJqaFpaL0ZPRGg1TkxSbnpuTmNMd3JTOE4vOUgzcURibEFmZC9EWVA3aXluK0VFYWJDeWNmWExYbGN1QmoxQXVzUEt2NElUTngwWU1YVloyaEtRUE91c2g3RU5wL0d2dWtQMkc1ekVLWU09IiwidGFnIjoiM1Qrcy9qaDdSeUlOUERoUGZ0dFVhQT09Iiwia2V5Tm9uY2UiOiI5T0RVSnE2SUNyRnFxSm9PIiwid3JhcHBlZEtleSI6ImtMNXVJcGc2bWYxY2lmV3V1ckFuTmxkMlRHV2pzWTIydDZKTXQ2Y2hOVGM9Iiwia2V5VGFnIjoic2lBbmxqMzJwaFVmb0lWUWFOWjZUQT09In0="
+        let data = try XCTUnwrap(Data(base64Encoded: fixtureBase64))
+
+        let unlocked = try AppleVaultCryptoService().unlock(
+            data,
+            password: "Lion-Pass-Compatibility-2026!"
+        )
+
+        XCTAssertEqual(unlocked.payload.name, "Linux Compatibility Fixture")
+        XCTAssertEqual(unlocked.payload.items.first?.username, "linux@example.test")
+        XCTAssertEqual(unlocked.payload.items.first?.category, "Interoperabilidade")
+        XCTAssertEqual(unlocked.envelope.version, 2)
+    }
+
     private let crypto = AppleVaultCryptoService()
     private let fastParameters = KDFParameters(iterations: 100_000)
 

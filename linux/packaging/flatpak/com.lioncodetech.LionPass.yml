@@ -1,0 +1,29 @@
+app-id: com.lioncodetech.LionPass
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+command: LionPass.App
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --talk-name=org.freedesktop.secrets
+  - --filesystem=xdg-documents:rw
+modules:
+  - name: lion-pass
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 LionPass.App /app/bin/LionPass.App
+      - cp -a publish/. /app/bin/
+      - install -Dm644 lion-pass.png /app/share/icons/hicolor/512x512/apps/com.lioncodetech.LionPass.png
+      - install -Dm644 com.lioncodetech.LionPass.desktop /app/share/applications/com.lioncodetech.LionPass.desktop
+    sources:
+      - type: dir
+        path: publish
+        dest: publish
+      - type: file
+        path: ../lion-pass.png
+      - type: file
+        path: com.lioncodetech.LionPass.desktop

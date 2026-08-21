@@ -1,0 +1,12 @@
+Package: lion-pass
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: @ARCH@
+Maintainer: Lion Code Technology <contato@lioncodetech.com.br>
+Depends: libx11-6, libice6, libsm6, libfontconfig1
+Recommends: libsecret-tools
+Homepage: https://lioncodetech.com.br/
+Description: Gerenciador de senhas local e offline
+ Lion Pass protege credenciais em cofres criptografados compatíveis com
+ as versões Apple e Windows, sem conta ou servidor obrigatório.

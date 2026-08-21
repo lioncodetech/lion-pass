@@ -1,0 +1,45 @@
+name: Linux
+
+env:
+  AVALONIA_TELEMETRY_OPTOUT: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+on:
+  push:
+    paths: ["linux/**", "shared/**", ".github/workflows/linux-build.yml"]
+  pull_request:
+    paths: ["linux/**", "shared/**", ".github/workflows/linux-build.yml"]
+  workflow_dispatch:
+
+jobs:
+  build-test-package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Test shared core
+        run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+      - name: Build Linux application
+        run: dotnet build linux/src/LionPass.App/LionPass.App.csproj -c Release
+      - name: Install packaging dependencies
+        run: sudo apt-get update && sudo apt-get install --yes libsecret-tools
+      - name: Download AppImage tool
+        run: |
+          curl -fL -o "$RUNNER_TEMP/appimagetool" https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x "$RUNNER_TEMP/appimagetool"
+      - name: Build DEB, AppImage and portable archive
+        env:
+          APPIMAGETOOL: ${{ runner.temp }}/appimagetool
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          ARCH: x86_64
+        run: linux/scripts/build-packages.sh linux-x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LionPass-Linux-x64
+          path: |
+            linux/artifacts/linux-x64/*.deb
+            linux/artifacts/linux-x64/*.AppImage
+            linux/artifacts/linux-x64/*.tar.gz
+          if-no-files-found: error

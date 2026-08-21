@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A44A007A-059C-48B2-BF50-41473E6F5605}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core", "src\LionPass.Core\LionPass.Core.csproj", "{29875B5E-4BCB-41BC-8115-639C3BFE5703}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core", "..\shared\dotnet\LionPass.Core\LionPass.Core.csproj", "{29875B5E-4BCB-41BC-8115-639C3BFE5703}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Security", "src\LionPass.Security\LionPass.Security.csproj", "{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPas
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB20684C-02D6-49FE-AF29-175AFA41F3CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core.Tests", "tests\LionPass.Core.Tests\LionPass.Core.Tests.csproj", "{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core.Tests", "..\shared\dotnet\LionPass.Core.Tests\LionPass.Core.Tests.csproj", "{F5875D29-51FF-4AD2-A5C8-95AA10A5F5FF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{47C24396-9FDC-40C3-9B3E-B4BB2FFFEF05}"
 EndProject

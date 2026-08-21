@@ -22,6 +22,7 @@ obj/
 *.snk
 AppPackages/
 BundleArtifacts/
+linux/artifacts/
 
 # Never version real vaults or exported secrets. Only synthetic fixtures under
 # shared/test-vaults/fixtures are allowed.

@@ -1,0 +1,173 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LionPass.App.MainWindow"
+        Title="Lion Pass" Width="1280" Height="820" MinWidth="980" MinHeight="640"
+        Icon="/Assets/LionPass.png">
+  <Grid>
+    <Grid x:Name="UnlockView">
+      <StackPanel Width="520" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+        <Image Source="/Assets/LionPass.png" Width="148" Height="148" />
+        <TextBlock Text="Lion Pass" FontSize="38" FontWeight="Bold" HorizontalAlignment="Center" />
+        <TextBlock Text="Seu cofre local, privado e compatível com Apple e Windows." Classes="muted" HorizontalAlignment="Center" />
+        <TextBox x:Name="MasterPasswordBox" Watermark="Senha mestra" PasswordChar="●" KeyDown="MasterPassword_KeyDown" />
+        <CheckBox x:Name="RememberInKeyringCheck" Content="Salvar desbloqueio no chaveiro Linux" HorizontalAlignment="Center" />
+        <Button Content="Desbloquear" Classes="brand" HorizontalAlignment="Center" Click="Unlock_Click" />
+        <Button x:Name="KeyringButton" Content="Desbloquear pelo chaveiro Linux" HorizontalAlignment="Center" Click="Keyring_Click" IsVisible="False" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+          <Button Content="Criar novo cofre" Click="Create_Click" />
+          <Button Content="Importar .lionvault" Click="ImportVault_Click" />
+        </StackPanel>
+        <TextBlock x:Name="UnlockStatus" Foreground="#FF7A8A" TextWrapping="Wrap" TextAlignment="Center" />
+      </StackPanel>
+    </Grid>
+
+    <Grid x:Name="VaultView" IsVisible="False" RowDefinitions="Auto,*">
+      <Menu Grid.Row="0" Background="#201F27">
+        <MenuItem Header="Arquivo">
+          <MenuItem Header="Novo item" InputGesture="Ctrl+N" Click="Add_Click" />
+          <MenuItem Header="Importar CSV" Click="ImportCsv_Click" />
+          <MenuItem Header="Exportar CSV" Click="ExportCsv_Click" />
+          <MenuItem Header="Exportar cofre criptografado" Click="ExportVault_Click" />
+          <Separator />
+          <MenuItem Header="Bloquear" InputGesture="Ctrl+L" Click="Lock_Click" />
+          <MenuItem Header="Sair" Click="Quit_Click" />
+        </MenuItem>
+        <MenuItem Header="Editar">
+          <MenuItem Header="Editar item" Click="Edit_Click" />
+          <MenuItem Header="Copiar usuário" Click="CopyUsername_Click" />
+          <MenuItem Header="Copiar senha" Click="CopyPassword_Click" />
+          <MenuItem Header="Copiar site" Click="CopyWebsite_Click" />
+        </MenuItem>
+        <MenuItem Header="Visualizar">
+          <MenuItem Header="Todos os itens" Click="ShowAll_Click" />
+          <MenuItem Header="Favoritos" Click="ShowFavorites_Click" />
+          <MenuItem Header="Segurança" Click="ShowSecurity_Click" />
+          <MenuItem Header="Lixeira" Click="ShowTrash_Click" />
+        </MenuItem>
+        <MenuItem Header="Configurações" Click="Settings_Click" />
+        <MenuItem Header="Ajuda">
+          <MenuItem Header="Sobre o Lion Pass" Click="About_Click" />
+        </MenuItem>
+      </Menu>
+
+      <Grid Grid.Row="1" ColumnDefinitions="260,330,*">
+        <Border Grid.Column="0" Background="#1D1C23" Padding="14">
+          <ScrollViewer>
+            <StackPanel Spacing="5">
+              <TextBlock x:Name="VaultNameText" Text="My Pass" FontSize="24" FontWeight="Bold" Margin="6,4,6,14" />
+              <Button Content="▣  Todos os itens" Classes="navigation" Tag="all" Click="Filter_Click" />
+              <Button Content="★  Favoritos" Classes="navigation" Tag="favorites" Click="Filter_Click" />
+              <Button Content="⚠  Segurança" Classes="navigation" Tag="security" Click="Filter_Click" />
+              <Button Content="⌫  Lixeira" Classes="navigation" Tag="trash" Click="Filter_Click" />
+              <Expander Header="Tipos" IsExpanded="True" Margin="0,12,0,0">
+                <StackPanel x:Name="TypesPanel" />
+              </Expander>
+              <Expander Header="Categorias" IsExpanded="True">
+                <StackPanel>
+                  <StackPanel x:Name="CategoriesPanel" />
+                  <Button Content="＋ Nova categoria" Classes="navigation" Click="AddCategory_Click" />
+                </StackPanel>
+              </Expander>
+              <Separator Margin="0,12" />
+              <Button Content="⚙  Configurações" Classes="navigation" Click="Settings_Click" />
+              <Button Content="🔒  Bloquear" Classes="navigation" Click="Lock_Click" />
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" Background="#211F27" Margin="14">
+          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+            <StackPanel>
+              <TextBlock x:Name="CollectionTitle" Text="Todos os itens" FontSize="22" FontWeight="Bold" />
+              <TextBlock x:Name="ItemCountText" Classes="muted" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="＋" Classes="brand" Click="Add_Click" />
+          </Grid>
+          <Grid Grid.Row="1" ColumnDefinitions="*,130" ColumnSpacing="8" Margin="0,0,0,10">
+            <TextBox x:Name="SearchBox" Watermark="Pesquisar…" TextChanged="SearchBox_TextChanged" />
+            <ComboBox x:Name="SortBox" Grid.Column="1" SelectionChanged="SortBox_SelectionChanged" SelectedIndex="0">
+              <ComboBoxItem Content="Título" Tag="title" />
+              <ComboBoxItem Content="Recentes" Tag="recent" />
+              <ComboBoxItem Content="Categoria" Tag="category" />
+            </ComboBox>
+          </Grid>
+          <ListBox x:Name="ItemsList" Grid.Row="2" SelectionChanged="ItemsList_SelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="44,*,Auto" Margin="4,7">
+                  <Border Width="38" Height="38" CornerRadius="10" Background="#5650D9">
+                    <TextBlock Text="🔑" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <StackPanel Grid.Column="1" Margin="10,0">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Username}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="2" Text="★" Foreground="#FFD74A" IsVisible="{Binding IsFavorite}" VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+
+        <Grid Grid.Column="2" Background="#17171D" Margin="30">
+          <StackPanel x:Name="EmptyDetail" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+            <TextBlock Text="🔐" FontSize="58" HorizontalAlignment="Center" />
+            <TextBlock Text="Selecione um item" FontSize="28" FontWeight="Bold" />
+          </StackPanel>
+          <ScrollViewer x:Name="DetailScroll" IsVisible="False">
+            <StackPanel Spacing="16" MaxWidth="760">
+              <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel>
+                  <TextBlock x:Name="DetailTitle" FontSize="34" FontWeight="Bold" TextWrapping="Wrap" />
+                  <TextBlock x:Name="DetailKind" Classes="muted" FontSize="16" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Editar" Margin="8,0" Click="Edit_Click" />
+                <Button Grid.Column="2" Content="★" Click="ToggleFavorite_Click" />
+              </Grid>
+              <Border Classes="card">
+                <StackPanel Spacing="12">
+                  <TextBlock Text="Credenciais" FontSize="19" FontWeight="Bold" />
+                  <Grid ColumnDefinitions="110,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                    <TextBlock Text="Usuário" />
+                    <TextBlock x:Name="DetailUsername" Grid.Column="1" TextWrapping="Wrap" />
+                    <Button Grid.Column="2" Content="Copiar" Click="CopyUsername_Click" />
+                    <TextBlock Grid.Row="1" Text="Senha" />
+                    <TextBlock x:Name="DetailPassword" Grid.Row="1" Grid.Column="1" />
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                      <Button x:Name="ShowPasswordButton" Content="Mostrar" Click="ShowPassword_Click" />
+                      <Button Content="Copiar" Click="CopyPassword_Click" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" Text="Site" />
+                    <TextBlock x:Name="DetailWebsite" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" />
+                    <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                      <Button Content="Copiar" Click="CopyWebsite_Click" />
+                      <Button Content="Abrir" Click="OpenWebsite_Click" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="3" Text="Modificado" />
+                    <TextBlock x:Name="DetailModified" Grid.Row="3" Grid.Column="1" Classes="muted" />
+                  </Grid>
+                </StackPanel>
+              </Border>
+              <Border Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Notas" FontWeight="Bold" FontSize="18" />
+                  <TextBlock x:Name="DetailNotes" TextWrapping="Wrap" Classes="muted" />
+                </StackPanel>
+              </Border>
+              <Border x:Name="SecurityBorder" Classes="card">
+                <StackPanel Spacing="8">
+                  <TextBlock x:Name="SecurityTitle" FontWeight="Bold" FontSize="18" />
+                  <TextBlock x:Name="SecurityMessage" TextWrapping="Wrap" Classes="muted" />
+                </StackPanel>
+              </Border>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button x:Name="RestoreButton" Content="Restaurar" IsVisible="False" Click="Restore_Click" />
+                <Button x:Name="DeleteButton" Content="Mover para a lixeira" Click="Delete_Click" />
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</Window>

@@ -44,6 +44,17 @@ public sealed class VaultTests : IDisposable
     }
 
     [Fact]
+    public void LinuxVersionTwoFixtureIsCompatible()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "linux-v2.lionvault");
+        var unlocked = new VaultCryptoService().Unlock(File.ReadAllBytes(path), "Lion-Pass-Compatibility-2026!");
+        Assert.Equal("Linux Compatibility Fixture", unlocked.Payload.Name);
+        Assert.Equal("linux@example.test", unlocked.Payload.Items.Single().Username);
+        Assert.Equal("Interoperabilidade", unlocked.Payload.Items.Single().Category);
+        Assert.Equal(2, unlocked.Envelope.Version);
+    }
+
+    [Fact]
     public void WrongPasswordAndTamperingAreRejected()
     {
         var crypto = new VaultCryptoService();

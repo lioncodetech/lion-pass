@@ -4,6 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LionPass.Core\LionPass.Core.csproj" />
+    <ProjectReference Include="..\..\..\shared\dotnet\LionPass.Core\LionPass.Core.csproj" />
   </ItemGroup>
 </Project>

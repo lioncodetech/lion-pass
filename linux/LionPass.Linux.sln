@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C01CF05E-06D2-428F-A44A-A1818899E5F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.App\LionPass.App.csproj", "{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Security", "src\LionPass.Security\LionPass.Security.csproj", "{E085BAF0-9CA9-42EB-B587-F764F0466C0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core", "..\shared\dotnet\LionPass.Core\LionPass.Core.csproj", "{ECA897CC-01C5-4C5F-A3C2-2FCF2870705E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core.Tests", "..\shared\dotnet\LionPass.Core.Tests\LionPass.Core.Tests.csproj", "{9138C160-9F97-4316-A8BF-6BDF0E8C400A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{96A94377-30CD-46F8-A109-DF24774624EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.FixtureGenerator", "tools\LionPass.FixtureGenerator\LionPass.FixtureGenerator.csproj", "{9D3BE968-14C4-4389-B607-11A8A8731B2B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E085BAF0-9CA9-42EB-B587-F764F0466C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E085BAF0-9CA9-42EB-B587-F764F0466C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E085BAF0-9CA9-42EB-B587-F764F0466C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E085BAF0-9CA9-42EB-B587-F764F0466C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECA897CC-01C5-4C5F-A3C2-2FCF2870705E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECA897CC-01C5-4C5F-A3C2-2FCF2870705E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECA897CC-01C5-4C5F-A3C2-2FCF2870705E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECA897CC-01C5-4C5F-A3C2-2FCF2870705E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9138C160-9F97-4316-A8BF-6BDF0E8C400A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9138C160-9F97-4316-A8BF-6BDF0E8C400A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9138C160-9F97-4316-A8BF-6BDF0E8C400A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9138C160-9F97-4316-A8BF-6BDF0E8C400A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D3BE968-14C4-4389-B607-11A8A8731B2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D3BE968-14C4-4389-B607-11A8A8731B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D3BE968-14C4-4389-B607-11A8A8731B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D3BE968-14C4-4389-B607-11A8A8731B2B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72} = {C01CF05E-06D2-428F-A44A-A1818899E5F7}
+		{E085BAF0-9CA9-42EB-B587-F764F0466C0F} = {C01CF05E-06D2-428F-A44A-A1818899E5F7}
+		{9D3BE968-14C4-4389-B607-11A8A8731B2B} = {96A94377-30CD-46F8-A109-DF24774624EF}
+	EndGlobalSection
+EndGlobal

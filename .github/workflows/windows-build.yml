@@ -19,8 +19,7 @@ jobs:
         with:
           dotnet-version: "8.0.x"
       - name: Test core
-        working-directory: windows
-        run: dotnet test tests/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+        run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
       - name: Build WinUI
         working-directory: windows
         run: dotnet build src/LionPass.App/LionPass.App.csproj -c Release -p:Platform=${{ matrix.architecture }}

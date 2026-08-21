@@ -9,7 +9,7 @@ O Lion protege a confidencialidade e a integridade do cofre em repouso. Ele não
 | Roubo do arquivo | Payload cifrado com AES-256-GCM e chave aleatória de 256 bits | A senha mestra precisa continuar forte |
 | Força bruta offline | PBKDF2-HMAC-SHA256, salt de 32 bytes e 600 mil iterações | Hardware futuro; migração versionada para Argon2id continua recomendada |
 | Arquivo alterado ou truncado | Header/versionamento validado e autenticação GCM tanto da chave quanto do payload | Negação de serviço continua possível |
-| Dispositivo bloqueado | Complete File Protection no iOS, Keychain `WhenUnlockedThisDeviceOnly`, DPAPI por usuário no Windows e bloqueio do app | Backups externos ainda dependem da senha ou da chave de recuperação |
+| Dispositivo bloqueado | Complete File Protection no iOS, Keychain `WhenUnlockedThisDeviceOnly`, DPAPI por usuário no Windows, Secret Service no Linux e bloqueio do app | Backups externos ainda dependem da senha ou da chave de recuperação |
 | Dispositivo desbloqueado | Bloqueio automático e eliminação do payload/chave do estado ativo ao bloquear | Malware privilegiado pode observar memória ou interface |
 | Clipboard | Cópia local, expiração configurável e limpeza condicional; padrão de 30 segundos | Outro app pode ler o clipboard antes da expiração, conforme as regras do sistema operacional |
 | Screenshots, gravação e App Switcher | `privacySensitive`, capa no background e ocultação enquanto a tela é capturada | O iOS não oferece garantia geral contra captura iniciada pelo usuário |
@@ -17,7 +17,7 @@ O Lion protege a confidencialidade e a integridade do cofre em repouso. Ele não
 | Logs e crash reports | Nenhum segredo é registrado e não há SDK de analytics/crash reporting | Logs do próprio sistema estão fora do controle total do app |
 | Arquivos temporários | Escrita atômica com Data Protection, leitura de verificação e remoção do temporário; nunca há plaintext no disco | O sistema operacional gerencia os blocos físicos do armazenamento |
 | AutoFill | App Group contém apenas o `.lionvault`; Identity Store recebe domínio, usuário e UUID, nunca senha; extensão autentica e limpa o estado após o uso | A extensão vê somente a credencial selecionada durante a solicitação |
-| Biometria | Apple usa Keychain com `biometryCurrentSet`; Windows exige Windows Hello e protege a chave com DPAPI para o usuário atual; biometria é só conveniência | Herda as garantias do sensor, Keychain/DPAPI e credencial do dispositivo |
+| Biometria e chaveiros | Apple usa Keychain com `biometryCurrentSet`; Windows exige Windows Hello e DPAPI; Linux usa o Secret Service da sessão quando disponível; todos são apenas conveniência | No Linux, impressão digital e política de desbloqueio dependem do ambiente gráfico, PAM e distribuição |
 | Perda da senha mestra | Chave de recuperação local de alta entropia, com checksum, mostrada uma vez na criação | Se senha, chave de recuperação e biometria forem perdidas, não existe recuperação |
 
 ## Modelo criptográfico do formato v2

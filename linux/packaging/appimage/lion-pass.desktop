@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Lion Pass
+Comment=Gerenciador de senhas local e offline
+Exec=LionPass.App
+Icon=lion-pass
+Terminal=false
+Categories=Utility;Security;
+StartupWMClass=LionPass.App

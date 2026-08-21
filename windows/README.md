@@ -31,7 +31,7 @@ dotnet run --project src/LionPass.App/LionPass.App.csproj -p:Platform=x64
 ## Testar
 
 ```powershell
-dotnet test tests/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+dotnet test ..\shared\dotnet\LionPass.Core.Tests\LionPass.Core.Tests.csproj -c Release
 ```
 
 ## Gerar instalador `.exe`
