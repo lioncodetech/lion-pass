@@ -654,11 +654,11 @@ struct MacItemDetail: View {
                 Text(reveal ? value : "••••••••••••")
                     .font(.body.monospaced())
                     .privacySensitive()
-                if hoveredCopyRow == label, !value.isEmpty {
-                    Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity)
-                }
+                Image(systemName: "doc.on.doc")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, height: 16)
+                    .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(Rectangle())
@@ -684,11 +684,11 @@ struct MacItemDetail: View {
             HStack(spacing: 8) {
                 Text(value)
                     .privacySensitive()
-                if hoveredCopyRow == label, !value.isEmpty {
-                    Image(systemName: "doc.on.doc")
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity)
-                }
+                Image(systemName: "doc.on.doc")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, height: 16)
+                    .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(Rectangle())
@@ -721,12 +721,12 @@ struct MacItemDetail: View {
             HStack(spacing: 8) {
                 Text(value)
                     .lineLimit(1)
-                if hoveredCopyRow == "Site", !value.isEmpty {
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity)
-                }
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, height: 16)
+                    .opacity(hoveredCopyRow == "Site" && !value.isEmpty ? 1 : 0)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(Rectangle())

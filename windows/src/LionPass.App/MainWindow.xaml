@@ -172,7 +172,7 @@
                             </Border>
                             <InfoBar x:Name="SecurityCard" IsOpen="True" IsClosable="False" />
                         </StackPanel>
-                        <InfoBar x:Name="CopyConfirmation" IsOpen="False" IsClosable="False" Severity="Success" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="10" Margin="0,0,0,12" />
+                        <InfoBar x:Name="CopyConfirmation" IsOpen="False" IsClosable="False" Severity="Success" HorizontalAlignment="Stretch" VerticalAlignment="Top" Canvas.ZIndex="10" Margin="0,0,0,12" />
                     </Grid>
                 </ScrollViewer>
             </Grid>
