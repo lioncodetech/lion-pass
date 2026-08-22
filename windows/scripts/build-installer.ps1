@@ -43,6 +43,7 @@ $RequiredFiles = @(
     "LionPass.App.dll",
     "LionPass.App.deps.json",
     "LionPass.App.runtimeconfig.json",
+    "LionPass.App.pri",
     "Microsoft.WindowsAppRuntime.Bootstrap.dll"
 )
 

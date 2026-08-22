@@ -78,16 +78,37 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $executable = Resolve-Path "installer\publish-x64\LionPass.App.exe"
-          $runtimeInstaller = Resolve-Path "installer\runtime-x64\WindowsAppRuntimeInstall.exe"
+          $installers = @(Get-ChildItem "installer\output" -Filter "LionPass-Windows-x64-*-Setup.exe" -File)
+          if ($installers.Count -ne 1) {
+            throw "Era esperado exatamente um instalador x64, mas foram encontrados $($installers.Count)."
+          }
+          $installer = $installers[0].FullName
+          $installRoot = Join-Path $env:RUNNER_TEMP "LionPass-Smoke"
           $diagnosticsDirectory = Join-Path $env:LOCALAPPDATA "Lion Code Technology\Lion Pass\Logs"
           $startupMarker = Join-Path $diagnosticsDirectory "startup.ok"
           $startupLog = Join-Path $diagnosticsDirectory "startup.log"
 
-          $runtimeProcess = Start-Process -FilePath $runtimeInstaller -ArgumentList "--quiet" -Wait -PassThru
-          if ($runtimeProcess.ExitCode -notin @(0, 3010)) {
-            throw "A instalação do Windows App Runtime falhou com o código $($runtimeProcess.ExitCode)."
+          if (Test-Path -LiteralPath $installRoot) {
+            Remove-Item -LiteralPath $installRoot -Recurse -Force
           }
+          New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
+
+          $staleXaml = Join-Path $installRoot "Microsoft.UI.Xaml.dll"
+          Set-Content -LiteralPath $staleXaml -Value "simulated stale self-contained runtime" -Encoding Ascii
+
+          $installArguments = @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-",
+            "/DIR=`"$installRoot`""
+          )
+          $installProcess = Start-Process -FilePath $installer -ArgumentList $installArguments -Wait -PassThru
+          if ($installProcess.ExitCode -notin @(0, 3010)) {
+            throw "A instalação de teste do Lion Pass falhou com o código $($installProcess.ExitCode)."
+          }
+          if (Test-Path -LiteralPath $staleXaml) {
+            throw "O instalador não removeu a Microsoft.UI.Xaml.dll obsoleta."
+          }
+
+          $executable = Resolve-Path (Join-Path $installRoot "LionPass.App.exe")
 
           foreach ($diagnosticFile in @($startupMarker, $startupLog)) {
             if (Test-Path -LiteralPath $diagnosticFile) {
@@ -137,6 +158,22 @@ jobs:
             $process.Refresh()
             if (-not $process.HasExited) {
               Stop-Process -Id $process.Id -Force
+            }
+
+            $uninstaller = Join-Path $installRoot "unins000.exe"
+            if (Test-Path -LiteralPath $uninstaller) {
+              try {
+                $uninstallProcess = Start-Process -FilePath $uninstaller -ArgumentList "/VERYSILENT", "/NORESTART" -Wait -PassThru
+                if ($uninstallProcess.ExitCode -ne 0) {
+                  Write-Warning "A desinstalação de teste retornou $($uninstallProcess.ExitCode)."
+                }
+              }
+              catch {
+                Write-Warning "Não foi possível desinstalar a cópia de teste: $_"
+              }
+            }
+            if (Test-Path -LiteralPath $installRoot) {
+              Remove-Item -LiteralPath $installRoot -Recurse -Force -ErrorAction SilentlyContinue
             }
           }
       # actions/upload-artifact v4

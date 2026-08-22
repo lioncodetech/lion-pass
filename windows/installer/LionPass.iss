@@ -9,7 +9,7 @@
 #endif
 
 #define AppName "Lion Pass"
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.1"
 #define AppPublisher "Lion Code Technology"
 #define AppURL "https://lioncodetech.com.br/"
 #define AppExeName "LionPass.App.exe"
@@ -26,7 +26,7 @@ DefaultGroupName=Lion Pass
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=output
-OutputBaseFilename=LionPass-Windows-{#Architecture}-Setup
+OutputBaseFilename=LionPass-Windows-{#Architecture}-{#AppVersion}-Setup
 SetupIconFile=..\src\LionPass.App\Assets\LionPass.ico
 Compression=lzma2
 SolidCompression=yes
@@ -39,6 +39,27 @@ WizardStyle=modern
   ArchitecturesInstallIn64BitMode=x64compatible
 #endif
 UninstallDisplayIcon={app}\{#AppExeName}
+
+[InstallDelete]
+; Remove componentes locais deixados pelas versões autocontidas antigas.
+; Os cofres e as configurações ficam em %LOCALAPPDATA% e não são afetados.
+Type: files; Name: "{app}\Microsoft.UI*.dll"
+Type: files; Name: "{app}\Microsoft.UI*.pri"
+Type: files; Name: "{app}\Microsoft.Windows*.dll"
+Type: files; Name: "{app}\Microsoft.Windows*.pri"
+Type: files; Name: "{app}\Microsoft.Graphics*.dll"
+Type: files; Name: "{app}\Microsoft.*.winmd"
+Type: files; Name: "{app}\DWriteCore.dll"
+Type: files; Name: "{app}\WinUIEdit.dll"
+Type: files; Name: "{app}\CoreMessagingXP.dll"
+Type: files; Name: "{app}\dcompi.dll"
+Type: files; Name: "{app}\dwmcorei.dll"
+Type: files; Name: "{app}\DwmSceneI.dll"
+Type: files; Name: "{app}\wuceffectsi.dll"
+Type: files; Name: "{app}\marshal.dll"
+Type: files; Name: "{app}\MRM.dll"
+Type: files; Name: "{app}\resources.pri"
+Type: filesandordirs; Name: "{app}\Microsoft.UI.Xaml"
 
 [Files]
 Source: "{#PublishRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
