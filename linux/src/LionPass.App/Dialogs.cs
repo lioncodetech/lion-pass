@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
@@ -6,7 +7,7 @@ using LionPass.Core;
 namespace LionPass.App;
 
 internal sealed record CreateVaultResult(string Name, string Password, bool StoreInKeyring);
-internal sealed record LinuxSettings(int AutoLockMinutes, bool PasswordHistoryEnabled, bool StoreInKeyring, string Language, bool LanguageChosen);
+internal sealed record LinuxSettings(int AutoLockMinutes, bool PasswordHistoryEnabled, bool StoreInKeyring, string Language, bool LanguageChosen, bool AutomaticUpdates, bool ReceiveBetaUpdates);
 
 internal static class Dialogs
 {
@@ -166,7 +167,7 @@ internal static class Dialogs
 
     public static async Task<LinuxSettings?> SettingsAsync(Window owner, LinuxSettings current, bool keyringAvailable)
     {
-        var window = BaseWindow(L("Configurações"), 560, 520);
+        var window = BaseWindow(L("Configurações"), 620, 680);
         var timeout = new NumericUpDown { Minimum = 1, Maximum = 120, Value = current.AutoLockMinutes, Increment = 1 };
         var history = new CheckBox { Content = L("Manter histórico local de alterações de senha"), IsChecked = current.PasswordHistoryEnabled };
         var language = LanguageSelector(current.Language);
@@ -175,10 +176,19 @@ internal static class Dialogs
             Text = L("Por segurança, a chave de conteúdo não é salva no chaveiro da sessão. O desbloqueio exige a senha mestra."),
             TextWrapping = Avalonia.Media.TextWrapping.Wrap, Classes = { "muted" }
         };
+var automaticUpdates = new CheckBox { Content = L("Atualizações automáticas"), IsChecked = current.AutomaticUpdates };
+var betaUpdates = new CheckBox { Content = L("Receber versões beta"), IsChecked = current.ReceiveBetaUpdates };
+var version = typeof(Dialogs).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+var currentVersion = new TextBlock { Text = LinuxLocalization.Format("Versão atual: {0}", version), Classes = { "muted" } };
+var checkUpdates = new Button { Content = L("Verificar atualização") };
+var stableRelease = new Button { Content = L("Voltar para a última versão estável") };
+checkUpdates.Click += (_, _) => OpenReleasePage(betaUpdates.IsChecked == true);
+stableRelease.Click += (_, _) => OpenReleasePage(false);
+var updateButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { checkUpdates, stableRelease } };
         var cancel = new Button { Content = L("Cancelar") };
         var save = new Button { Content = L("Salvar"), Classes = { "brand" } };
         cancel.Click += (_, _) => window.Close(null);
-        save.Click += (_, _) => window.Close(new LinuxSettings((int)(timeout.Value ?? 5), history.IsChecked == true, false, LanguageForIndex(language.SelectedIndex), true));
+        save.Click += (_, _) => window.Close(new LinuxSettings((int)(timeout.Value ?? 5), history.IsChecked == true, false, LanguageForIndex(language.SelectedIndex), true, automaticUpdates.IsChecked == true, betaUpdates.IsChecked == true));
         window.Content = new StackPanel
         {
             Margin = new Thickness(24), Spacing = 16,
@@ -188,6 +198,7 @@ internal static class Dialogs
                 Label("Idioma"), language,
                 Label(L("Bloquear automaticamente após (minutos)")), timeout, history, keyringNotice,
                 new TextBlock { Text = L("O Lion Pass funciona offline. Nenhum cofre, senha ou diagnóstico é enviado a servidores."), TextWrapping = Avalonia.Media.TextWrapping.Wrap, Classes = { "muted" } },
+                Label(L("Atualizações")), automaticUpdates, betaUpdates, currentVersion, updateButtons,
                 new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 8, Children = { cancel, save } }
             }
         };
@@ -215,6 +226,12 @@ internal static class Dialogs
         };
         return await window.ShowDialog<string?>(owner);
     }
+
+private static void OpenReleasePage(bool includeBeta)
+{
+    var path = includeBeta ? "releases" : "releases/latest";
+    Process.Start(new ProcessStartInfo("https://github.com/lioncodetech/lion-pass/" + path) { UseShellExecute = true });
+}
 
     private static ComboBox LanguageSelector(string current) => new()
     {

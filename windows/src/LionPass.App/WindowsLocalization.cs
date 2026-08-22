@@ -39,6 +39,19 @@ internal static class WindowsLocalization
         ApplyCulture();
     }
 
+public static bool GetBoolean(string name, bool defaultValue)
+{
+    using var key = Registry.CurrentUser.OpenSubKey(RegistryPath);
+    var stored = key?.GetValue(name);
+    return stored is null ? defaultValue : stored.ToString() == "1";
+}
+
+public static void SetBoolean(string name, bool value)
+{
+    using var key = Registry.CurrentUser.CreateSubKey(RegistryPath);
+    key.SetValue(name, value ? "1" : "0");
+}
+
     public static void ApplyCulture()
     {
         var culture = CultureInfo.GetCultureInfo(CurrentLanguage);

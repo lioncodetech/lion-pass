@@ -540,10 +540,10 @@ public sealed partial class MainWindow : Window
         {
             var loaded = JsonSerializer.Deserialize<LinuxSettings>(File.ReadAllText(SettingsPath));
             return loaded is null
-                ? new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false)
+                ? new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false, true, false)
                 : loaded with { Language = LinuxLocalization.Normalize(loaded.Language) };
         }
-        catch { return new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false); }
+        catch { return new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false, true, false); }
     }
 
     private static void SaveSettings(LinuxSettings value)

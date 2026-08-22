@@ -116,7 +116,6 @@
                             <TextBlock Text="Selecione um item" FontSize="28" FontWeight="SemiBold" Opacity="0.65" />
                         </StackPanel>
                         <StackPanel x:Name="DetailPanel" Visibility="Collapsed" MaxWidth="760" Spacing="18">
-                            <InfoBar x:Name="CopyConfirmation" IsOpen="False" IsClosable="False" Severity="Success" />
                             <Grid>
                                 <StackPanel HorizontalAlignment="Center" Spacing="8">
                                     <Border Width="78" Height="78" CornerRadius="14" Background="{StaticResource LionIdentityBrush}">
@@ -173,6 +172,7 @@
                             </Border>
                             <InfoBar x:Name="SecurityCard" IsOpen="True" IsClosable="False" />
                         </StackPanel>
+                        <InfoBar x:Name="CopyConfirmation" IsOpen="False" IsClosable="False" Severity="Success" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="10" Margin="0,0,0,12" />
                     </Grid>
                 </ScrollViewer>
             </Grid>

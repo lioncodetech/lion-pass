@@ -28,6 +28,8 @@ public enum LionPreferenceKey {
     public static let suggestStrongPasswords = "suggestStrongPasswords"
     public static let automaticPasskeyUpgrades = "automaticPasskeyUpgrades"
     public static let allowContactingWebsites = "allowContactingWebsites"
+    public static let automaticUpdates = "automaticUpdates"
+    public static let receiveBetaUpdates = "receiveBetaUpdates"
 }
 
 public enum LionL10n {

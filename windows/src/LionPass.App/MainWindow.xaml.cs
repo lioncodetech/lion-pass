@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using LionPass.Core;
 using LionPass.Security;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -26,6 +27,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ApplyWindowIcon();
         if (Content is FrameworkElement root) root.Loaded += MainWindow_Loaded;
         ItemsList.ItemsSource = _visibleItems;
         PopulateNavigation();
@@ -36,6 +38,21 @@ public sealed partial class MainWindow : Window
         Closed += (_, _) => _vault.Dispose();
         _ = RefreshHelloAsync();
     }
+
+private void ApplyWindowIcon()
+{
+    try
+    {
+        var windowHandle = WindowNative.GetWindowHandle(this);
+        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "LionPass.ico");
+        AppWindow.GetFromWindowId(windowId)?.SetIcon(iconPath);
+    }
+    catch (Exception error)
+    {
+        StartupDiagnostics.Report(L("Não foi possível aplicar o ícone à janela principal."), error);
+    }
+}
 
     private async void Window_Activated(object sender, WindowActivatedEventArgs args)
     {
@@ -460,10 +477,38 @@ public sealed partial class MainWindow : Window
             Opacity = 0.75
         };
         var recoveryButton = new Button { Content = L("Exibir chave de recuperação") };
+var automaticUpdates = new CheckBox
+{
+    Content = L("Atualizações automáticas"),
+    IsChecked = WindowsLocalization.GetBoolean("AutomaticUpdates", true)
+};
+var betaUpdates = new CheckBox
+{
+    Content = L("Receber versões beta"),
+    IsChecked = WindowsLocalization.GetBoolean("ReceiveBetaUpdates", false)
+};
+var version = typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+var currentVersion = new TextBlock { Text = LF("Versão atual: {0}", version), Opacity = 0.75 };
+var checkUpdates = new Button { Content = L("Verificar atualização") };
+var stableRelease = new Button { Content = L("Voltar para a última versão estável") };
+checkUpdates.Click += async (_, _) =>
+{
+    var path = betaUpdates.IsChecked == true ? "releases" : "releases/latest";
+    await Launcher.LaunchUriAsync(new Uri("https://github.com/lioncodetech/lion-pass/" + path));
+};
+stableRelease.Click += async (_, _) =>
+    await Launcher.LaunchUriAsync(new Uri("https://github.com/lioncodetech/lion-pass/releases/latest"));
+var updateButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+updateButtons.Children.Add(checkUpdates);
+updateButtons.Children.Add(stableRelease);
+
         var panel = new StackPanel { Spacing = 12, Width = 500 };
         foreach (var control in new UIElement[] { hello, history, compromised, strong, contact, languageTitle, languageSelector }) panel.Children.Add(control);
         foreach (var control in new UIElement[] { securityTitle, recoveryLabel, recoveryDescription, recoveryButton }) panel.Children.Add(control);
-        var dialog = Dialog(L("Ajustes"), panel, L("Salvar"));
+        panel.Children.Add(new TextBlock { Text = L("Atualizações"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) });
+        foreach (var control in new UIElement[] { automaticUpdates, betaUpdates, currentVersion, updateButtons }) panel.Children.Add(control);
+        var settingsScroll = new ScrollViewer { Content = panel, MaxHeight = 620, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        var dialog = Dialog(L("Ajustes"), settingsScroll, L("Salvar"));
         var showRecoveryRequested = false;
         recoveryButton.Click += (_, _) => { showRecoveryRequested = true; dialog.Hide(); };
         var result = await dialog.ShowAsync();
@@ -476,6 +521,8 @@ public sealed partial class MainWindow : Window
         if (result != ContentDialogResult.Primary) return;
         var selectedLanguage = LanguageForIndex(languageSelector.SelectedIndex);
         var languageChanged = selectedLanguage != WindowsLocalization.CurrentLanguage;
+        WindowsLocalization.SetBoolean("AutomaticUpdates", automaticUpdates.IsChecked == true);
+        WindowsLocalization.SetBoolean("ReceiveBetaUpdates", betaUpdates.IsChecked == true);
         WindowsLocalization.SetLanguage(selectedLanguage);
         if (languageChanged) ApplyLocalization();
         try

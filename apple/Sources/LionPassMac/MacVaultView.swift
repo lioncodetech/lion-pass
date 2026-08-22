@@ -15,7 +15,6 @@ struct MacVaultView: View {
     @State private var sortOrder = "title"
     @State private var editing: VaultItem?
     @State private var showGenerator = false
-    @State private var showSettings = false
     @State private var exporting = false
     @State private var exportingPasswords = false
     @State private var showPasswordExportWarning = false
@@ -145,7 +144,7 @@ struct MacVaultView: View {
                 Button(action: exportVisibleOrSelectedPasswords) {
                     Label("Compartilhar", systemImage: "square.and.arrow.up")
                 }
-                Button { showSettings = true } label: {
+                Button { openSettingsWindow() } label: {
                     Label("Configurações", systemImage: "gear")
                 }
                 Button { vault.lockVault() } label: {
@@ -156,7 +155,6 @@ struct MacVaultView: View {
         .onReceive(LionCommandCenter.shared.commands, perform: handleMenuCommand)
         .sheet(item: $editing) { MacItemEditor(item: $0) }
         .sheet(isPresented: $showGenerator) { MacGeneratorView() }
-        .sheet(isPresented: $showSettings) { MacSettingsView() }
         .fileExporter(
             isPresented: $exporting,
             document: MacVaultDocument(data: (try? vault.encryptedData()) ?? Data()),
@@ -267,6 +265,11 @@ struct MacVaultView: View {
                 ContentUnavailableView("Nenhum item", systemImage: "lock.square")
             }
         }
+    }
+
+    private func openSettingsWindow() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        NSApplication.shared.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     private func displayInitial(for item: VaultItem) -> String {
@@ -955,6 +958,24 @@ struct MacGeneratorView: View {
 }
 
 struct MacSettingsView: View {
+    private struct Snapshot {
+        let language: String
+        let appearance: String
+        let autoLock: String
+        let clipboard: Int
+        let privacyCover: Bool
+        let accountDisplayStyle: String
+        let passwordSaveBehavior: String
+        let showInMenuBar: Bool
+        let detectCompromisedPasswords: Bool
+        let suggestStrongPasswords: Bool
+        let automaticPasskeyUpgrades: Bool
+        let allowContactingWebsites: Bool
+        let automaticUpdates: Bool
+        let receiveBetaUpdates: Bool
+        let biometrics: Bool
+        let passwordHistoryEnabled: Bool
+    }
     @EnvironmentObject private var vault: VaultService
     @Environment(\.dismiss) private var dismiss
     @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
@@ -969,6 +990,8 @@ struct MacSettingsView: View {
     @AppStorage(LionPreferenceKey.suggestStrongPasswords) private var suggestStrongPasswords = true
     @AppStorage(LionPreferenceKey.automaticPasskeyUpgrades) private var automaticPasskeyUpgrades = false
     @AppStorage(LionPreferenceKey.allowContactingWebsites) private var allowContactingWebsites = false
+    @AppStorage(LionPreferenceKey.automaticUpdates) private var automaticUpdates = true
+    @AppStorage(LionPreferenceKey.receiveBetaUpdates) private var receiveBetaUpdates = false
     @State private var biometrics = BiometricKeyStore().exists
     @State private var showChangePassword = false
     @State private var showCategories = false
@@ -976,6 +999,7 @@ struct MacSettingsView: View {
     @State private var recoveryKey: String?
     @State private var message: String?
     @State private var error: String?
+    @State private var snapshot: Snapshot?
 
     var body: some View {
         Form {
@@ -997,7 +1021,7 @@ struct MacSettingsView: View {
                 Toggle("Detectar senhas comprometidas", isOn: $detectCompromisedPasswords)
                 if detectCompromisedPasswords {
                     let count = PasswordSecurityAudit.vulnerableCount(in: vault.payload?.items ?? [])
-                    Text(count == 0 ? "Nenhuma senha vulnerável detectada localmente." : "(count) senha(s) precisam de atenção.")
+                    Text(count == 0 ? "Nenhuma senha vulnerável detectada localmente." : "\(count) senha(s) precisam de atenção.")
                         .font(.caption)
                         .foregroundStyle(count == 0 ? Color.secondary : Color.orange)
                 }
@@ -1066,14 +1090,36 @@ struct MacSettingsView: View {
             }
             if let message { Text(message).foregroundStyle(.green) }
             if let error { Text(error).foregroundStyle(.red) }
+Section("Atualizações") {
+    Toggle("Atualizações automáticas", isOn: $automaticUpdates)
+    Toggle("Receber versões beta", isOn: $receiveBetaUpdates)
+    LabeledContent("Versão atual", value: currentVersion)
+    HStack {
+        Button("Verificar atualização") { openReleases(beta: receiveBetaUpdates) }
+        Button("Voltar para a última versão estável") { openStableRelease() }
+    }
+}
             Section("Sobre") {
                 Link("Lion Code Technology", destination: URL(string: "https://lioncodetech.com.br/")!)
             }
         }
         .formStyle(.grouped)
         .padding()
-        .frame(width: 640, height: 780)
-        .toolbar { Button("Concluir") { dismiss() } }
+        .frame(width: 700, height: 780)
+.safeAreaInset(edge: .bottom) {
+    HStack {
+        Spacer()
+        Button("Cancelar", role: .cancel) { cancelChanges() }
+            .keyboardShortcut(.cancelAction)
+        Button("Salvar") { saveChanges() }
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.defaultAction)
+    }
+    .padding(.horizontal, 24)
+    .padding(.vertical, 14)
+    .background(.bar)
+}
+.onAppear(perform: captureSnapshot)
         .sheet(isPresented: $showChangePassword) { MacChangePasswordView() }
         .sheet(isPresented: $showCategories) { MacCategoryManagerView() }
         .sheet(isPresented: $showRestore) { MacRestoreBackupView() }
@@ -1093,6 +1139,76 @@ struct MacSettingsView: View {
             }
         }
     }
+
+private var currentVersion: String {
+    Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+}
+
+private func captureSnapshot() {
+    guard snapshot == nil else { return }
+    snapshot = Snapshot(
+        language: language,
+        appearance: appearance,
+        autoLock: autoLock,
+        clipboard: clipboard,
+        privacyCover: privacyCover,
+        accountDisplayStyle: accountDisplayStyle,
+        passwordSaveBehavior: passwordSaveBehavior,
+        showInMenuBar: showInMenuBar,
+        detectCompromisedPasswords: detectCompromisedPasswords,
+        suggestStrongPasswords: suggestStrongPasswords,
+        automaticPasskeyUpgrades: automaticPasskeyUpgrades,
+        allowContactingWebsites: allowContactingWebsites,
+        automaticUpdates: automaticUpdates,
+        receiveBetaUpdates: receiveBetaUpdates,
+        biometrics: biometrics,
+        passwordHistoryEnabled: vault.payload?.passwordHistoryEnabled ?? true
+    )
+}
+
+private func cancelChanges() {
+    guard let snapshot else { closeSettingsWindow(); return }
+    language = snapshot.language
+    appearance = snapshot.appearance
+    autoLock = snapshot.autoLock
+    clipboard = snapshot.clipboard
+    privacyCover = snapshot.privacyCover
+    accountDisplayStyle = snapshot.accountDisplayStyle
+    passwordSaveBehavior = snapshot.passwordSaveBehavior
+    showInMenuBar = snapshot.showInMenuBar
+    detectCompromisedPasswords = snapshot.detectCompromisedPasswords
+    suggestStrongPasswords = snapshot.suggestStrongPasswords
+    automaticPasskeyUpgrades = snapshot.automaticPasskeyUpgrades
+    allowContactingWebsites = snapshot.allowContactingWebsites
+    automaticUpdates = snapshot.automaticUpdates
+    receiveBetaUpdates = snapshot.receiveBetaUpdates
+    if biometrics != snapshot.biometrics { updateBiometrics(snapshot.biometrics) }
+    if vault.payload?.passwordHistoryEnabled != snapshot.passwordHistoryEnabled {
+        perform { try vault.setPasswordHistoryEnabled(snapshot.passwordHistoryEnabled) }
+    }
+    closeSettingsWindow()
+}
+
+private func saveChanges() {
+    snapshot = nil
+    closeSettingsWindow()
+}
+
+private func closeSettingsWindow() {
+    dismiss()
+    NSApplication.shared.keyWindow?.close()
+}
+
+private func openReleases(beta: Bool) {
+    let path = beta ? "releases" : "releases/latest"
+    guard let url = URL(string: "https://github.com/lioncodetech/lion-pass/" + path) else { return }
+    NSWorkspace.shared.open(url)
+}
+
+private func openStableRelease() {
+    guard let url = URL(string: "https://github.com/lioncodetech/lion-pass/releases/latest") else { return }
+    NSWorkspace.shared.open(url)
+}
 
     private func updateBiometrics(_ value: Bool) {
         do {
