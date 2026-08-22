@@ -6,7 +6,11 @@ namespace LionPass.App;
 
 public sealed class App : Application
 {
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+    public override void Initialize()
+    {
+        LinuxLocalization.ApplyCulture();
+        AvaloniaXamlLoader.Load(this);
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {

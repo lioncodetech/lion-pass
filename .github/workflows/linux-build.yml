@@ -10,9 +10,9 @@ env:
 
 on:
   push:
-    paths: ["linux/**", "shared/**", ".github/workflows/linux-build.yml"]
+    paths: ["linux/**", "shared/**", "apple/Sources/LionAssets/Localizable.xcstrings", ".github/workflows/linux-build.yml"]
   pull_request:
-    paths: ["linux/**", "shared/**", ".github/workflows/linux-build.yml"]
+    paths: ["linux/**", "shared/**", "apple/Sources/LionAssets/Localizable.xcstrings", ".github/workflows/linux-build.yml"]
   workflow_dispatch:
 
 permissions:

@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using LionPass.Core;
@@ -33,7 +34,7 @@ public sealed partial class MainWindow : Window
         _autoLockTimer.Tick += (_, _) => LockVault();
         PointerPressed += (_, _) => ResetAutoLock();
         KeyDown += (_, _) => ResetAutoLock();
-        Opened += async (_, _) => await RefreshKeyringAsync();
+        Opened += MainWindow_Opened;
         Closed += (_, _) => { _clipboardClearCancellation?.Cancel(); _vault.Dispose(); };
         PopulateNavigation();
     }
@@ -53,7 +54,7 @@ public sealed partial class MainWindow : Window
             _vault.Open(MasterPasswordBox.Text ?? "");
             ShowVault();
         }
-        catch (Exception error) { UnlockStatus.Text = error.Message; }
+        catch (Exception error) { UnlockStatus.Text = L(error.Message); }
         return Task.CompletedTask;
     }
 
@@ -67,7 +68,7 @@ public sealed partial class MainWindow : Window
             finally { CryptographicOperations.ZeroMemory(key); }
             ShowVault();
         }
-        catch (Exception error) { UnlockStatus.Text = error.Message; }
+        catch (Exception error) { UnlockStatus.Text = L(error.Message); }
     }
 
     private async void Create_Click(object? sender, RoutedEventArgs e)
@@ -77,19 +78,19 @@ public sealed partial class MainWindow : Window
         try
         {
             var recovery = _vault.Create(result.Name, result.Password);
-            await Dialogs.ShowMessageAsync(this, "Chave de recuperação",
-                $"Guarde esta chave fora do computador. Ela não será exibida novamente.\n\n{recovery}");
+            await Dialogs.ShowMessageAsync(this, L("Chave de recuperação"),
+                LF("Guarde esta chave fora do computador. Ela não será exibida novamente.\n\n{0}", recovery));
             ShowVault();
         }
-        catch (Exception error) { UnlockStatus.Text = error.Message; }
+        catch (Exception error) { UnlockStatus.Text = L(error.Message); }
     }
 
     private async void ImportVault_Click(object? sender, RoutedEventArgs e)
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Importar cofre Lion Pass", AllowMultiple = false,
-            FileTypeFilter = [new FilePickerFileType("Cofre Lion Pass") { Patterns = ["*.lionvault"] }]
+            Title = L("Importar cofre Lion Pass"), AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(L("Cofre Lion Pass")) { Patterns = ["*.lionvault"] }]
         });
         var file = files.FirstOrDefault();
         if (file is null) return;
@@ -100,7 +101,7 @@ public sealed partial class MainWindow : Window
             _vault.Import(file.Path.LocalPath, password);
             ShowVault();
         }
-        catch (Exception error) { UnlockStatus.Text = error.Message; }
+        catch (Exception error) { UnlockStatus.Text = L(error.Message); }
     }
 
     private void ShowVault()
@@ -139,13 +140,13 @@ public sealed partial class MainWindow : Window
             await _keyring.DeleteAsync();
             KeyringButton.IsVisible = false;
             KeyringBadge.IsVisible = false;
-            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
+            UnlockInstruction.Text = LF("Digite a senha mestra do Lion Pass para “{0}”.", user);
         }
         catch
         {
             KeyringButton.IsVisible = false;
             KeyringBadge.IsVisible = false;
-            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
+            UnlockInstruction.Text = LF("Digite a senha mestra do Lion Pass para “{0}”.", user);
         }
         RememberInKeyringCheck.IsVisible = false;
         if (_settings.StoreInKeyring)
@@ -174,7 +175,7 @@ public sealed partial class MainWindow : Window
         }
         CategoriesPanel.Children.Clear();
         foreach (var category in _vault.Payload?.AllCategories ?? VaultPayload.DefaultCategories)
-            CategoriesPanel.Children.Add(NavigationButton(category, $"category:{category}"));
+            CategoriesPanel.Children.Add(NavigationButton(L(category), $"category:{category}"));
     }
 
     private Button NavigationButton(string title, string tag)
@@ -187,14 +188,14 @@ public sealed partial class MainWindow : Window
     private void Filter_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: string tag } button) return;
-        _filter = tag; CollectionTitle.Text = button.Content?.ToString() ?? "Itens";
+        _filter = tag; CollectionTitle.Text = button.Content?.ToString() ?? L("Itens");
         RefreshItems();
     }
 
-    private void ShowAll_Click(object? sender, RoutedEventArgs e) { _filter = "all"; CollectionTitle.Text = "Todos os itens"; RefreshItems(); }
-    private void ShowFavorites_Click(object? sender, RoutedEventArgs e) { _filter = "favorites"; CollectionTitle.Text = "Favoritos"; RefreshItems(); }
-    private void ShowSecurity_Click(object? sender, RoutedEventArgs e) { _filter = "security"; CollectionTitle.Text = "Segurança"; RefreshItems(); }
-    private void ShowTrash_Click(object? sender, RoutedEventArgs e) { _filter = "trash"; CollectionTitle.Text = "Lixeira"; RefreshItems(); }
+    private void ShowAll_Click(object? sender, RoutedEventArgs e) { _filter = "all"; CollectionTitle.Text = L("Todos os itens"); RefreshItems(); }
+    private void ShowFavorites_Click(object? sender, RoutedEventArgs e) { _filter = "favorites"; CollectionTitle.Text = L("Favoritos"); RefreshItems(); }
+    private void ShowSecurity_Click(object? sender, RoutedEventArgs e) { _filter = "security"; CollectionTitle.Text = L("Segurança"); RefreshItems(); }
+    private void ShowTrash_Click(object? sender, RoutedEventArgs e) { _filter = "trash"; CollectionTitle.Text = L("Lixeira"); RefreshItems(); }
     private void SearchBox_TextChanged(object? sender, TextChangedEventArgs e) => RefreshItems();
     private void SortBox_SelectionChanged(object? sender, SelectionChangedEventArgs e) => RefreshItems();
 
@@ -221,7 +222,7 @@ public sealed partial class MainWindow : Window
         };
         var selectedId = _selected?.Id;
         _visibleItems.Clear(); foreach (var value in values) _visibleItems.Add(value);
-        ItemCountText.Text = $"{_visibleItems.Count} itens";
+        ItemCountText.Text = LF("{0} itens", _visibleItems.Count);
         if (selectedId is not null) ItemsList.SelectedItem = _visibleItems.FirstOrDefault(x => x.Id == selectedId);
     }
 
@@ -236,12 +237,12 @@ public sealed partial class MainWindow : Window
         DetailUsername.Text = _selected.Username; DetailPassword.Text = Mask(_selected.Password);
         DetailWebsite.Text = _selected.Website; DetailEmail.Text = _selected.Email;
         DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
-        DetailNotes.Text = string.IsNullOrWhiteSpace(_selected.Notes) ? "Sem notas." : _selected.Notes;
+        DetailNotes.Text = string.IsNullOrWhiteSpace(_selected.Notes) ? L("Sem notas.") : _selected.Notes;
         RestoreButton.IsVisible = _selected.DeletedAt is not null;
-        DeleteButton.Content = _selected.DeletedAt is null ? "Mover para a lixeira" : "Excluir definitivamente";
+        DeleteButton.Content = _selected.DeletedAt is null ? L("Mover para a lixeira") : L("Excluir definitivamente");
         var warning = PasswordSecurityAudit.Warning(_selected, _vault.Payload?.Items ?? []);
-        SecurityTitle.Text = warning is null ? "Nenhum problema encontrado" : "Recomendação de segurança";
-        SecurityMessage.Text = warning ?? "Esta senha é exclusiva e não apresenta problemas na verificação local.";
+        SecurityTitle.Text = warning is null ? L("Nenhum problema encontrado") : L("Recomendação de segurança");
+        SecurityMessage.Text = warning is null ? L("Esta senha é exclusiva e não apresenta problemas na verificação local.") : L(warning);
         SecurityBorder.BorderBrush = warning is null ? Avalonia.Media.Brushes.MediumTurquoise : Avalonia.Media.Brushes.Orange;
         SecurityBorder.BorderThickness = new Avalonia.Thickness(1);
     }
@@ -304,6 +305,13 @@ public sealed partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ContextMenu menu) return;
+        foreach (var item in menu.Items.OfType<MenuItem>())
+            if (item.Header is string header) item.Header = L(header);
+    }
+
     private static void CopyableRow_PointerEntered(object? sender, PointerEventArgs e) => SetCopyHint(sender, true);
     private static void CopyableRow_PointerExited(object? sender, PointerEventArgs e) => SetCopyHint(sender, false);
 
@@ -321,7 +329,7 @@ public sealed partial class MainWindow : Window
         _clipboardClearCancellation = new CancellationTokenSource();
         var cancellation = _clipboardClearCancellation.Token;
         await Clipboard.SetTextAsync(value); ResetAutoLock();
-        ShowCopyConfirmation(confirmation);
+        ShowCopyConfirmation(L(confirmation));
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(30), cancellation);
@@ -333,7 +341,7 @@ public sealed partial class MainWindow : Window
     private async void ShowCopyConfirmation(string message)
     {
         var version = ++_copyConfirmationVersion;
-        CopyConfirmationText.Text = message;
+        CopyConfirmationText.Text = L(message);
         CopyConfirmation.IsVisible = true;
         await Task.Delay(TimeSpan.FromSeconds(1.6));
         if (version == _copyConfirmationVersion) CopyConfirmation.IsVisible = false;
@@ -381,8 +389,8 @@ public sealed partial class MainWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Importar senhas de CSV", AllowMultiple = false,
-            FileTypeFilter = [new FilePickerFileType("Arquivo CSV") { Patterns = ["*.csv"] }]
+            Title = L("Importar senhas de CSV"), AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(L("Arquivo CSV")) { Patterns = ["*.csv"] }]
         });
         var file = files.FirstOrDefault(); if (file is null) return;
         try
@@ -407,8 +415,8 @@ public sealed partial class MainWindow : Window
         if (!confirmed) return;
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Exportar senhas para CSV", SuggestedFileName = "lion-pass.csv",
-            FileTypeChoices = [new FilePickerFileType("Arquivo CSV") { Patterns = ["*.csv"] }]
+            Title = L("Exportar senhas para CSV"), SuggestedFileName = "lion-pass.csv",
+            FileTypeChoices = [new FilePickerFileType(L("Arquivo CSV")) { Patterns = ["*.csv"] }]
         });
         if (file is null) return;
         var path = file.Path.LocalPath;
@@ -424,8 +432,8 @@ public sealed partial class MainWindow : Window
     {
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Exportar cofre criptografado", SuggestedFileName = "lion-pass-backup.lionvault",
-            FileTypeChoices = [new FilePickerFileType("Cofre Lion Pass") { Patterns = ["*.lionvault"] }]
+            Title = L("Exportar cofre criptografado"), SuggestedFileName = "lion-pass-backup.lionvault",
+            FileTypeChoices = [new FilePickerFileType(L("Cofre Lion Pass")) { Patterns = ["*.lionvault"] }]
         });
         if (file is null) return;
         _vault.Export(file.Path.LocalPath);
@@ -438,7 +446,10 @@ public sealed partial class MainWindow : Window
         if (result is null) return;
         try
         {
+            var languageChanged = result.Language != _settings.Language;
             _settings = result; _vault.Payload.PasswordHistoryEnabled = result.PasswordHistoryEnabled; _vault.Save();
+            LinuxLocalization.SetLanguage(result.Language);
+            if (languageChanged) ApplyLocalization();
             await _keyring.DeleteAsync();
             SaveSettings(_settings); ResetAutoLock(); await RefreshKeyringAsync();
         }
@@ -450,17 +461,89 @@ public sealed partial class MainWindow : Window
 
     private void Quit_Click(object? sender, RoutedEventArgs e) => Close();
 
+
+    private async void MainWindow_Opened(object? sender, EventArgs e)
+    {
+        LinuxLocalization.SetLanguage(_settings.Language);
+        ApplyLocalization();
+        if (!_settings.LanguageChosen)
+        {
+            var language = await Dialogs.SelectLanguageAsync(this, _settings.Language);
+            if (language is not null)
+            {
+                _settings = _settings with { Language = language, LanguageChosen = true };
+                LinuxLocalization.SetLanguage(language);
+                SaveSettings(_settings);
+                ApplyLocalization();
+            }
+        }
+        await RefreshKeyringAsync();
+    }
+
+    private void ApplyLocalization()
+    {
+        foreach (var element in this.GetLogicalDescendants().Prepend(this))
+        {
+            switch (element)
+            {
+                case TextBlock text when text.DataContext is not VaultItem && string.IsNullOrEmpty(text.Name) && !string.IsNullOrWhiteSpace(text.Text):
+                    text.Text = L(text.Text);
+                    break;
+                case MenuItem menu when menu.Header is string header:
+                    menu.Header = L(header);
+                    break;
+                case Expander expander when expander.Header is string header:
+                    expander.Header = L(header);
+                    break;
+                case ContentControl content when content.Content is string value:
+                    content.Content = L(value);
+                    break;
+                case TextBox input when input.Watermark is string watermark:
+                    input.Watermark = L(watermark);
+                    break;
+            }
+        }
+
+        KeyringButton.Content = L("Usar chaveiro Linux");
+        RememberInKeyringCheck.Content = L("Salvar desbloqueio no chaveiro Linux");
+        RestoreButton.Content = L("Restaurar");
+        DeleteButton.Content = _selected?.DeletedAt is null ? L("Mover para a lixeira") : L("Excluir definitivamente");
+        CollectionTitle.Text = _filter switch
+        {
+            "favorites" => L("Favoritos"), "security" => L("Segurança"), "trash" => L("Lixeira"), "all" => L("Todos os itens"), _ => CollectionTitle.Text
+        };
+        PopulateNavigation();
+        RefreshItems();
+        if (_selected is not null)
+        {
+            DetailKind.Text = TypeTitle(_selected.Kind);
+            DetailNotes.Text = string.IsNullOrWhiteSpace(_selected.Notes) ? L("Sem notas.") : _selected.Notes;
+            var warning = PasswordSecurityAudit.Warning(_selected, _vault.Payload?.Items ?? []);
+            SecurityTitle.Text = warning is null ? L("Nenhum problema encontrado") : L("Recomendação de segurança");
+            SecurityMessage.Text = warning is null ? L("Esta senha é exclusiva e não apresenta problemas na verificação local.") : L(warning);
+        }
+    }
+
+    private static string L(string value) => LinuxLocalization.Text(value);
+    private static string LF(string value, params object[] arguments) => LinuxLocalization.Format(value, arguments);
+
     private static string Mask(string value) => value.Length == 0 ? "—" : new string('●', Math.Min(value.Length, 20));
     private static string TypeTitle(VaultItemKind value) => value switch
-    { VaultItemKind.Login => "Logins", VaultItemKind.Card => "Cartões", VaultItemKind.SecureNote => "Notas seguras", VaultItemKind.Identity => "Identidades", _ => "Outros" };
+    { VaultItemKind.Login => L("Logins"), VaultItemKind.Card => L("Cartões"), VaultItemKind.SecureNote => L("Notas seguras"), VaultItemKind.Identity => L("Identidades"), _ => L("Outros") };
 
     private static string SettingsPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Lion Code Technology", "Lion Pass", "linux-settings.json");
 
     private static LinuxSettings LoadSettings()
     {
-        try { return JsonSerializer.Deserialize<LinuxSettings>(File.ReadAllText(SettingsPath)) ?? new LinuxSettings(5, true, false); }
-        catch { return new LinuxSettings(5, true, false); }
+        try
+        {
+            var loaded = JsonSerializer.Deserialize<LinuxSettings>(File.ReadAllText(SettingsPath));
+            return loaded is null
+                ? new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false)
+                : loaded with { Language = LinuxLocalization.Normalize(loaded.Language) };
+        }
+        catch { return new LinuxSettings(5, true, false, LinuxLocalization.CurrentLanguage, false); }
     }
 
     private static void SaveSettings(LinuxSettings value)

@@ -25,6 +25,10 @@ mkdir -p "$PUBLISH_DIR"
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
   -o "$PUBLISH_DIR"
 find "$PUBLISH_DIR" -name '*.pdb' -delete
+if [[ ! -f "$PUBLISH_DIR/Localizable.xcstrings" ]]; then
+  echo "Catálogo de idiomas não encontrado no pacote publicado: $PUBLISH_DIR/Localizable.xcstrings" >&2
+  exit 1
+fi
 
 cp "$ROOT_DIR/shared/assets/app-icon/LionPass-1024.png" "$OUTPUT_DIR/lion-pass.png"
 tar -C "$OUTPUT_DIR" -czf "$OUTPUT_DIR/LionPass-Linux-$RID-$VERSION.tar.gz" publish

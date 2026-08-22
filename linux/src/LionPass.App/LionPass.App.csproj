@@ -20,5 +20,6 @@
     <ProjectReference Include="..\..\..\shared\dotnet\LionPass.Core\LionPass.Core.csproj" />
     <ProjectReference Include="..\LionPass.Security\LionPass.Security.csproj" />
     <AvaloniaResource Include="Assets\**" />
+    <Content Include="..\..\..\apple\Sources\LionAssets\Localizable.xcstrings" Link="Localizable.xcstrings" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
   </ItemGroup>
 </Project>
