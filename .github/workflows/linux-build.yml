@@ -56,7 +56,7 @@ jobs:
           ARCH: x86_64
         run: linux/scripts/build-packages.sh linux-x64
       # actions/upload-artifact v4
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         if: github.event_name == 'push'
         with:
           name: LionPass-Linux-x64-Unsigned
@@ -107,7 +107,7 @@ jobs:
               --certificate-oidc-issuer "$CERTIFICATE_OIDC_ISSUER"
           done
       # actions/upload-artifact v4
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: LionPass-Linux-x64
           path: |
