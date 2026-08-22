@@ -461,7 +461,22 @@ private void ApplyWindowIcon()
 
     private async void Settings_Click(object sender, RoutedEventArgs e)
     {
-        var hello = new CheckBox { Content = L("Desbloquear com Windows Hello"), IsChecked = _hello.Exists, IsEnabled = await _hello.IsAvailableAsync() };
+        var helloAvailable = await _hello.IsAvailableAsync();
+        var hello = new CheckBox
+        {
+            Content = L("Desbloquear com Windows Hello"),
+            IsChecked = _hello.Exists,
+            IsEnabled = true
+        };
+        var helloStatus = new TextBlock
+        {
+            Text = helloAvailable
+                ? L("O Windows Hello está disponível neste dispositivo.")
+                : L("Ao ativar, o Windows confirmará se o Hello está configurado para esta conta."),
+            TextWrapping = TextWrapping.Wrap,
+            Opacity = 0.7,
+            Margin = new Thickness(24, -8, 0, 0)
+        };
         var history = new CheckBox { Content = L("Guardar histórico das últimas senhas"), IsChecked = _vault.Payload?.PasswordHistoryEnabled };
         var compromised = new CheckBox { Content = L("Detectar senhas comprometidas localmente"), IsChecked = true };
         var strong = new CheckBox { Content = L("Sugerir senhas fortes"), IsChecked = true };
@@ -503,7 +518,7 @@ updateButtons.Children.Add(checkUpdates);
 updateButtons.Children.Add(stableRelease);
 
         var panel = new StackPanel { Spacing = 12, Width = 500 };
-        foreach (var control in new UIElement[] { hello, history, compromised, strong, contact, languageTitle, languageSelector }) panel.Children.Add(control);
+        foreach (var control in new UIElement[] { hello, helloStatus, history, compromised, strong, contact, languageTitle, languageSelector }) panel.Children.Add(control);
         foreach (var control in new UIElement[] { securityTitle, recoveryLabel, recoveryDescription, recoveryButton }) panel.Children.Add(control);
         panel.Children.Add(new TextBlock { Text = L("Atualizações"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) });
         foreach (var control in new UIElement[] { automaticUpdates, betaUpdates, currentVersion, updateButtons }) panel.Children.Add(control);

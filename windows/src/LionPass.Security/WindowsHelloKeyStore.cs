@@ -47,18 +47,12 @@ public sealed class WindowsHelloKeyStore
 
     public async Task<bool> IsAvailableAsync()
     {
-        if (await UserConsentVerifier.CheckAvailabilityAsync() != UserConsentVerifierAvailability.Available)
-            return false;
-
         try
         {
-            _ = CngKey.Exists(
-                $"{_keyNamePrefix}-availability-probe",
-                PassportProvider,
-                CngKeyOpenOptions.UserKey);
-            return true;
+            return await UserConsentVerifier.CheckAvailabilityAsync() ==
+                UserConsentVerifierAvailability.Available;
         }
-        catch (CryptographicException)
+        catch
         {
             return false;
         }

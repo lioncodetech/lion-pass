@@ -4241,6 +4241,38 @@
         }
       }
     },
+    "O Windows Hello está disponível neste dispositivo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows Hello is available on this device."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows Hello está disponible en este dispositivo."
+          }
+        }
+      }
+    },
+    "Ao ativar, o Windows confirmará se o Hello está configurado para esta conta.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When enabled, Windows will confirm whether Hello is configured for this account."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al activarlo, Windows confirmará si Hello está configurado para esta cuenta."
+          }
+        }
+      }
+    },
     "Desbloquear com Windows Hello": {
       "localizations": {
         "en": {
