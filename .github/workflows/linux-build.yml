@@ -31,7 +31,7 @@ jobs:
       - name: Test shared core
         run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
       - name: Build Linux application
-        run: dotnet build linux/src/LionPass.App/LionPass.App.csproj -c Release
+        run: dotnet build linux/src/LionPass.Client.noindex/LionPass.App.csproj -c Release
       - name: Install packaging dependencies
         run: sudo apt-get update && sudo apt-get install --yes libsecret-tools
       - name: Download and verify pinned AppImage tools

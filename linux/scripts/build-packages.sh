@@ -10,7 +10,7 @@ RID="${1:-linux-x64}"
 VERSION="${VERSION:-1.0.0}"
 OUTPUT_DIR="$LINUX_DIR/artifacts/$RID"
 PUBLISH_DIR="$OUTPUT_DIR/publish"
-PROJECT="$LINUX_DIR/src/LionPass.App/LionPass.App.csproj"
+PROJECT="$LINUX_DIR/src/LionPass.Client.noindex/LionPass.App.csproj"
 DOTNET_BIN="${DOTNET_BIN:-dotnet}"
 
 case "$RID" in

@@ -14,13 +14,13 @@ Os builds oficiais desativam explicitamente a telemetria de compilação do Aval
 ## Executar para desenvolvimento
 
 ```bash
-dotnet run --project src/LionPass.App/LionPass.App.csproj
+dotnet run --project src/LionPass.Client.noindex/LionPass.App.csproj
 ```
 
 ## Compilar
 
 ```bash
-dotnet build src/LionPass.App/LionPass.App.csproj -c Release
+dotnet build src/LionPass.Client.noindex/LionPass.App.csproj -c Release
 dotnet test ../shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
 ```
 

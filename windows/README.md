@@ -25,7 +25,7 @@ Aplicação nativa para Windows 10 (build 19041+) e Windows 11, construída com 
 
 ```powershell
 dotnet restore LionPass.Windows.sln
-dotnet run --project src/LionPass.App/LionPass.App.csproj -p:Platform=x64
+dotnet run --project src/LionPass.Client.noindex/LionPass.App.csproj -p:Platform=x64
 ```
 
 ## Testar

@@ -82,8 +82,8 @@ verify_secure_release() {
     return 1
   fi
 
-  sandbox_enabled="$(print -r -- "$entitlements" | plutil -extract com.apple.security.app-sandbox raw -o - - 2>/dev/null || true)"
-  user_files_enabled="$(print -r -- "$entitlements" | plutil -extract com.apple.security.files.user-selected.read-write raw -o - - 2>/dev/null || true)"
+  sandbox_enabled="$(print -r -- "$entitlements" | plutil -extract 'com\.apple\.security\.app-sandbox' raw -o - - 2>/dev/null || true)"
+  user_files_enabled="$(print -r -- "$entitlements" | plutil -extract 'com\.apple\.security\.files\.user-selected\.read-write' raw -o - - 2>/dev/null || true)"
   if [[ "$sandbox_enabled" != "true" ]]; then
     print -u2 "Falha de segurança: App Sandbox não está ativo em $app"
     return 1

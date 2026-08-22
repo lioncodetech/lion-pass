@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 $WindowsRoot = Split-Path -Parent $PSScriptRoot
 $PublishRoot = Join-Path $WindowsRoot "installer\publish-$Architecture"
-$Project = Join-Path $WindowsRoot "src\LionPass.App\LionPass.App.csproj"
+$Project = Join-Path $WindowsRoot "src\LionPass.Client.noindex\LionPass.App.csproj"
 $RuntimeVersion = "2.3.1"
 $RuntimeInstallerRoot = Join-Path $WindowsRoot "installer\runtime-$Architecture"
 $RuntimeInstaller = Join-Path $RuntimeInstallerRoot "WindowsAppRuntimeInstall.exe"

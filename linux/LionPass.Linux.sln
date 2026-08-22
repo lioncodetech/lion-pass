@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C01CF05E-06D2-428F-A44A-A1818899E5F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.App\LionPass.App.csproj", "{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.Client.noindex\LionPass.App.csproj", "{4B4994EC-8BAE-49B0-86D2-80FD8B45BE72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Security", "src\LionPass.Security\LionPass.Security.csproj", "{E085BAF0-9CA9-42EB-B587-F764F0466C0F}"
 EndProject

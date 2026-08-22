@@ -650,25 +650,24 @@ struct MacItemDetail: View {
 
     private func secretRow(_ label: String, value: String) -> some View {
         LabeledContent(label) {
-            HStack(spacing: 8) {
-                Text(reveal ? value : "••••••••••••")
-                    .font(.body.monospaced())
-                    .privacySensitive()
-                Image(systemName: "doc.on.doc")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16, height: 16)
-                    .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
-                    .accessibilityHidden(true)
-            }
+            Text(reveal ? value : "••••••••••••")
+                .font(.body.monospaced())
+                .privacySensitive()
+                .padding(.trailing, 24)
+                .overlay(alignment: .trailing) {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16, height: 16)
+                        .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
+                        .accessibilityHidden(true)
+                }
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(hoveredCopyRow == label ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
         .onHover { hovering in
-            withAnimation(.easeOut(duration: 0.12)) {
-                hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
-            }
+            hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
         }
         .onTapGesture { copy(value, confirmation: "Senha copiada") }
         .help(value.isEmpty ? "Sem valor para copiar" : "Clique para copiar a senha")
@@ -681,24 +680,23 @@ struct MacItemDetail: View {
 
     private func copyableRow(_ label: String, value: String) -> some View {
         LabeledContent(label) {
-            HStack(spacing: 8) {
-                Text(value)
-                    .privacySensitive()
-                Image(systemName: "doc.on.doc")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16, height: 16)
-                    .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
-                    .accessibilityHidden(true)
-            }
+            Text(value)
+                .privacySensitive()
+                .padding(.trailing, 24)
+                .overlay(alignment: .trailing) {
+                    Image(systemName: "doc.on.doc")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16, height: 16)
+                        .opacity(hoveredCopyRow == label && !value.isEmpty ? 1 : 0)
+                        .accessibilityHidden(true)
+                }
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(hoveredCopyRow == label ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
         .onHover { hovering in
-            withAnimation(.easeOut(duration: 0.12)) {
-                hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
-            }
+            hoveredCopyRow = hovering ? label : (hoveredCopyRow == label ? nil : hoveredCopyRow)
         }
         .onTapGesture { copy(value, confirmation: "\(label) copiado") }
         .help(value.isEmpty ? "Sem valor para copiar" : "Clique para copiar \(label.lowercased())")
@@ -718,25 +716,24 @@ struct MacItemDetail: View {
 
     private func websiteRow(_ value: String) -> some View {
         LabeledContent("Site") {
-            HStack(spacing: 8) {
-                Text(value)
-                    .lineLimit(1)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16, height: 16)
-                    .opacity(hoveredCopyRow == "Site" && !value.isEmpty ? 1 : 0)
-                    .accessibilityHidden(true)
-            }
+            Text(value)
+                .lineLimit(1)
+                .padding(.trailing, 24)
+                .overlay(alignment: .trailing) {
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16, height: 16)
+                        .opacity(hoveredCopyRow == "Site" && !value.isEmpty ? 1 : 0)
+                        .accessibilityHidden(true)
+                }
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(hoveredCopyRow == "Site" ? Color.primary.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 6))
         .onHover { hovering in
-            withAnimation(.easeOut(duration: 0.12)) {
-                hoveredCopyRow = hovering ? "Site" : (hoveredCopyRow == "Site" ? nil : hoveredCopyRow)
-            }
+            hoveredCopyRow = hovering ? "Site" : (hoveredCopyRow == "Site" ? nil : hoveredCopyRow)
         }
         .onTapGesture {
             guard !value.isEmpty else { return }
@@ -1002,8 +999,9 @@ struct MacSettingsView: View {
     @State private var snapshot: Snapshot?
 
     var body: some View {
-        Form {
-            Section("Senhas e contas") {
+        VStack(spacing: 0) {
+            Form {
+                Section("Senhas e contas") {
                 Picker("Mostrar contas como", selection: $accountDisplayStyle) {
                     ForEach(AccountDisplayStyle.allCases) { style in
                         Text(style.title).tag(style.rawValue)
@@ -1102,24 +1100,25 @@ Section("Atualizações") {
             Section("Sobre") {
                 Link("Lion Code Technology", destination: URL(string: "https://lioncodetech.com.br/")!)
             }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("Cancelar", role: .cancel) { cancelChanges() }
+                    .keyboardShortcut(.cancelAction)
+                Button("Salvar") { saveChanges() }
+                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            .background(.bar)
         }
-        .formStyle(.grouped)
-        .padding()
-        .frame(width: 700, height: 780)
-.safeAreaInset(edge: .bottom) {
-    HStack {
-        Spacer()
-        Button("Cancelar", role: .cancel) { cancelChanges() }
-            .keyboardShortcut(.cancelAction)
-        Button("Salvar") { saveChanges() }
-            .buttonStyle(.borderedProminent)
-            .keyboardShortcut(.defaultAction)
-    }
-    .padding(.horizontal, 24)
-    .padding(.vertical, 14)
-    .background(.bar)
-}
-.onAppear(perform: captureSnapshot)
+        .frame(width: 700, height: settingsWindowHeight)
+        .onAppear(perform: captureSnapshot)
         .sheet(isPresented: $showChangePassword) { MacChangePasswordView() }
         .sheet(isPresented: $showCategories) { MacCategoryManagerView() }
         .sheet(isPresented: $showRestore) { MacRestoreBackupView() }
@@ -1138,6 +1137,11 @@ Section("Atualizações") {
                 .frame(width: 620)
             }
         }
+    }
+
+    private var settingsWindowHeight: CGFloat {
+        let visibleHeight = NSScreen.main?.visibleFrame.height ?? 720
+        return min(680, max(520, visibleHeight - 96))
     }
 
 private var currentVersion: String {

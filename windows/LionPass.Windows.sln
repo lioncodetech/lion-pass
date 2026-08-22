@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Core", "..\shared\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.Security", "src\LionPass.Security\LionPass.Security.csproj", "{E152FCBA-CF4A-4B24-83F7-BD3CA8ABAD73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.App\LionPass.App.csproj", "{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LionPass.App", "src\LionPass.Client.noindex\LionPass.App.csproj", "{B9A023FE-0368-4005-A65C-F16AF2F0D4D1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB20684C-02D6-49FE-AF29-175AFA41F3CA}"
 EndProject
