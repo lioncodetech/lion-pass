@@ -77,6 +77,21 @@ public sealed class VaultTests : IDisposable
     }
 
     [Fact]
+    public void RecoveryKeyCanBeConsultedOnlyWhileVaultIsUnlocked()
+    {
+        Directory.CreateDirectory(_directory);
+        using var service = new VaultService(new VaultCryptoService(), new VaultStorageService(_directory));
+        var created = service.Create("Recovery", Password);
+
+        Assert.Equal(created, service.GetRecoveryKey());
+        service.Lock();
+        Assert.Throws<VaultException>(() => service.GetRecoveryKey());
+
+        service.Open(Password);
+        Assert.Equal(created, service.GetRecoveryKey());
+    }
+
+    [Fact]
     public void CsvRoundTripSupportsQuotesCommasAndNewLines()
     {
         var original = new VaultItem { Title = "Example, Inc.", Username = "user", Password = "secret", Notes = "line 1\nline \"2\"" };

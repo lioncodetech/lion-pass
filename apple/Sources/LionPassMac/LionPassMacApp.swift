@@ -294,7 +294,6 @@ struct MacUnlockView: View {
     @State private var password = ""
     @State private var error: String?
     @State private var confirmation: String?
-    @State private var attemptedAutomaticTouchID = false
     @State private var hasTouchIDKey = BiometricKeyStore().exists
     @State private var showRecovery = false
     @FocusState private var passwordFocused: Bool
@@ -348,9 +347,6 @@ struct MacUnlockView: View {
         }
         .task {
             passwordFocused = true
-            guard hasTouchIDKey, !attemptedAutomaticTouchID else { return }
-            attemptedAutomaticTouchID = true
-            unlockWithTouchID()
         }
         .sheet(isPresented: $showRecovery) { MacRecoveryUnlockView() }
     }

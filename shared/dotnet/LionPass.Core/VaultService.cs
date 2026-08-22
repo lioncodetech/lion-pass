@@ -32,6 +32,8 @@ public sealed class VaultService : IDisposable
     public void OpenWithRecoveryKey(string recoveryKey) => Apply(_crypto.UnlockWithRecoveryKey(_storage.Read(), recoveryKey));
     public void OpenWithContentKey(byte[] key) => Apply(_crypto.Unlock(_storage.Read(), key));
     public byte[] GetContentKey() => _contentKey?.ToArray() ?? throw VaultException.NotOpen();
+    public string GetRecoveryKey() => VaultCryptoService.CreateRecoveryKey(
+        _contentKey ?? throw VaultException.NotOpen());
 
     public void Lock()
     {

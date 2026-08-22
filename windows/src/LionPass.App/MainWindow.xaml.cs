@@ -110,7 +110,7 @@ public sealed partial class MainWindow : Window
         try
         {
             var recovery = _vault.Create(name.Text, password.Password);
-            await MessageAsync("Chave de recuperação", $"Guarde esta chave em um local seguro. Ela não será enviada a nenhum servidor.\n\n{recovery}");
+            await ShowRecoveryKeyAsync(recovery, true);
             ShowVault();
         }
         catch (Exception error) { ShowUnlockError(error.Message); }
@@ -267,9 +267,19 @@ public sealed partial class MainWindow : Window
         var securityCode = new PasswordBox { Header = "Código de segurança", Password = item.SecurityCode };
         var bank = new TextBox { Header = "Banco", Text = item.Bank };
         var notes = new TextBox { Header = "Notas", Text = item.Notes, AcceptsReturn = true, MinHeight = 90, TextWrapping = TextWrapping.Wrap };
-        var panel = new StackPanel { Spacing = 10, Width = 520 };
+        var panel = new StackPanel { Spacing = 10, Width = 480, HorizontalAlignment = HorizontalAlignment.Stretch };
         foreach (var control in new UIElement[] { type, name, username, password, generate, website, email, tags, category, favorite, cardholder, cardNumber, expiry, securityCode, bank, notes }) panel.Children.Add(control);
-        var dialog = Dialog(title, new ScrollViewer { Content = panel, MaxHeight = 620 }, "Salvar");
+        var editorScroll = new ScrollViewer
+        {
+            Content = panel,
+            MaxHeight = 560,
+            Padding = new Thickness(0, 0, 20, 0),
+            HorizontalScrollMode = ScrollMode.Disabled,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollMode = ScrollMode.Auto,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+        };
+        var dialog = Dialog(title, editorScroll, "Salvar");
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return null;
         item.Kind = (VaultItemKind?)type.SelectedItem ?? VaultItemKind.Login;
         item.Title = name.Text.Trim(); item.Username = username.Text; item.Password = password.Password;
@@ -436,10 +446,29 @@ public sealed partial class MainWindow : Window
         var compromised = new CheckBox { Content = "Detectar senhas comprometidas localmente", IsChecked = true };
         var strong = new CheckBox { Content = "Sugerir senhas fortes", IsChecked = true };
         var contact = new CheckBox { Content = "Permitir abrir sites associados", IsChecked = true };
+        var securityTitle = new TextBlock { Text = "Segurança", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) };
+        var recoveryLabel = new TextBlock { Text = "Chave de recuperação", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
+        var recoveryDescription = new TextBlock
+        {
+            Text = "Consulte e copie a chave usada para recuperar este cofre.",
+            TextWrapping = TextWrapping.Wrap,
+            Opacity = 0.75
+        };
+        var recoveryButton = new Button { Content = "Exibir chave de recuperação" };
         var panel = new StackPanel { Spacing = 12, Width = 500 };
         foreach (var control in new UIElement[] { hello, history, compromised, strong, contact }) panel.Children.Add(control);
+        foreach (var control in new UIElement[] { securityTitle, recoveryLabel, recoveryDescription, recoveryButton }) panel.Children.Add(control);
         var dialog = Dialog("Ajustes", panel, "Salvar");
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        var showRecoveryRequested = false;
+        recoveryButton.Click += (_, _) => { showRecoveryRequested = true; dialog.Hide(); };
+        var result = await dialog.ShowAsync();
+        if (showRecoveryRequested)
+        {
+            try { await ShowRecoveryKeyAsync(_vault.GetRecoveryKey(), false); }
+            catch (Exception error) { await MessageAsync("Chave de recuperação", error.Message); }
+            return;
+        }
+        if (result != ContentDialogResult.Primary) return;
         try
         {
             if (hello.IsChecked == true && !_hello.Exists) await _hello.SaveAsync(_vault.GetContentKey());
@@ -449,6 +478,70 @@ public sealed partial class MainWindow : Window
             await RefreshHelloAsync();
         }
         catch (Exception error) { await MessageAsync("Windows Hello", error.Message); }
+    }
+
+    private async Task ShowRecoveryKeyAsync(string recoveryKey, bool isFirstCreation)
+    {
+        var introduction = new TextBlock
+        {
+            Text = isFirstCreation
+                ? "Seu cofre foi criado. Guarde esta chave em um local seguro: ela permite recuperar o acesso ao cofre."
+                : "Esta chave permite recuperar o acesso ao cofre. Guarde-a em um local seguro.",
+            TextWrapping = TextWrapping.Wrap
+        };
+        var recoveryText = new TextBox
+        {
+            Text = recoveryKey,
+            IsReadOnly = true,
+            TextWrapping = TextWrapping.Wrap,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        var copyButton = new Button { Content = "Copiar chave" };
+        var copyStatus = new TextBlock
+        {
+            Text = "Chave copiada. Por segurança, ela será removida da área de transferência em 30 segundos.",
+            TextWrapping = TextWrapping.Wrap,
+            Visibility = Visibility.Collapsed
+        };
+        var path = new TextBlock
+        {
+            Text = "Você pode consultar esta chave novamente em: Lion Pass > Ajustes > Segurança > Chave de recuperação.",
+            TextWrapping = TextWrapping.Wrap,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+        var privacy = new TextBlock
+        {
+            Text = "A chave não será enviada a nenhum servidor. Não a compartilhe com outras pessoas.",
+            TextWrapping = TextWrapping.Wrap,
+            Opacity = 0.75
+        };
+        var panel = new StackPanel { Spacing = 12, Width = 560 };
+        foreach (var control in new UIElement[] { introduction, recoveryText, copyButton, copyStatus, path, privacy }) panel.Children.Add(control);
+
+        copyButton.Click += async (_, _) =>
+        {
+            var package = new DataPackage();
+            package.SetText(recoveryKey);
+            Clipboard.SetContent(package);
+            copyStatus.Visibility = Visibility.Visible;
+            await Task.Delay(TimeSpan.FromSeconds(30));
+            try
+            {
+                var current = await Clipboard.GetContent().GetTextAsync();
+                if (current == recoveryKey) Clipboard.Clear();
+            }
+            catch { }
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "Chave de recuperação",
+            Content = panel,
+            CloseButtonText = "Concluir",
+            XamlRoot = Content.XamlRoot
+        };
+        await dialog.ShowAsync();
+        recoveryText.Text = string.Empty;
     }
 
     private ContentDialog Dialog(string title, object content, string primary) => new()
