@@ -30,6 +30,16 @@ public enum LionPreferenceKey {
     public static let allowContactingWebsites = "allowContactingWebsites"
 }
 
+public enum LionL10n {
+    public static func text(_ key: String) -> String {
+        let selected = UserDefaults.standard.string(forKey: LionPreferenceKey.language) ?? "pt-BR"
+        let resource = selected == "en-US" ? "en" : selected == "es-ES" ? "es" : "pt-BR"
+        guard let path = Bundle.main.path(forResource: resource, ofType: "lproj"),
+              let bundle = Bundle(path: path) else { return key }
+        return bundle.localizedString(forKey: key, value: key, table: nil)
+    }
+}
+
 public enum AccountDisplayStyle: String, CaseIterable, Identifiable, Sendable {
     case titles
     case websites
@@ -38,9 +48,9 @@ public enum AccountDisplayStyle: String, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .titles: "Títulos"
-        case .websites: "Sites"
-        case .usernames: "Usuários"
+        case .titles: LionL10n.text("Títulos")
+        case .websites: LionL10n.text("Sites")
+        case .usernames: LionL10n.text("Usuários")
         }
     }
 }
@@ -53,9 +63,9 @@ public enum PasswordSaveBehavior: String, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .ask: "Perguntar ao iniciar sessão"
-        case .always: "Salvar automaticamente"
-        case .never: "Nunca salvar automaticamente"
+        case .ask: LionL10n.text("Perguntar ao iniciar sessão")
+        case .always: LionL10n.text("Salvar automaticamente")
+        case .never: LionL10n.text("Nunca salvar automaticamente")
         }
     }
 }
@@ -251,11 +261,11 @@ public enum AutoLockDuration: String, CaseIterable, Identifiable, Codable, Senda
 
     public var title: String {
         switch self {
-        case .immediately: "Imediatamente"
-        case .seconds30: "Após 30 segundos"
-        case .minute1: "1 minuto"
-        case .minutes5: "5 minutos"
-        case .minutes15: "15 minutos"
+        case .immediately: LionL10n.text("Imediatamente")
+        case .seconds30: LionL10n.text("Após 30 segundos")
+        case .minute1: LionL10n.text("1 minuto")
+        case .minutes5: LionL10n.text("5 minutos")
+        case .minutes15: LionL10n.text("15 minutos")
         }
     }
 }

@@ -6,6 +6,7 @@ struct LionPassApp: App {
     @StateObject private var vault = VaultService()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
+    @AppStorage(LionPreferenceKey.languageChosen) private var languageChosen = false
     @AppStorage(LionPreferenceKey.appearance) private var appearance = "system"
     @AppStorage(LionPreferenceKey.autoLock) private var autoLock = AutoLockDuration.immediately.rawValue
     @AppStorage(LionPreferenceKey.privacyCover) private var privacyCover = true
@@ -37,6 +38,13 @@ struct LionPassApp: App {
                 if let recoveryKey = vault.pendingRecoveryKey {
                     RecoveryKeySheet(recoveryKey: recoveryKey).environmentObject(vault)
                 }
+            }
+            .sheet(isPresented: Binding(
+                get: { !languageChosen },
+                set: { _ in }
+            )) {
+                LanguageSelectionView(language: $language, chosen: $languageChosen)
+                    .interactiveDismissDisabled()
             }
         }
     }
@@ -95,5 +103,33 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut, value: vault.isUnlocked)
+    }
+}
+
+private struct LanguageSelectionView: View {
+    @Binding var language: String
+    @Binding var chosen: Bool
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Idioma / Language / Idioma", selection: $language) {
+                        Text("Português (Brasil)").tag("pt-BR")
+                        Text("English").tag("en-US")
+                        Text("Español").tag("es-ES")
+                    }
+                    .pickerStyle(.inline)
+                } header: {
+                    Text("Escolha seu idioma / Choose your language / Elija su idioma")
+                }
+                Section {
+                    Button("Continuar / Continue / Continuar") { chosen = true }
+                        .buttonStyle(.borderedProminent)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .navigationTitle("Lion Pass")
+        }
     }
 }

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C10000000000000000000001 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* Localizable.xcstrings */; };
+		C10000000000000000000002 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* Localizable.xcstrings */; };
+		C10000000000000000000003 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* Localizable.xcstrings */; };
 		08B01304E1A31C41BC89A190 /* VaultStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBF8BBD6A5F999A736720F7 /* VaultStorageService.swift */; };
 		0D2941AFDE6D97ACDBCE491B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5BBCA4BCD6C9E491741A4206 /* PrivacyInfo.xcprivacy */; };
 		0DAD03ABA13420DE9AA344A0 /* SecurityServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1328420E51408E71E0C66B /* SecurityServices.swift */; };
@@ -83,6 +86,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C00000000000000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		02E6DBADF799238A04ADC075 /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
 		05FCA9AB9C4CC77C23CF7B3F /* MacVaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacVaultView.swift; sourceTree = "<group>"; };
 		0790FAF96B10ED2E68D6FC5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -180,6 +184,7 @@
 		C02FFB49382029590D6C3516 /* LionAssets */ = {
 			isa = PBXGroup;
 			children = (
+				C00000000000000000000001 /* Localizable.xcstrings */,
 				4AB4CB2BB10BA43AD87F95DB /* Assets.xcassets */,
 			);
 			name = LionAssets;
@@ -348,6 +353,8 @@
 			knownRegions = (
 				Base,
 				en,
+				es,
+				"pt-BR",
 			);
 			mainGroup = A2E42FBF916041187E02294C;
 			minimizedProjectReferenceProxies = 1;
@@ -370,6 +377,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C10000000000000000000001 /* Localizable.xcstrings in Resources */,
 				A366503C45AC48649CD640E4 /* Assets.xcassets in Resources */,
 				B9E042882D18651B4B31CBED /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -379,6 +387,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C10000000000000000000002 /* Localizable.xcstrings in Resources */,
 				E0F86B2332533573AFC4023D /* Assets.xcassets in Resources */,
 				0D2941AFDE6D97ACDBCE491B /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -388,6 +397,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C10000000000000000000003 /* Localizable.xcstrings in Resources */,
 				B9A1A97AC712677A5804C9C4 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

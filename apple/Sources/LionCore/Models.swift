@@ -17,11 +17,11 @@ public enum VaultItemKind: String, Codable, CaseIterable, Identifiable, Sendable
 
     public var title: String {
         switch self {
-        case .login: "Logins"
-        case .card: "Cartões"
-        case .secureNote: "Notas seguras"
-        case .identity: "Identidades"
-        case .other: "Outros"
+        case .login: LionL10n.text("Logins")
+        case .card: LionL10n.text("Cartões")
+        case .secureNote: LionL10n.text("Notas seguras")
+        case .identity: LionL10n.text("Identidades")
+        case .other: LionL10n.text("Outros")
         }
     }
 
@@ -111,17 +111,17 @@ public enum PasswordSecurityAudit {
     public static func warning(for item: VaultItem, in items: [VaultItem]) -> String? {
         guard item.kind == .login, item.deletedAt == nil, !item.password.isEmpty else { return nil }
         if commonlyCompromised.contains(item.password.localizedLowercase) {
-            return "Esta senha aparece em listas locais de senhas muito comprometidas. Troque-a imediatamente."
+            return LionL10n.text("Esta senha aparece em listas locais de senhas muito comprometidas. Troque-a imediatamente.")
         }
         if item.password.count < 12 {
-            return "Esta senha é curta. Use pelo menos 12 caracteres e prefira uma senha gerada."
+            return LionL10n.text("Esta senha é curta. Use pelo menos 12 caracteres e prefira uma senha gerada.")
         }
         let reused = items.contains {
             $0.id != item.id && $0.kind == .login && $0.deletedAt == nil
                 && !$0.password.isEmpty && $0.password == item.password
         }
         if reused {
-            return "Esta senha está sendo reutilizada em outra conta. Use uma senha exclusiva."
+            return LionL10n.text("Esta senha está sendo reutilizada em outra conta. Use uma senha exclusiva.")
         }
         return nil
     }
@@ -276,20 +276,20 @@ public enum VaultError: LocalizedError, Equatable {
 
     public var errorDescription: String? {
         switch self {
-        case .invalidFormat: "O arquivo não é um cofre Lion válido."
-        case .unsupportedVersion: "Esta versão do cofre ainda não é suportada."
-        case .unsupportedKDF: "O algoritmo de derivação deste cofre não é suportado."
-        case .invalidKDFParameters: "Os parâmetros de segurança do cofre são inválidos."
-        case .wrongPasswordOrTampered: "Senha incorreta ou arquivo adulterado."
-        case .invalidRecoveryKey: "A chave de recuperação é inválida ou não pertence a este cofre."
-        case .truncated: "O arquivo do cofre está truncado."
-        case .notOpen: "O cofre está bloqueado."
-        case .biometricsUnavailable: "A autenticação biométrica não está disponível."
-        case .categoryAlreadyExists: "Já existe uma categoria com esse nome."
-        case .categoryNotFound: "A categoria não foi encontrada."
-        case .cannotDeleteDefaultCategory: "As categorias padrão não podem ser apagadas."
-        case .noPreviousBackup: "Não há uma versão anterior do cofre para restaurar."
-        case .verificationFailed: "A gravação segura do cofre não pôde ser verificada."
+        case .invalidFormat: LionL10n.text("O arquivo não é um cofre Lion válido.")
+        case .unsupportedVersion: LionL10n.text("Esta versão do cofre ainda não é suportada.")
+        case .unsupportedKDF: LionL10n.text("O algoritmo de derivação deste cofre não é suportado.")
+        case .invalidKDFParameters: LionL10n.text("Os parâmetros de segurança do cofre são inválidos.")
+        case .wrongPasswordOrTampered: LionL10n.text("Senha incorreta ou arquivo adulterado.")
+        case .invalidRecoveryKey: LionL10n.text("A chave de recuperação é inválida ou não pertence a este cofre.")
+        case .truncated: LionL10n.text("O arquivo do cofre está truncado.")
+        case .notOpen: LionL10n.text("O cofre está bloqueado.")
+        case .biometricsUnavailable: LionL10n.text("A autenticação biométrica não está disponível.")
+        case .categoryAlreadyExists: LionL10n.text("Já existe uma categoria com esse nome.")
+        case .categoryNotFound: LionL10n.text("A categoria não foi encontrada.")
+        case .cannotDeleteDefaultCategory: LionL10n.text("As categorias padrão não podem ser apagadas.")
+        case .noPreviousBackup: LionL10n.text("Não há uma versão anterior do cofre para restaurar.")
+        case .verificationFailed: LionL10n.text("A gravação segura do cofre não pôde ser verificada.")
         }
     }
 }

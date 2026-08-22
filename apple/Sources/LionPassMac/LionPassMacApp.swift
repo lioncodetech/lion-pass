@@ -29,6 +29,7 @@ struct LionPassMacApp: App {
     @StateObject private var vault = VaultService()
     @AppStorage(LionPreferenceKey.showInMenuBar) private var showInMenuBar = false
     @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
+    @AppStorage(LionPreferenceKey.languageChosen) private var languageChosen = false
 
     var body: some Scene {
         WindowGroup("Lion Pass", id: "main") {
@@ -37,6 +38,12 @@ struct LionPassMacApp: App {
                 .environment(\.locale, Locale(identifier: language))
                 .tint(.lionAccent)
                 .frame(minWidth: 900, minHeight: 600)
+                .sheet(isPresented: Binding(
+                    get: { !languageChosen },
+                    set: { _ in }
+                )) {
+                    MacLanguageSelectionView(language: $language, chosen: $languageChosen)
+                }
         }
         .commands { LionPassCommands() }
         MenuBarExtra(
@@ -563,5 +570,37 @@ struct MacRecoveryKeyView: View {
         .padding(28)
         .frame(width: 620)
         .interactiveDismissDisabled(true)
+    }
+}
+
+private struct MacLanguageSelectionView: View {
+    @Binding var language: String
+    @Binding var chosen: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 14) {
+                Image("LionLogo").resizable().scaledToFit().frame(width: 64, height: 64)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Lion Pass").font(.title.bold())
+                    Text("Escolha seu idioma / Choose your language / Elija su idioma")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Picker("Idioma / Language / Idioma", selection: $language) {
+                Text("Português (Brasil)").tag("pt-BR")
+                Text("English").tag("en-US")
+                Text("Español").tag("es-ES")
+            }
+            .pickerStyle(.radioGroup)
+            HStack {
+                Spacer()
+                Button("Continuar / Continue / Continuar") { chosen = true }
+                    .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding(28)
+        .frame(width: 520)
+        .interactiveDismissDisabled()
     }
 }
