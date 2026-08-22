@@ -73,7 +73,5 @@ begin
   if ResultCode = 3010 then
     NeedsRestart := True
   else if ResultCode <> 0 then
-    Result := Format(
-      'A instalação do Windows App Runtime falhou com o código %d. O Lion Pass não foi instalado.',
-      [ResultCode]);
+    Result := Format('A instalação do Windows App Runtime falhou com o código %d. O Lion Pass não foi instalado.', [ResultCode]);
 end;
