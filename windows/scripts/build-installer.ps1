@@ -44,7 +44,8 @@ $RequiredFiles = @(
     "LionPass.App.deps.json",
     "LionPass.App.runtimeconfig.json",
     "LionPass.App.pri",
-    "Microsoft.WindowsAppRuntime.Bootstrap.dll"
+    "Microsoft.WindowsAppRuntime.Bootstrap.dll",
+    "Localizable.xcstrings"
 )
 
 foreach ($RequiredFile in $RequiredFiles) {

@@ -2,9 +2,9 @@ name: Windows
 
 on:
   push:
-    paths: ["windows/**", "shared/**", ".github/workflows/windows-build.yml"]
+    paths: ["windows/**", "shared/**", "apple/Sources/LionAssets/Localizable.xcstrings", ".github/workflows/windows-build.yml"]
   pull_request:
-    paths: ["windows/**", "shared/**", ".github/workflows/windows-build.yml"]
+    paths: ["windows/**", "shared/**", "apple/Sources/LionAssets/Localizable.xcstrings", ".github/workflows/windows-build.yml"]
   workflow_dispatch:
 
 permissions:

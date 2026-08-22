@@ -732,7 +732,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar sitio"
+            "value": "Copiar sitio web"
           }
         }
       }
@@ -2054,13 +2054,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Português (Brasil)"
+            "value": "Portuguese (Brazil)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Português (Brasil)"
+            "value": "Portugués (Brasil)"
           }
         }
       }
@@ -3629,6 +3629,1238 @@
           "stringUnit": {
             "state": "translated",
             "value": "Las passkeys automáticas requieren una extensión de proveedor y firma de Apple Developer; esta instalación personal mantiene la opción desactivada."
+          }
+        }
+      }
+    },
+    "Digite a senha mestra para desbloquear.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the master password to unlock."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduzca la contraseña maestra para desbloquear."
+          }
+        }
+      }
+    },
+    "Digite a senha mestra": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the master password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduzca la contraseña maestra"
+          }
+        }
+      }
+    },
+    "Usar Windows Hello": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Windows Hello"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar Windows Hello"
+          }
+        }
+      }
+    },
+    "Importar CSV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import CSV"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar CSV"
+          }
+        }
+      }
+    },
+    "Exportar CSV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export CSV"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar CSV"
+          }
+        }
+      }
+    },
+    "Clique para copiar o usuário": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to copy the username"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haga clic para copiar el usuario"
+          }
+        }
+      }
+    },
+    "Clique para copiar a senha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to copy the password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haga clic para copiar la contraseña"
+          }
+        }
+      }
+    },
+    "Clique para ver as opções do site": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to view website options"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haga clic para ver las opciones del sitio"
+          }
+        }
+      }
+    },
+    "Mostrar/ocultar senha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show/hide password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar/ocultar contraseña"
+          }
+        }
+      }
+    },
+    "Abrir site": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open website"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir sitio web"
+          }
+        }
+      }
+    },
+    "Copiar e-mail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy email"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar correo"
+          }
+        }
+      }
+    },
+    "Nome do cofre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vault name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de la bóveda"
+          }
+        }
+      }
+    },
+    "Mínimo de 12 caracteres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least 12 characters"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mínimo de 12 caracteres"
+          }
+        }
+      }
+    },
+    "Confirmar senha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmar contraseña"
+          }
+        }
+      }
+    },
+    "As senhas não coincidem.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The passwords do not match."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las contraseñas no coinciden."
+          }
+        }
+      }
+    },
+    "{0} itens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} items"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} elementos"
+          }
+        }
+      }
+    },
+    "Mover para Lixeira": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover a la Papelera"
+          }
+        }
+      }
+    },
+    "Excluir definitivamente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete permanently"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar definitivamente"
+          }
+        }
+      }
+    },
+    "Recomendação de segurança": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security recommendation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recomendación de seguridad"
+          }
+        }
+      }
+    },
+    "Esta senha é exclusiva e não apresenta problemas na verificação local.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This password is unique and has no issues in the local check."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta contraseña es exclusiva y no presenta problemas en la comprobación local."
+          }
+        }
+      }
+    },
+    "Editar item": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit item"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar elemento"
+          }
+        }
+      }
+    },
+    "Não foi possível salvar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar"
+          }
+        }
+      }
+    },
+    "Gerar senha segura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate secure password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generar contraseña segura"
+          }
+        }
+      }
+    },
+    "trabalho, urgente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "work, urgent"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trabajo, urgente"
+          }
+        }
+      }
+    },
+    "Titular do cartão": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cardholder"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titular de la tarjeta"
+          }
+        }
+      }
+    },
+    "Número do cartão": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card number"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Número de tarjeta"
+          }
+        }
+      }
+    },
+    "Código de segurança": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código de seguridad"
+          }
+        }
+      }
+    },
+    "Usuário copiado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username copied"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuario copiado"
+          }
+        }
+      }
+    },
+    "Senha copiada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password copied"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña copiada"
+          }
+        }
+      }
+    },
+    "Site copiado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website copied"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitio web copiado"
+          }
+        }
+      }
+    },
+    "E-mail copiado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email copied"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correo copiado"
+          }
+        }
+      }
+    },
+    "Site inválido": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid website"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitio web no válido"
+          }
+        }
+      }
+    },
+    "Por segurança, o Lion Pass abre somente endereços HTTP ou HTTPS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For security, Lion Pass opens HTTP or HTTPS addresses only."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por seguridad, Lion Pass solo abre direcciones HTTP o HTTPS."
+          }
+        }
+      }
+    },
+    "Cofre Lion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bóveda Lion"
+          }
+        }
+      }
+    },
+    "O arquivo CSV excede o limite de 25 MB.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The CSV file exceeds the 25 MB limit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El archivo CSV supera el límite de 25 MB."
+          }
+        }
+      }
+    },
+    "Importação": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importación"
+          }
+        }
+      }
+    },
+    "Exportar senhas sem criptografia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export unencrypted passwords"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar contraseñas sin cifrar"
+          }
+        }
+      }
+    },
+    "Nome da nova categoria": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New category name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre de la nueva categoría"
+          }
+        }
+      }
+    },
+    "Desbloquear com Windows Hello": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Windows Hello"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear con Windows Hello"
+          }
+        }
+      }
+    },
+    "Guardar histórico das últimas senhas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep recent password history"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar el historial de contraseñas recientes"
+          }
+        }
+      }
+    },
+    "Detectar senhas comprometidas localmente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detect compromised passwords locally"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detectar contraseñas comprometidas localmente"
+          }
+        }
+      }
+    },
+    "Permitir abrir sites associados": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow opening associated websites"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir abrir sitios asociados"
+          }
+        }
+      }
+    },
+    "Consulte e copie a chave usada para recuperar este cofre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View and copy the key used to recover this vault."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulte y copie la clave usada para recuperar esta bóveda."
+          }
+        }
+      }
+    },
+    "Exibir chave de recuperação": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show recovery key"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar clave de recuperación"
+          }
+        }
+      }
+    },
+    "Inglês": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inglés"
+          }
+        }
+      }
+    },
+    "Espanhol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spanish"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Español"
+          }
+        }
+      }
+    },
+    "Seu cofre foi criado. Guarde esta chave em um local seguro: ela permite recuperar o acesso ao cofre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your vault was created. Keep this key in a safe place: it can restore access to the vault."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su bóveda ha sido creada. Guarde esta clave en un lugar seguro: permite recuperar el acceso a la bóveda."
+          }
+        }
+      }
+    },
+    "Esta chave permite recuperar o acesso ao cofre. Guarde-a em um local seguro.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This key can restore access to the vault. Keep it in a safe place."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta clave permite recuperar el acceso a la bóveda. Guárdela en un lugar seguro."
+          }
+        }
+      }
+    },
+    "Chave copiada. Por segurança, ela será removida da área de transferência em 30 segundos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key copied. For security, it will be removed from the clipboard in 30 seconds."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave copiada. Por seguridad, se eliminará del portapapeles en 30 segundos."
+          }
+        }
+      }
+    },
+    "Você pode consultar esta chave novamente em: Lion Pass > Ajustes > Segurança > Chave de recuperação.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can view this key again under Lion Pass > Settings > Security > Recovery key."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puede consultar esta clave de nuevo en Lion Pass > Ajustes > Seguridad > Clave de recuperación."
+          }
+        }
+      }
+    },
+    "A chave não será enviada a nenhum servidor. Não a compartilhe com outras pessoas.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key will not be sent to any server. Do not share it with anyone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clave no se enviará a ningún servidor. No la comparta con otras personas."
+          }
+        }
+      }
+    },
+    "Use o Windows Hello ou digite a senha mestra do Lion Pass para “{0}”.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Windows Hello or enter the Lion Pass master password for “{0}”."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Windows Hello o introduzca la contraseña maestra de Lion Pass para «{0}»."
+          }
+        }
+      }
+    },
+    "Digite a senha mestra do Lion Pass para “{0}”.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the Lion Pass master password for “{0}”."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduzca la contraseña maestra de Lion Pass para «{0}»."
+          }
+        }
+      }
+    },
+    "Pesquisar...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar..."
+          }
+        }
+      }
+    },
+    "Exportar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportar"
+          }
+        }
+      }
+    },
+    "Ajustes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        }
+      }
+    },
+    "Lixeira": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trash"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papelera"
+          }
+        }
+      }
+    },
+    "Excluir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        }
+      }
+    },
+    "Usuário": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuario"
+          }
+        }
+      }
+    },
+    "E-mail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correo electrónico"
+          }
+        }
+      }
+    },
+    "Modificado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modified"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modificado"
+          }
+        }
+      }
+    },
+    "Itens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elementos"
+          }
+        }
+      }
+    },
+    "Validade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expiration"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caducidad"
+          }
+        }
+      }
+    },
+    "Banco": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banco"
+          }
+        }
+      }
+    },
+    "Ocultar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar"
+          }
+        }
+      }
+    },
+    "Mostrar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar"
+          }
+        }
+      }
+    },
+    "Bancos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banks"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bancos"
+          }
+        }
+      }
+    },
+    "Redes sociais": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Social networks"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redes sociales"
+          }
+        }
+      }
+    },
+    "Trabalho": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabajo"
+          }
+        }
+      }
+    },
+    "Compras": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shopping"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compras"
+          }
+        }
+      }
+    },
+    "Streaming": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streaming"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streaming"
+          }
+        }
+      }
+    },
+    "Falha ao carregar os recursos visuais do aplicativo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to load the application's visual resources."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar los recursos visuales de la aplicación."
+          }
+        }
+      }
+    },
+    "Falha não tratada na interface do aplicativo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unhandled failure in the application interface."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fallo no controlado en la interfaz de la aplicación."
+          }
+        }
+      }
+    },
+    "Não foi possível abrir a janela principal.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The main window could not be opened."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo abrir la ventana principal."
+          }
+        }
+      }
+    },
+    "O Lion Pass não conseguiu iniciar.\n\n{0}\n\nUm relatório foi salvo em:\n{1}": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion Pass could not start.\n\n{0}\n\nA report was saved to:\n{1}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion Pass no pudo iniciarse.\n\n{0}\n\nSe guardó un informe en:\n{1}"
+          }
+        }
+      }
+    },
+    "Lion Pass — erro de inicialização": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion Pass — startup error"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion Pass — error de inicio"
+          }
+        }
+      }
+    },
+    "My Pass": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Pass"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mi bóveda"
           }
         }
       }

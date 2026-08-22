@@ -26,6 +26,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        if (Content is FrameworkElement root) root.Loaded += MainWindow_Loaded;
         ItemsList.ItemsSource = _visibleItems;
         PopulateNavigation();
         _autoLockTimer = DispatcherQueue.CreateTimer();
@@ -52,14 +53,14 @@ public sealed partial class MainWindow : Window
             HelloButton.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
             HelloBadge.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
             UnlockInstruction.Text = available
-                ? $"Use o Windows Hello ou digite a senha mestra do Lion Pass para “{user}”."
-                : $"Digite a senha mestra do Lion Pass para “{user}”.";
+                ? LF("Use o Windows Hello ou digite a senha mestra do Lion Pass para “{0}”.", user)
+                : LF("Digite a senha mestra do Lion Pass para “{0}”.", user);
         }
         catch
         {
             HelloButton.Visibility = Visibility.Collapsed;
             HelloBadge.Visibility = Visibility.Collapsed;
-            UnlockInstruction.Text = $"Digite a senha mestra do Lion Pass para “{user}”.";
+            UnlockInstruction.Text = LF("Digite a senha mestra do Lion Pass para “{0}”.", user);
         }
     }
 
@@ -86,34 +87,34 @@ public sealed partial class MainWindow : Window
     private async Task RunUnlockAsync(Action action)
     {
         try { action(); ShowVault(); }
-        catch (Exception error) { ShowUnlockError(error.Message); }
+        catch (Exception error) { ShowUnlockError(L(error.Message)); }
         await Task.CompletedTask;
     }
 
     private async Task RunUnlockAsync(Func<Task> action)
     {
         try { await action(); ShowVault(); }
-        catch (Exception error) { ShowUnlockError(error.Message); }
+        catch (Exception error) { ShowUnlockError(L(error.Message)); }
     }
 
     private async void Create_Click(object sender, RoutedEventArgs e)
     {
-        var name = new TextBox { Header = "Nome do cofre", Text = "My Pass" };
-        var password = new PasswordBox { Header = "Senha mestra", PlaceholderText = "Mínimo de 12 caracteres" };
-        var confirmation = new PasswordBox { Header = "Confirmar senha" };
+        var name = new TextBox { Header = L("Nome do cofre"), Text = L("My Pass") };
+        var password = new PasswordBox { Header = L("Senha mestra"), PlaceholderText = L("Mínimo de 12 caracteres") };
+        var confirmation = new PasswordBox { Header = L("Confirmar senha") };
         var panel = new StackPanel { Spacing = 12 };
         panel.Children.Add(name); panel.Children.Add(password); panel.Children.Add(confirmation);
-        var dialog = Dialog("Criar cofre", panel, "Criar");
+        var dialog = Dialog(L("Criar cofre"), panel, L("Criar"));
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         if (password.Password != confirmation.Password)
-        { ShowUnlockError("As senhas não coincidem."); return; }
+        { ShowUnlockError(L("As senhas não coincidem.")); return; }
         try
         {
             var recovery = _vault.Create(name.Text, password.Password);
             await ShowRecoveryKeyAsync(recovery, true);
             ShowVault();
         }
-        catch (Exception error) { ShowUnlockError(error.Message); }
+        catch (Exception error) { ShowUnlockError(L(error.Message)); }
     }
 
     private async void Import_Click(object sender, RoutedEventArgs e)
@@ -123,11 +124,11 @@ public sealed partial class MainWindow : Window
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
         var file = await picker.PickSingleFileAsync();
         if (file is null) return;
-        var password = new PasswordBox { Header = "Senha mestra" };
-        var dialog = Dialog("Importar cofre", password, "Importar");
+        var password = new PasswordBox { Header = L("Senha mestra") };
+        var dialog = Dialog(L("Importar cofre"), password, L("Importar"));
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         try { _vault.Import(file.Path, password.Password); ShowVault(); }
-        catch (Exception error) { ShowUnlockError(error.Message); }
+        catch (Exception error) { ShowUnlockError(L(error.Message)); }
     }
 
     private void ShowVault()
@@ -168,7 +169,7 @@ public sealed partial class MainWindow : Window
         CategoriesPanel.Children.Clear();
         foreach (var category in _vault.Payload?.AllCategories ?? VaultPayload.DefaultCategories)
         {
-            var item = new NavigationViewItem { Content = category, Tag = $"category:{category}", Icon = new SymbolIcon(CategorySymbol(category)) };
+            var item = new NavigationViewItem { Content = L(category), Tag = $"category:{category}", Icon = new SymbolIcon(CategorySymbol(category)) };
             item.Tapped += Filter_Tapped; CategoriesPanel.Children.Add(item);
         }
     }
@@ -176,7 +177,7 @@ public sealed partial class MainWindow : Window
     private void Filter_Tapped(object sender, TappedRoutedEventArgs e)
     {
         if (sender is not NavigationViewItem item || item.Tag is not string tag) return;
-        _filter = tag; CollectionTitle.Text = item.Content?.ToString() ?? "Itens"; RefreshItems();
+        _filter = tag; CollectionTitle.Text = item.Content?.ToString() ?? L("Itens"); RefreshItems();
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e) => RefreshItems();
@@ -204,7 +205,7 @@ public sealed partial class MainWindow : Window
             _ => values.OrderBy(x => x.Title, StringComparer.CurrentCultureIgnoreCase)
         };
         _visibleItems.Clear(); foreach (var item in values) _visibleItems.Add(item);
-        ItemCount.Text = $"{_visibleItems.Count} itens";
+        ItemCount.Text = LF("{0} itens", _visibleItems.Count);
     }
 
     private void ItemsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -221,19 +222,19 @@ public sealed partial class MainWindow : Window
         DetailModified.Text = _selected.UpdatedAt.ToLocalTime().ToString("g");
         DetailNotes.Text = _selected.Notes;
         RestoreButton.Visibility = _selected.DeletedAt is null ? Visibility.Collapsed : Visibility.Visible;
-        DeleteButton.Content = _selected.DeletedAt is null ? "Mover para Lixeira" : "Excluir definitivamente";
+        DeleteButton.Content = _selected.DeletedAt is null ? L("Mover para Lixeira") : L("Excluir definitivamente");
         var warning = PasswordSecurityAudit.Warning(_selected, _vault.Payload?.Items ?? []);
         SecurityCard.Severity = warning is null ? InfoBarSeverity.Success : InfoBarSeverity.Warning;
-        SecurityCard.Title = warning is null ? "Nenhum problema encontrado" : "Recomendação de segurança";
-        SecurityCard.Message = warning ?? "Esta senha é exclusiva e não apresenta problemas na verificação local.";
+        SecurityCard.Title = warning is null ? L("Nenhum problema encontrado") : L("Recomendação de segurança");
+        SecurityCard.Message = warning is null ? L("Esta senha é exclusiva e não apresenta problemas na verificação local.") : L(warning);
     }
 
     private async void Add_Click(object sender, RoutedEventArgs e)
     {
-        var item = await ShowEditorAsync(new VaultItem { Password = PasswordGenerator.Generate() }, "Novo item");
+        var item = await ShowEditorAsync(new VaultItem { Password = PasswordGenerator.Generate() }, L("Novo item"));
         if (item is null) return;
         try { _vault.Upsert(item); RefreshItems(); ItemsList.SelectedItem = item; }
-        catch (Exception error) { await MessageAsync("Não foi possível salvar", error.Message); }
+        catch (Exception error) { await MessageAsync(L("Não foi possível salvar"), L(error.Message)); }
     }
 
     private async void Edit_Click(object sender, RoutedEventArgs e)
@@ -243,30 +244,32 @@ public sealed partial class MainWindow : Window
         {
             Tags = _selected.Tags.ToList(), CustomFields = _selected.CustomFields.ToList(),
             PasswordHistory = _selected.PasswordHistory.ToList()
-        }, "Editar item");
+        }, L("Editar item"));
         if (item is null) return;
         _vault.Upsert(item); RefreshItems(); ItemsList.SelectedItem = item;
     }
 
     private async Task<VaultItem?> ShowEditorAsync(VaultItem item, string title)
     {
-        var type = new ComboBox { Header = "Tipo", ItemsSource = Enum.GetValues<VaultItemKind>(), SelectedItem = item.Kind };
-        var name = new TextBox { Header = "Título", Text = item.Title };
-        var username = new TextBox { Header = "Usuário", Text = item.Username };
-        var password = new PasswordBox { Header = "Senha", Password = item.Password };
-        var generate = new Button { Content = "Gerar senha segura", HorizontalAlignment = HorizontalAlignment.Right };
+        var typeOptions = Enum.GetValues<VaultItemKind>().Select(value => new TypeOption(value)).ToList();
+        var type = new ComboBox { Header = L("Tipo"), ItemsSource = typeOptions, SelectedItem = typeOptions.First(option => option.Value == item.Kind) };
+        var name = new TextBox { Header = L("Título"), Text = item.Title };
+        var username = new TextBox { Header = L("Usuário"), Text = item.Username };
+        var password = new PasswordBox { Header = L("Senha"), Password = item.Password };
+        var generate = new Button { Content = L("Gerar senha segura"), HorizontalAlignment = HorizontalAlignment.Right };
         generate.Click += (_, _) => password.Password = PasswordGenerator.Generate();
-        var website = new TextBox { Header = "Site", Text = item.Website };
-        var email = new TextBox { Header = "E-mail", Text = item.Email };
-        var tags = new TextBox { Header = "Tags", Text = string.Join(", ", item.Tags), PlaceholderText = "trabalho, urgente" };
-        var category = new ComboBox { Header = "Categoria", ItemsSource = _vault.Payload?.AllCategories, SelectedItem = item.Category };
-        var favorite = new CheckBox { Content = "Favorito", IsChecked = item.IsFavorite };
-        var cardholder = new TextBox { Header = "Titular do cartão", Text = item.Cardholder };
-        var cardNumber = new TextBox { Header = "Número do cartão", Text = item.CardNumber };
-        var expiry = new TextBox { Header = "Validade", Text = item.Expiry };
-        var securityCode = new PasswordBox { Header = "Código de segurança", Password = item.SecurityCode };
-        var bank = new TextBox { Header = "Banco", Text = item.Bank };
-        var notes = new TextBox { Header = "Notas", Text = item.Notes, AcceptsReturn = true, MinHeight = 90, TextWrapping = TextWrapping.Wrap };
+        var website = new TextBox { Header = L("Site"), Text = item.Website };
+        var email = new TextBox { Header = L("E-mail"), Text = item.Email };
+        var tags = new TextBox { Header = L("Tags"), Text = string.Join(", ", item.Tags), PlaceholderText = L("trabalho, urgente") };
+        var categoryOptions = (_vault.Payload?.AllCategories ?? VaultPayload.DefaultCategories).Select(value => new CategoryOption(value)).ToList();
+        var category = new ComboBox { Header = L("Categoria"), ItemsSource = categoryOptions, SelectedItem = categoryOptions.FirstOrDefault(option => option.Value == item.Category) };
+        var favorite = new CheckBox { Content = L("Favorito"), IsChecked = item.IsFavorite };
+        var cardholder = new TextBox { Header = L("Titular do cartão"), Text = item.Cardholder };
+        var cardNumber = new TextBox { Header = L("Número do cartão"), Text = item.CardNumber };
+        var expiry = new TextBox { Header = L("Validade"), Text = item.Expiry };
+        var securityCode = new PasswordBox { Header = L("Código de segurança"), Password = item.SecurityCode };
+        var bank = new TextBox { Header = L("Banco"), Text = item.Bank };
+        var notes = new TextBox { Header = L("Notas"), Text = item.Notes, AcceptsReturn = true, MinHeight = 90, TextWrapping = TextWrapping.Wrap };
         var panel = new StackPanel { Spacing = 10, Width = 480, HorizontalAlignment = HorizontalAlignment.Stretch };
         foreach (var control in new UIElement[] { type, name, username, password, generate, website, email, tags, category, favorite, cardholder, cardNumber, expiry, securityCode, bank, notes }) panel.Children.Add(control);
         var editorScroll = new ScrollViewer
@@ -279,13 +282,13 @@ public sealed partial class MainWindow : Window
             VerticalScrollMode = ScrollMode.Auto,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto
         };
-        var dialog = Dialog(title, editorScroll, "Salvar");
+        var dialog = Dialog(title, editorScroll, L("Salvar"));
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return null;
-        item.Kind = (VaultItemKind?)type.SelectedItem ?? VaultItemKind.Login;
+        item.Kind = (type.SelectedItem as TypeOption)?.Value ?? VaultItemKind.Login;
         item.Title = name.Text.Trim(); item.Username = username.Text; item.Password = password.Password;
         item.Website = website.Text.Trim(); item.Email = email.Text.Trim(); item.Notes = notes.Text;
         item.Tags = tags.Text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-        item.Category = category.SelectedItem?.ToString() ?? "Outros"; item.IsFavorite = favorite.IsChecked == true;
+        item.Category = (category.SelectedItem as CategoryOption)?.Value ?? "Outros"; item.IsFavorite = favorite.IsChecked == true;
         item.Cardholder = cardholder.Text; item.CardNumber = cardNumber.Text; item.Expiry = expiry.Text;
         item.SecurityCode = securityCode.Password; item.Bank = bank.Text;
         return item;
@@ -310,20 +313,20 @@ public sealed partial class MainWindow : Window
         await Task.CompletedTask;
     }
 
-    private void CopyUsername_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Username, "Usuário copiado");
-    private void CopyPassword_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Password, "Senha copiada");
-    private void CopyWebsite_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Website, "Site copiado");
-    private void CopyEmail_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Email, "E-mail copiado");
+    private void CopyUsername_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Username, L("Usuário copiado"));
+    private void CopyPassword_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Password, L("Senha copiada"));
+    private void CopyWebsite_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Website, L("Site copiado"));
+    private void CopyEmail_Click(object sender, RoutedEventArgs e) => CopySecret(_selected?.Email, L("E-mail copiado"));
 
     private void UsernameRow_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        CopySecret(_selected?.Username, "Usuário copiado");
+        CopySecret(_selected?.Username, L("Usuário copiado"));
         e.Handled = true;
     }
 
     private void PasswordRow_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        CopySecret(_selected?.Password, "Senha copiada");
+        CopySecret(_selected?.Password, L("Senha copiada"));
         e.Handled = true;
     }
 
@@ -371,7 +374,7 @@ public sealed partial class MainWindow : Window
     {
         _passwordVisible = !_passwordVisible;
         DetailPassword.PasswordRevealMode = _passwordVisible ? PasswordRevealMode.Visible : PasswordRevealMode.Hidden;
-        if (sender is Button button) button.Content = _passwordVisible ? "Ocultar" : "Mostrar";
+        if (sender is Button button) button.Content = _passwordVisible ? L("Ocultar") : L("Mostrar");
     }
 
     private async void OpenWebsite_Click(object sender, RoutedEventArgs e)
@@ -386,13 +389,13 @@ public sealed partial class MainWindow : Window
             await Launcher.LaunchUriAsync(uri);
             return;
         }
-        await MessageAsync("Site inválido", "Por segurança, o Lion Pass abre somente endereços HTTP ou HTTPS.");
+        await MessageAsync(L("Site inválido"), L("Por segurança, o Lion Pass abre somente endereços HTTP ou HTTPS."));
     }
 
     private async void Export_Click(object sender, RoutedEventArgs e)
     {
         var picker = new FileSavePicker { SuggestedFileName = "Lion Pass Backup" };
-        picker.FileTypeChoices.Add("Cofre Lion", [".lionvault"]);
+        picker.FileTypeChoices.Add(L("Cofre Lion"), [".lionvault"]);
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
         var file = await picker.PickSaveFileAsync(); if (file is not null) _vault.Export(file.Path);
     }
@@ -406,21 +409,21 @@ public sealed partial class MainWindow : Window
         {
             var properties = await file.GetBasicPropertiesAsync();
             if (properties.Size > (ulong)CsvTransfer.MaximumImportBytes)
-                throw new InvalidDataException("O arquivo CSV excede o limite de 25 MB.");
+                throw new InvalidDataException(L("O arquivo CSV excede o limite de 25 MB."));
             _vault.ImportItems(CsvTransfer.Import(await File.ReadAllTextAsync(file.Path)));
             RefreshItems();
         }
-        catch (Exception error) { await MessageAsync("Importação", error.Message); }
+        catch (Exception error) { await MessageAsync(L("Importação"), L(error.Message)); }
     }
 
     private async void ExportCsv_Click(object sender, RoutedEventArgs e)
     {
-        var warning = Dialog("Exportar senhas sem criptografia",
+        var warning = Dialog(L("Exportar senhas sem criptografia"),
             new TextBlock
             {
-                Text = "O arquivo CSV conterá logins e senhas em texto simples. Qualquer pessoa com acesso ao arquivo poderá lê-los. Deseja continuar?",
+                Text = L("O arquivo CSV conterá logins e senhas em texto simples. Qualquer pessoa com acesso ao arquivo poderá lê-los. Deseja continuar?"),
                 TextWrapping = TextWrapping.Wrap
-            }, "Continuar");
+            }, L("Continuar"));
         if (await warning.ShowAsync() != ContentDialogResult.Primary) return;
         var picker = new FileSavePicker { SuggestedFileName = "Lion Pass Passwords" };
         picker.FileTypeChoices.Add("CSV", [".csv"]);
@@ -432,43 +435,49 @@ public sealed partial class MainWindow : Window
 
     private async void Category_Click(object sender, RoutedEventArgs e)
     {
-        var name = new TextBox { Header = "Nome da nova categoria" };
-        var dialog = Dialog("Nova categoria", name, "Adicionar");
+        var name = new TextBox { Header = L("Nome da nova categoria") };
+        var dialog = Dialog(L("Nova categoria"), name, L("Adicionar"));
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         try { _vault.AddCategory(name.Text); PopulateNavigation(); }
-        catch (Exception error) { await MessageAsync("Categoria", error.Message); }
+        catch (Exception error) { await MessageAsync(L("Categoria"), L(error.Message)); }
     }
 
     private async void Settings_Click(object sender, RoutedEventArgs e)
     {
-        var hello = new CheckBox { Content = "Desbloquear com Windows Hello", IsChecked = _hello.Exists, IsEnabled = await _hello.IsAvailableAsync() };
-        var history = new CheckBox { Content = "Guardar histórico das últimas senhas", IsChecked = _vault.Payload?.PasswordHistoryEnabled };
-        var compromised = new CheckBox { Content = "Detectar senhas comprometidas localmente", IsChecked = true };
-        var strong = new CheckBox { Content = "Sugerir senhas fortes", IsChecked = true };
-        var contact = new CheckBox { Content = "Permitir abrir sites associados", IsChecked = true };
-        var securityTitle = new TextBlock { Text = "Segurança", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) };
-        var recoveryLabel = new TextBlock { Text = "Chave de recuperação", FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
+        var hello = new CheckBox { Content = L("Desbloquear com Windows Hello"), IsChecked = _hello.Exists, IsEnabled = await _hello.IsAvailableAsync() };
+        var history = new CheckBox { Content = L("Guardar histórico das últimas senhas"), IsChecked = _vault.Payload?.PasswordHistoryEnabled };
+        var compromised = new CheckBox { Content = L("Detectar senhas comprometidas localmente"), IsChecked = true };
+        var strong = new CheckBox { Content = L("Sugerir senhas fortes"), IsChecked = true };
+        var contact = new CheckBox { Content = L("Permitir abrir sites associados"), IsChecked = true };
+        var languageTitle = new TextBlock { Text = L("Idioma"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) };
+        var languageSelector = CreateLanguageSelector();
+        var securityTitle = new TextBlock { Text = L("Segurança"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) };
+        var recoveryLabel = new TextBlock { Text = L("Chave de recuperação"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
         var recoveryDescription = new TextBlock
         {
-            Text = "Consulte e copie a chave usada para recuperar este cofre.",
+            Text = L("Consulte e copie a chave usada para recuperar este cofre."),
             TextWrapping = TextWrapping.Wrap,
             Opacity = 0.75
         };
-        var recoveryButton = new Button { Content = "Exibir chave de recuperação" };
+        var recoveryButton = new Button { Content = L("Exibir chave de recuperação") };
         var panel = new StackPanel { Spacing = 12, Width = 500 };
-        foreach (var control in new UIElement[] { hello, history, compromised, strong, contact }) panel.Children.Add(control);
+        foreach (var control in new UIElement[] { hello, history, compromised, strong, contact, languageTitle, languageSelector }) panel.Children.Add(control);
         foreach (var control in new UIElement[] { securityTitle, recoveryLabel, recoveryDescription, recoveryButton }) panel.Children.Add(control);
-        var dialog = Dialog("Ajustes", panel, "Salvar");
+        var dialog = Dialog(L("Ajustes"), panel, L("Salvar"));
         var showRecoveryRequested = false;
         recoveryButton.Click += (_, _) => { showRecoveryRequested = true; dialog.Hide(); };
         var result = await dialog.ShowAsync();
         if (showRecoveryRequested)
         {
             try { await ShowRecoveryKeyAsync(_vault.GetRecoveryKey(), false); }
-            catch (Exception error) { await MessageAsync("Chave de recuperação", error.Message); }
+            catch (Exception error) { await MessageAsync(L("Chave de recuperação"), L(error.Message)); }
             return;
         }
         if (result != ContentDialogResult.Primary) return;
+        var selectedLanguage = LanguageForIndex(languageSelector.SelectedIndex);
+        var languageChanged = selectedLanguage != WindowsLocalization.CurrentLanguage;
+        WindowsLocalization.SetLanguage(selectedLanguage);
+        if (languageChanged) ApplyLocalization();
         try
         {
             if (hello.IsChecked == true && !_hello.Exists) await _hello.SaveAsync(_vault.GetContentKey());
@@ -477,7 +486,7 @@ public sealed partial class MainWindow : Window
             { _vault.Payload.PasswordHistoryEnabled = history.IsChecked == true; _vault.Save(); }
             await RefreshHelloAsync();
         }
-        catch (Exception error) { await MessageAsync("Windows Hello", error.Message); }
+        catch (Exception error) { await MessageAsync("Windows Hello", L(error.Message)); }
     }
 
     private async Task ShowRecoveryKeyAsync(string recoveryKey, bool isFirstCreation)
@@ -485,8 +494,8 @@ public sealed partial class MainWindow : Window
         var introduction = new TextBlock
         {
             Text = isFirstCreation
-                ? "Seu cofre foi criado. Guarde esta chave em um local seguro: ela permite recuperar o acesso ao cofre."
-                : "Esta chave permite recuperar o acesso ao cofre. Guarde-a em um local seguro.",
+                ? L("Seu cofre foi criado. Guarde esta chave em um local seguro: ela permite recuperar o acesso ao cofre.")
+                : L("Esta chave permite recuperar o acesso ao cofre. Guarde-a em um local seguro."),
             TextWrapping = TextWrapping.Wrap
         };
         var recoveryText = new TextBox
@@ -496,22 +505,22 @@ public sealed partial class MainWindow : Window
             TextWrapping = TextWrapping.Wrap,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
-        var copyButton = new Button { Content = "Copiar chave" };
+        var copyButton = new Button { Content = L("Copiar chave") };
         var copyStatus = new TextBlock
         {
-            Text = "Chave copiada. Por segurança, ela será removida da área de transferência em 30 segundos.",
+            Text = L("Chave copiada. Por segurança, ela será removida da área de transferência em 30 segundos."),
             TextWrapping = TextWrapping.Wrap,
             Visibility = Visibility.Collapsed
         };
         var path = new TextBlock
         {
-            Text = "Você pode consultar esta chave novamente em: Lion Pass > Ajustes > Segurança > Chave de recuperação.",
+            Text = L("Você pode consultar esta chave novamente em: Lion Pass > Ajustes > Segurança > Chave de recuperação."),
             TextWrapping = TextWrapping.Wrap,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
         };
         var privacy = new TextBlock
         {
-            Text = "A chave não será enviada a nenhum servidor. Não a compartilhe com outras pessoas.",
+            Text = L("A chave não será enviada a nenhum servidor. Não a compartilhe com outras pessoas."),
             TextWrapping = TextWrapping.Wrap,
             Opacity = 0.75
         };
@@ -535,9 +544,9 @@ public sealed partial class MainWindow : Window
 
         var dialog = new ContentDialog
         {
-            Title = "Chave de recuperação",
+            Title = L("Chave de recuperação"),
             Content = panel,
-            CloseButtonText = "Concluir",
+            CloseButtonText = L("Concluir"),
             XamlRoot = Content.XamlRoot
         };
         await dialog.ShowAsync();
@@ -547,7 +556,7 @@ public sealed partial class MainWindow : Window
     private ContentDialog Dialog(string title, object content, string primary) => new()
     {
         Title = title, Content = content, PrimaryButtonText = primary,
-        CloseButtonText = "Cancelar", DefaultButton = ContentDialogButton.Primary,
+        CloseButtonText = L("Cancelar"), DefaultButton = ContentDialogButton.Primary,
         XamlRoot = Content.XamlRoot
     };
 
@@ -561,8 +570,91 @@ public sealed partial class MainWindow : Window
     private void ShowUnlockError(string message)
     { UnlockMessage.Message = message; UnlockMessage.IsOpen = true; }
 
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        ApplyLocalization();
+        if (!WindowsLocalization.HasChosenLanguage) await ShowLanguageSelectionAsync();
+    }
+
+    private async Task ShowLanguageSelectionAsync()
+    {
+        var selector = CreateLanguageSelector();
+        var panel = new StackPanel { Width = 420, Spacing = 12 };
+        panel.Children.Add(new TextBlock { Text = "Escolha seu idioma / Choose your language / Elija su idioma", FontSize = 20, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(selector);
+        panel.Children.Add(new TextBlock { Text = "Você poderá mudar o idioma depois em Ajustes. / You can change the language later in Settings. / Podrá cambiar el idioma más tarde en Ajustes.", TextWrapping = TextWrapping.Wrap, Opacity = 0.7 });
+        var dialog = new ContentDialog { Title = "Idioma / Language / Idioma", Content = panel, PrimaryButtonText = "Continuar / Continue / Continuar", DefaultButton = ContentDialogButton.Primary, XamlRoot = Content.XamlRoot };
+        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+        {
+            WindowsLocalization.SetLanguage(LanguageForIndex(selector.SelectedIndex));
+            ApplyLocalization();
+            await RefreshHelloAsync();
+        }
+    }
+
+    private static ComboBox CreateLanguageSelector() => new()
+    {
+        ItemsSource = new[] { "Português (Brasil)", "English", "Español" },
+        SelectedIndex = WindowsLocalization.CurrentLanguage switch { "en-US" => 1, "es-ES" => 2, _ => 0 },
+        HorizontalAlignment = HorizontalAlignment.Stretch
+    };
+
+    private static string LanguageForIndex(int index) => index switch { 1 => "en-US", 2 => "es-ES", _ => "pt-BR" };
+
+    private void ApplyLocalization()
+    {
+        TranslateElement(Content);
+        TranslateMenu(WebsiteFlyout);
+        foreach (var item in new[] { CopyUsernameMenuItem, TogglePasswordMenuItem, CopyPasswordMenuItem, CopyEmailMenuItem })
+            item.Text = L(item.Text);
+        PopulateNavigation();
+        RefreshItems();
+    }
+
+    private static void TranslateMenu(MenuFlyout menu)
+    {
+        foreach (var item in menu.Items.OfType<MenuFlyoutItem>()) item.Text = WindowsLocalization.Text(item.Text);
+    }
+
+    private static void TranslateElement(DependencyObject element)
+    {
+        switch (element)
+        {
+            case TextBlock text when !string.IsNullOrWhiteSpace(text.Text): text.Text = WindowsLocalization.Text(text.Text); break;
+            case Button button when button.Content is string buttonContent: button.Content = WindowsLocalization.Text(buttonContent); break;
+            case AppBarButton appBar: appBar.Label = WindowsLocalization.Text(appBar.Label); break;
+            case NavigationViewItem navigation when navigation.Content is string navigationContent: navigation.Content = WindowsLocalization.Text(navigationContent); break;
+            case Expander expander when expander.Header is string header: expander.Header = WindowsLocalization.Text(header); break;
+            case ComboBoxItem item when item.Content is string itemContent: item.Content = WindowsLocalization.Text(itemContent); break;
+            case TextBox textBox:
+                if (textBox.Header is string textHeader) textBox.Header = WindowsLocalization.Text(textHeader);
+                if (!string.IsNullOrWhiteSpace(textBox.PlaceholderText)) textBox.PlaceholderText = WindowsLocalization.Text(textBox.PlaceholderText);
+                break;
+            case PasswordBox passwordBox:
+                if (passwordBox.Header is string passwordHeader) passwordBox.Header = WindowsLocalization.Text(passwordHeader);
+                if (!string.IsNullOrWhiteSpace(passwordBox.PlaceholderText)) passwordBox.PlaceholderText = WindowsLocalization.Text(passwordBox.PlaceholderText);
+                break;
+        }
+        if (element is FrameworkElement framework && ToolTipService.GetToolTip(framework) is string tooltip) ToolTipService.SetToolTip(framework, WindowsLocalization.Text(tooltip));
+        for (var index = 0; index < Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(element); index++) TranslateElement(Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(element, index));
+    }
+
+    private static string L(string value) => WindowsLocalization.Text(value);
+    private static string LF(string value, params object[] arguments) => WindowsLocalization.Format(value, arguments);
+
+    private sealed record TypeOption(VaultItemKind Value)
+    {
+        public override string ToString() => TypeTitle(Value);
+    }
+
+    private sealed record CategoryOption(string Value)
+    {
+        public override string ToString() => L(Value);
+    }
+
     private static string TypeTitle(VaultItemKind kind) => kind switch
-    { VaultItemKind.Login => "Logins", VaultItemKind.Card => "Cartões", VaultItemKind.SecureNote => "Notas seguras", VaultItemKind.Identity => "Identidades", _ => "Outros" };
+    { VaultItemKind.Login => L("Logins"), VaultItemKind.Card => L("Cartões"), VaultItemKind.SecureNote => L("Notas seguras"), VaultItemKind.Identity => L("Identidades"), _ => L("Outros") };
 
     private static Symbol CategorySymbol(string category) => category.ToLowerInvariant() switch
     {

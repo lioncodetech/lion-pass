@@ -139,14 +139,14 @@
                                         <TextBlock Text="Usuário" />
                                         <TextBlock x:Name="DetailUsername" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" />
                                         <FontIcon Grid.Column="2" Tag="CopyHint" Glyph="&#xE8C8;" FontSize="13" Opacity="0.65" Visibility="Collapsed" />
-                                        <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar usuário" Click="CopyUsername_Click" /></MenuFlyout></Grid.ContextFlyout>
+                                        <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem x:Name="CopyUsernameMenuItem" Text="Copiar usuário" Click="CopyUsername_Click" /></MenuFlyout></Grid.ContextFlyout>
                                     </Grid>
                                     <Grid Background="Transparent" ColumnSpacing="8" PointerEntered="CopyableRow_PointerEntered" PointerExited="CopyableRow_PointerExited" Tapped="PasswordRow_Tapped" ToolTipService.ToolTip="Clique para copiar a senha">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Senha" />
                                         <PasswordBox x:Name="DetailPassword" Grid.Column="1" IsTabStop="False" HorizontalAlignment="Stretch" IsHitTestVisible="False" />
                                         <FontIcon Grid.Column="2" Tag="CopyHint" Glyph="&#xE8C8;" FontSize="13" Opacity="0.65" Visibility="Collapsed" />
-                                        <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuFlyoutItem Text="Copiar senha" Click="CopyPassword_Click" /></MenuFlyout></Grid.ContextFlyout>
+                                        <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem x:Name="TogglePasswordMenuItem" Text="Mostrar/ocultar senha" Click="ShowPassword_Click" /><MenuFlyoutItem x:Name="CopyPasswordMenuItem" Text="Copiar senha" Click="CopyPassword_Click" /></MenuFlyout></Grid.ContextFlyout>
                                     </Grid>
                                     <Grid Background="Transparent" ColumnSpacing="8" PointerEntered="CopyableRow_PointerEntered" PointerExited="CopyableRow_PointerExited" Tapped="WebsiteRow_Tapped" ToolTipService.ToolTip="Clique para ver as opções do site">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -155,16 +155,16 @@
                                         <FontIcon Grid.Column="2" Tag="CopyHint" Glyph="&#xE70D;" FontSize="11" Opacity="0.65" Visibility="Collapsed" />
                                         <Grid.ContextFlyout>
                                             <MenuFlyout x:Name="WebsiteFlyout">
-                                                <MenuFlyoutItem Text="Abrir site" Click="OpenWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="World" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
-                                                <MenuFlyoutItem Text="Copiar site" Click="CopyWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Copy" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
+                                                <MenuFlyoutItem x:Name="OpenWebsiteMenuItem" Text="Abrir site" Click="OpenWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="World" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
+                                                <MenuFlyoutItem x:Name="CopyWebsiteMenuItem" Text="Copiar site" Click="CopyWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Copy" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
                                                 <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="Editar site" Click="Edit_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Edit" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
+                                                <MenuFlyoutItem x:Name="EditWebsiteMenuItem" Text="Editar site" Click="Edit_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Edit" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
                                             </MenuFlyout>
                                         </Grid.ContextFlyout>
                                     </Grid>
                                     <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
                                         <TextBlock Text="E-mail" /><TextBlock x:Name="DetailEmail" Grid.Column="1" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis">
-                                            <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Copiar e-mail" Click="CopyEmail_Click" /></MenuFlyout></TextBlock.ContextFlyout>
+                                            <TextBlock.ContextFlyout><MenuFlyout><MenuFlyoutItem x:Name="CopyEmailMenuItem" Text="Copiar e-mail" Click="CopyEmail_Click" /></MenuFlyout></TextBlock.ContextFlyout>
                                         </TextBlock></Grid>
                                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="120" /><ColumnDefinition /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Modificado" /><TextBlock x:Name="DetailModified" Grid.Column="1" HorizontalAlignment="Right" /></Grid>

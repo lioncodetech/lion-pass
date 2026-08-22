@@ -57,16 +57,17 @@ internal static class StartupDiagnostics
             return;
         }
 
-        var message =
-            $"O Lion Pass não conseguiu iniciar.\n\n{context}\n\n" +
-            $"Um relatório foi salvo em:\n{LogPath}";
+        var message = WindowsLocalization.Format(
+            "O Lion Pass não conseguiu iniciar.\n\n{0}\n\nUm relatório foi salvo em:\n{1}",
+            context,
+            LogPath);
 
         try
         {
             _ = MessageBoxW(
                 IntPtr.Zero,
                 message,
-                "Lion Pass — erro de inicialização",
+                WindowsLocalization.Text("Lion Pass — erro de inicialização"),
                 MbOk | MbIconError | MbSetForeground | MbTopmost);
         }
         catch

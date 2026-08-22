@@ -9,18 +9,19 @@ public partial class App : Application
     public App()
     {
         StartupDiagnostics.Install();
+        WindowsLocalization.ApplyCulture();
         try
         {
             InitializeComponent();
         }
         catch (Exception error)
         {
-            StartupDiagnostics.Report("Falha ao carregar os recursos visuais do aplicativo.", error);
+            StartupDiagnostics.Report(WindowsLocalization.Text("Falha ao carregar os recursos visuais do aplicativo."), error);
             throw;
         }
 
         UnhandledException += (_, args) =>
-            StartupDiagnostics.Report("Falha não tratada na interface do aplicativo.", args.Exception);
+            StartupDiagnostics.Report(WindowsLocalization.Text("Falha não tratada na interface do aplicativo."), args.Exception);
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -33,7 +34,7 @@ public partial class App : Application
         }
         catch (Exception error)
         {
-            StartupDiagnostics.Report("Não foi possível abrir a janela principal.", error);
+            StartupDiagnostics.Report(WindowsLocalization.Text("Não foi possível abrir a janela principal."), error);
             Environment.Exit(1);
         }
     }
