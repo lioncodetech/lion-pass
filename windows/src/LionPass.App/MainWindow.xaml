@@ -40,13 +40,13 @@
                 </StackPanel>
                 <TextBox x:Name="SearchBox" Grid.Column="2" PlaceholderText="Pesquisar..." TextChanged="SearchBox_TextChanged" />
                 <CommandBar Grid.Column="3" Background="Transparent" DefaultLabelPosition="Right">
-                    <AppBarButton Icon="Add" Label="Novo" Click="Add_Click" />
-                    <AppBarButton Icon="Folder" Label="Categoria" Click="Category_Click" />
-                    <AppBarButton Icon="OpenFile" Label="Importar CSV" Click="ImportCsv_Click" />
-                    <AppBarButton Icon="Document" Label="Exportar CSV" Click="ExportCsv_Click" />
-                    <AppBarButton Icon="Save" Label="Exportar" Click="Export_Click" />
-                    <AppBarButton Icon="Setting" Label="Ajustes" Click="Settings_Click" />
-                    <AppBarButton Icon="Lock" Label="Bloquear" Click="Lock_Click" />
+                    <AppBarButton Label="Novo" Click="Add_Click"><AppBarButton.Icon><SymbolIcon Symbol="Add" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Categoria" Click="Category_Click"><AppBarButton.Icon><SymbolIcon Symbol="Folder" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Importar CSV" Click="ImportCsv_Click"><AppBarButton.Icon><SymbolIcon Symbol="OpenFile" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Exportar CSV" Click="ExportCsv_Click"><AppBarButton.Icon><SymbolIcon Symbol="Document" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Exportar" Click="Export_Click"><AppBarButton.Icon><SymbolIcon Symbol="Save" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Ajustes" Click="Settings_Click"><AppBarButton.Icon><SymbolIcon Symbol="Setting" /></AppBarButton.Icon></AppBarButton>
+                    <AppBarButton Label="Bloquear" Click="Lock_Click"><AppBarButton.Icon><FontIcon Glyph="&#xE72E;" /></AppBarButton.Icon></AppBarButton>
                 </CommandBar>
             </Grid>
 
@@ -59,10 +59,10 @@
 
                 <ScrollViewer Grid.Column="0" Background="#211E22" Padding="12">
                     <StackPanel Spacing="6">
-                        <NavigationViewItem Content="Todos os itens" Tag="all" Icon="AllApps" Tapped="Filter_Tapped" />
-                        <NavigationViewItem Content="Favoritos" Tag="favorites" Icon="Favorite" Tapped="Filter_Tapped" />
-                        <NavigationViewItem Content="Segurança" Tag="security" Icon="Important" Tapped="Filter_Tapped" />
-                        <NavigationViewItem Content="Lixeira" Tag="trash" Icon="Delete" Tapped="Filter_Tapped" />
+                        <NavigationViewItem Content="Todos os itens" Tag="all" Tapped="Filter_Tapped"><NavigationViewItem.Icon><SymbolIcon Symbol="AllApps" /></NavigationViewItem.Icon></NavigationViewItem>
+                        <NavigationViewItem Content="Favoritos" Tag="favorites" Tapped="Filter_Tapped"><NavigationViewItem.Icon><SymbolIcon Symbol="Favorite" /></NavigationViewItem.Icon></NavigationViewItem>
+                        <NavigationViewItem Content="Segurança" Tag="security" Tapped="Filter_Tapped"><NavigationViewItem.Icon><SymbolIcon Symbol="Important" /></NavigationViewItem.Icon></NavigationViewItem>
+                        <NavigationViewItem Content="Lixeira" Tag="trash" Tapped="Filter_Tapped"><NavigationViewItem.Icon><SymbolIcon Symbol="Delete" /></NavigationViewItem.Icon></NavigationViewItem>
                         <Expander Header="Tipos" IsExpanded="True" Margin="0,12,0,0">
                             <StackPanel x:Name="TypesPanel" />
                         </Expander>
@@ -155,10 +155,10 @@
                                         <FontIcon Grid.Column="2" Tag="CopyHint" Glyph="&#xE70D;" FontSize="11" Opacity="0.65" Visibility="Collapsed" />
                                         <Grid.ContextFlyout>
                                             <MenuFlyout x:Name="WebsiteFlyout">
-                                                <MenuFlyoutItem Text="Abrir site" Icon="World" Click="OpenWebsite_Click" />
-                                                <MenuFlyoutItem Text="Copiar site" Icon="Copy" Click="CopyWebsite_Click" />
+                                                <MenuFlyoutItem Text="Abrir site" Click="OpenWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="World" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Copiar site" Click="CopyWebsite_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Copy" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
                                                 <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="Editar site" Icon="Edit" Click="Edit_Click" />
+                                                <MenuFlyoutItem Text="Editar site" Click="Edit_Click"><MenuFlyoutItem.Icon><SymbolIcon Symbol="Edit" /></MenuFlyoutItem.Icon></MenuFlyoutItem>
                                             </MenuFlyout>
                                         </Grid.ContextFlyout>
                                     </Grid>

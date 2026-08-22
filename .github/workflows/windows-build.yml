@@ -26,6 +26,21 @@ jobs:
           dotnet-version: "8.0.424"
       - name: Test core
         run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+      - name: Validate WinUI XAML resources
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $appXaml = Get-Content "windows/src/LionPass.App/App.xaml" -Raw
+          if ($appXaml -notmatch '<XamlControlsResources\b') {
+            throw "App.xaml deve carregar XamlControlsResources para fornecer os estilos nativos do WinUI."
+          }
+
+          $implicitIcons = Get-ChildItem "windows/src/LionPass.App" -Recurse -Filter *.xaml |
+            Select-String -Pattern '\sIcon="[^"{][^"]*"'
+          if ($implicitIcons) {
+            $implicitIcons | ForEach-Object { Write-Error "$($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+            throw 'Use IconElement explícito, por exemplo <SymbolIcon Symbol="Add" />, em vez de Icon="Add".'
+          }
       - name: Build WinUI
         working-directory: windows
         run: dotnet build src/LionPass.App/LionPass.App.csproj -c Release -p:Platform=${{ matrix.architecture }} -p:SelfContained=false
