@@ -13,6 +13,8 @@ import AppKit
 #endif
 
 public enum LionPreferenceKey {
+    public static let language = "language"
+    public static let languageChosen = "languageChosen"
     public static let appearance = "appearance"
     public static let autoLock = "autoLock"
     public static let clipboard = "clipboard"

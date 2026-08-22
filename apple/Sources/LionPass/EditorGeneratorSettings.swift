@@ -291,6 +291,7 @@ struct GeneratorView: View {
 struct SettingsView: View {
     @EnvironmentObject private var vault: VaultService
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
     @AppStorage(LionPreferenceKey.appearance) private var appearance = "system"
     @AppStorage(LionPreferenceKey.autoLock) private var autoLock = AutoLockDuration.immediately.rawValue
     @AppStorage(LionPreferenceKey.clipboard) private var clipboard = 30
@@ -422,6 +423,13 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Idioma") {
+                Picker("Idioma", selection: $language) {
+                    Text("Português (Brasil)").tag("pt-BR")
+                    Text("English").tag("en-US")
+                    Text("Español").tag("es-ES")
+                }
+            }
             Section("Aparência") {
                 Picker("Tema", selection: $appearance) {
                     Text("Sistema").tag("system")

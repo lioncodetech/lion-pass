@@ -5,6 +5,7 @@ import UIKit
 struct LionPassApp: App {
     @StateObject private var vault = VaultService()
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
     @AppStorage(LionPreferenceKey.appearance) private var appearance = "system"
     @AppStorage(LionPreferenceKey.autoLock) private var autoLock = AutoLockDuration.immediately.rawValue
     @AppStorage(LionPreferenceKey.privacyCover) private var privacyCover = true
@@ -20,6 +21,7 @@ struct LionPassApp: App {
                     PrivacyCoverView(screenCapture: screenIsCaptured).transition(.opacity)
                 }
             }
+            .environment(\.locale, Locale(identifier: language))
             .preferredColorScheme(
                 appearance == "dark" ? .dark : appearance == "light" ? .light : nil
             )

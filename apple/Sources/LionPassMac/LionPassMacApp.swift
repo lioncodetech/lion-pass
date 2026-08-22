@@ -28,11 +28,13 @@ struct LionPassMacApp: App {
     @NSApplicationDelegateAdaptor(LionMacAppDelegate.self) private var appDelegate
     @StateObject private var vault = VaultService()
     @AppStorage(LionPreferenceKey.showInMenuBar) private var showInMenuBar = false
+    @AppStorage(LionPreferenceKey.language) private var language = "pt-BR"
 
     var body: some Scene {
         WindowGroup("Lion Pass", id: "main") {
             MacAppContent()
                 .environmentObject(vault)
+                .environment(\.locale, Locale(identifier: language))
                 .tint(.lionAccent)
                 .frame(minWidth: 900, minHeight: 600)
         }
