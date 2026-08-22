@@ -24,6 +24,9 @@ obj/
 AppPackages/
 BundleArtifacts/
 linux/artifacts/
+windows/installer/output/
+windows/installer/publish-*/
+windows/installer/runtime-*/
 
 # Never version real vaults or exported secrets. Only synthetic fixtures under
 # shared/test-vaults/fixtures are allowed.
