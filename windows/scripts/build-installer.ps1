@@ -1,7 +1,9 @@
 param(
     [ValidateSet("x64", "arm64")]
     [string]$Architecture = "x64",
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    [ValidatePattern('^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')]
+    [string]$Version = "1.0.1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +34,7 @@ dotnet publish $Project `
     -p:WindowsAppSDKSelfContained=false `
     -p:PublishSingleFile=false `
     -p:PublishTrimmed=false `
+    -p:Version=$Version `
     --output $PublishRoot
 
 if ($LASTEXITCODE -ne 0) {
@@ -86,7 +89,7 @@ if (-not (Test-Path $Inno)) {
     throw "Instale o Inno Setup 6 para gerar o instalador: https://jrsoftware.org/isinfo.php"
 }
 
-& $Inno "/DArchitecture=$Architecture" "/DPublishRoot=$PublishRoot" "/DRuntimeInstaller=$RuntimeInstaller" (Join-Path $WindowsRoot "installer\LionPass.iss")
+& $Inno "/DArchitecture=$Architecture" "/DAppVersion=$Version" "/DPublishRoot=$PublishRoot" "/DRuntimeInstaller=$RuntimeInstaller" (Join-Path $WindowsRoot "installer\LionPass.iss")
 if ($LASTEXITCODE -ne 0) {
     throw "A geração do instalador falhou com o código $LASTEXITCODE."
 }

@@ -8,8 +8,11 @@
   #define RuntimeInstaller "runtime-x64\WindowsAppRuntimeInstall.exe"
 #endif
 
+#ifndef AppVersion
+  #define AppVersion "1.0.1"
+#endif
+
 #define AppName "Lion Pass"
-#define AppVersion "1.0.1"
 #define AppPublisher "Lion Code Technology"
 #define AppURL "https://lioncodetech.com.br/"
 #define AppExeName "LionPass.App.exe"

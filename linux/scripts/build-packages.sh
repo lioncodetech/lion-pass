@@ -13,6 +13,11 @@ PUBLISH_DIR="$OUTPUT_DIR/publish"
 PROJECT="$LINUX_DIR/src/LionPass.Client.noindex/LionPass.App.csproj"
 DOTNET_BIN="${DOTNET_BIN:-dotnet}"
 
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+  echo "Versão inválida: $VERSION" >&2
+  exit 2
+fi
+
 case "$RID" in
   linux-x64) DEB_ARCH="amd64" ;;
   linux-arm64) DEB_ARCH="arm64" ;;
@@ -23,6 +28,7 @@ rm -rf "$OUTPUT_DIR"
 mkdir -p "$PUBLISH_DIR"
 "$DOTNET_BIN" publish "$PROJECT" -c Release -r "$RID" --self-contained true \
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:Version="$VERSION" \
   -o "$PUBLISH_DIR"
 find "$PUBLISH_DIR" -name '*.pdb' -delete
 if [[ ! -f "$PUBLISH_DIR/Localizable.xcstrings" ]]; then

@@ -1,15 +1,26 @@
 # Publicações
 
-Use uma única versão semântica para todas as plataformas, por exemplo `v2.0.0`. Uma publicação deve conter:
+Use uma única versão semântica para todas as plataformas, por exemplo `v2.0.0`. O workflow [`release.yml`](../.github/workflows/release.yml) valida a tag, exige que ela pertença à branch `main`, compila as três plataformas e cria o GitHub Release automaticamente.
 
-- `LionPass-2.0.0-macOS.dmg`;
-- `LionPass-2.0.0-Windows-x64-Setup.exe`;
+```bash
+git switch main
+git pull --ff-only
+git tag -a v2.0.0 -m "Lion Pass 2.0.0"
+git push origin v2.0.0
+```
+
+Uma publicação contém:
+
+- `LionPass-2.0.0-macOS-unsigned.dmg`;
+- `LionPass-Windows-x64-2.0.0-Setup.exe`;
 - `lion-pass_2.0.0_amd64.deb`;
 - `LionPass-2.0.0-x86_64.AppImage`;
 - `LionPass-Linux-linux-x64-2.0.0.tar.gz`;
 - notas sobre alterações no formato `.lionvault`, quando existirem.
 
-Builds de CI são artefatos de teste. Antes de distribuição pública, assine e faça notarização do aplicativo macOS, assine o instalador Windows e publique checksums/assinaturas dos pacotes Linux. Nunca inclua fixtures, cofres pessoais ou chaves nos pacotes finais.
+Todos os pacotes, o `SHA256SUMS` e seus bundles recebem assinatura Sigstore antes da publicação. Sem credenciais Apple Developer, o DMG é explicitamente publicado como `unsigned` e pode acionar o Gatekeeper. Antes de uma distribuição pública confiável, configure assinatura e notarização Apple. Nunca inclua fixtures, cofres pessoais ou chaves nos pacotes finais.
+
+Não recrie nem mova uma tag publicada. Para corrigir uma versão, faça um novo patch, como `v2.0.1`.
 
 ## Verificação dos artefatos de CI
 
@@ -24,6 +35,8 @@ cosign verify-blob ARQUIVO \
 ```
 
 Use `windows-build.yml` ou `linux-build.yml` no lugar de `WORKFLOW.yml`. A assinatura Sigstore é obrigatória no pipeline e vincula o binário ao workflow e commit que o geraram.
+
+Para um GitHub Release, use `release.yml` e a referência da própria tag, por exemplo `refs/tags/v2.0.0`, na identidade do certificado.
 
 Para que o instalador Windows também mostre a Lion Code Technology como publicadora no diálogo nativo do Windows, configure estes secrets do repositório:
 

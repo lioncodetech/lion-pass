@@ -1,0 +1,289 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate release tag
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+      - id: version
+        name: Validate version and main ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          if [[ ! "$tag" =~ ^v([0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?)$ ]]; then
+            echo "Tag inválida: $tag. Use vMAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
+          git fetch origin main --no-tags
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "A tag precisa apontar para um commit pertencente à branch main." >&2
+            exit 1
+          fi
+          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+  macos:
+    name: Build macOS
+    needs: validate
+    runs-on: macos-15
+    steps:
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - name: Test macOS
+        working-directory: apple
+        run: ./scripts/test-macos.sh CODE_SIGNING_ALLOWED=NO
+      - name: Build unsigned macOS disk image
+        shell: zsh
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          derived="$PWD/apple/.derived-data.noindex"
+          app="$derived/Build/Products/Release/Lion Pass.app"
+          output="$PWD/release-artifacts"
+          lsregister="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+          mkdir -p "$derived" "$output"
+          touch "$derived/.metadata_never_index"
+          xattr -cr "$derived"
+          cleanup() {
+            if [[ -d "$app" ]]; then
+              "$lsregister" -u "$app" >/dev/null 2>&1 || true
+              rm -rf "$app"
+            fi
+          }
+          trap cleanup EXIT INT TERM
+          xcodebuild build \
+            -project apple/LionPass.xcodeproj \
+            -scheme LionPassMac \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$derived" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            CODE_SIGNING_ALLOWED=NO
+          test -d "$app"
+          "$lsregister" -u "$app" >/dev/null 2>&1 || true
+          hdiutil create \
+            -volname "Lion Pass $VERSION" \
+            -srcfolder "$app" \
+            -format UDZO \
+            -ov "$output/LionPass-$VERSION-macOS-unsigned.dmg"
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-macos
+          path: release-artifacts/*.dmg
+          if-no-files-found: error
+
+  windows:
+    name: Build Windows x64
+    needs: validate
+    runs-on: windows-2022
+    steps:
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-dotnet v5
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: "8.0.424"
+      - name: Test core
+        run: dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+      - name: Install verified Inno Setup
+        shell: pwsh
+        env:
+          INNO_VERSION: "6.7.3"
+          INNO_SHA256: "9c73c3bae7ed48d44112a0f48e66742c00090bdb5bef71d9d3c056c66e97b732"
+        run: |
+          $ErrorActionPreference = "Stop"
+          $installer = Join-Path $env:RUNNER_TEMP "innosetup-$env:INNO_VERSION.exe"
+          $url = "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-$env:INNO_VERSION.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          $actualHash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+          if ($actualHash -ne $env:INNO_SHA256) { throw "SHA-256 inválido para Inno Setup: $actualHash" }
+          $signature = Get-AuthenticodeSignature $installer
+          if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Pyrsys B\.V\.") {
+            throw "Assinatura Authenticode inválida para Inno Setup: $($signature.Status)"
+          }
+          $process = Start-Process -FilePath $installer -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Instalação do Inno Setup falhou: $($process.ExitCode)" }
+      - name: Build installer
+        working-directory: windows
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+        run: .\scripts\build-installer.ps1 -Architecture x64 -Version $env:VERSION
+      - name: Apply optional Authenticode signature
+        shell: pwsh
+        env:
+          WINDOWS_SIGNING_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_BASE64 }}
+          WINDOWS_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_CERTIFICATE_BASE64)) {
+            Write-Host "Certificado Authenticode não configurado; o artefato ainda receberá assinatura Sigstore."
+            exit 0
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP "lion-pass-signing.pfx"
+          try {
+            [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:WINDOWS_SIGNING_CERTIFICATE_BASE64))
+            $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse |
+              Where-Object { $_.Directory.Name -eq "x64" } | Sort-Object FullName -Descending | Select-Object -First 1
+            if ($null -eq $signTool) { throw "signtool.exe não encontrado." }
+            Get-ChildItem windows\installer\output -Filter *.exe -File | ForEach-Object {
+              & $signTool.FullName sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificatePath /p $env:WINDOWS_SIGNING_CERTIFICATE_PASSWORD $_.FullName
+              if ($LASTEXITCODE -ne 0) { throw "Falha ao assinar $($_.Name)." }
+              $signature = Get-AuthenticodeSignature $_.FullName
+              if ($signature.Status -ne "Valid") { throw "Assinatura inválida em $($_.Name): $($signature.Status)" }
+            }
+          }
+          finally {
+            if (Test-Path $certificatePath) { Remove-Item -LiteralPath $certificatePath -Force }
+          }
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-windows
+          path: windows/installer/output/*.exe
+          if-no-files-found: error
+
+  linux:
+    name: Build Linux x64
+    needs: validate
+    runs-on: ubuntu-24.04
+    env:
+      AVALONIA_TELEMETRY_OPTOUT: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      APPIMAGETOOL_VERSION: "1.9.1"
+      APPIMAGETOOL_SHA256: "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
+      APPIMAGE_RUNTIME_VERSION: "20251108"
+      APPIMAGE_RUNTIME_SHA256: "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
+    steps:
+      # actions/checkout v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      # actions/setup-dotnet v5
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: "8.0.424"
+      - name: Test core and build app
+        run: |
+          dotnet test shared/dotnet/LionPass.Core.Tests/LionPass.Core.Tests.csproj -c Release
+          dotnet build linux/src/LionPass.Client.noindex/LionPass.App.csproj -c Release
+      - name: Install packaging dependencies
+        run: sudo apt-get update && sudo apt-get install --yes libsecret-tools
+      - name: Download verified AppImage tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+            --output "$RUNNER_TEMP/appimagetool" \
+            "https://github.com/AppImage/appimagetool/releases/download/$APPIMAGETOOL_VERSION/appimagetool-x86_64.AppImage"
+          echo "$APPIMAGETOOL_SHA256  $RUNNER_TEMP/appimagetool" | sha256sum --check --strict
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+            --output "$RUNNER_TEMP/appimage-runtime" \
+            "https://github.com/AppImage/type2-runtime/releases/download/$APPIMAGE_RUNTIME_VERSION/runtime-x86_64"
+          echo "$APPIMAGE_RUNTIME_SHA256  $RUNNER_TEMP/appimage-runtime" | sha256sum --check --strict
+          chmod 0755 "$RUNNER_TEMP/appimagetool"
+          chmod 0644 "$RUNNER_TEMP/appimage-runtime"
+      - name: Build Linux packages
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+          APPIMAGETOOL: ${{ runner.temp }}/appimagetool
+          APPIMAGETOOL_RUNTIME_FILE: ${{ runner.temp }}/appimage-runtime
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          ARCH: x86_64
+        run: linux/scripts/build-packages.sh linux-x64
+      # actions/upload-artifact v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-linux
+          path: |
+            linux/artifacts/linux-x64/*.deb
+            linux/artifacts/linux-x64/*.AppImage
+            linux/artifacts/linux-x64/*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: [validate, macos, windows, linux]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      # actions/download-artifact v4.3.0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Validate files and generate checksums
+        working-directory: dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          artifacts=( *.dmg *.exe *.deb *.AppImage *.tar.gz )
+          [[ ${#artifacts[@]} -eq 5 ]] || {
+            printf 'Esperados 5 pacotes, encontrados %s:\n' "${#artifacts[@]}" >&2
+            printf '  %s\n' "${artifacts[@]}" >&2
+            exit 1
+          }
+          sha256sum -- "${artifacts[@]}" | sort --key=2 > SHA256SUMS
+          sha256sum --check --strict SHA256SUMS
+      # sigstore/cosign-installer v4.1.2
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+        with:
+          cosign-release: v3.1.2
+      - name: Sign and verify release files with Sigstore
+        working-directory: dist
+        shell: bash
+        env:
+          CERTIFICATE_IDENTITY: https://github.com/${{ github.workflow_ref }}
+          CERTIFICATE_OIDC_ISSUER: https://token.actions.githubusercontent.com
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          artifacts=( *.dmg *.exe *.deb *.AppImage *.tar.gz SHA256SUMS )
+          for artifact in "${artifacts[@]}"; do
+            cosign sign-blob --yes --bundle "$artifact.sigstore.json" "$artifact"
+            cosign verify-blob "$artifact" \
+              --bundle "$artifact.sigstore.json" \
+              --certificate-identity "$CERTIFICATE_IDENTITY" \
+              --certificate-oidc-issuer "$CERTIFICATE_OIDC_ISSUER"
+          done
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.validate.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes="Os pacotes deste Release têm checksums e assinaturas Sigstore. O pacote macOS está sem assinatura Apple/notarização e pode exibir um alerta do Gatekeeper."
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* \
+              --verify-tag \
+              --title "Lion Pass $VERSION" \
+              --generate-notes \
+              --notes "$notes"
+          fi
