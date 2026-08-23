@@ -51,7 +51,7 @@ jobs:
         working-directory: apple
         run: ./scripts/test-macos.sh CODE_SIGNING_ALLOWED=NO
       - name: Build unsigned macOS disk image
-        shell: zsh
+        shell: /bin/zsh {0}
         env:
           VERSION: ${{ needs.validate.outputs.version }}
           BUILD_NUMBER: ${{ github.run_number }}
