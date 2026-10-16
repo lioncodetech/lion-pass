@@ -177,7 +177,7 @@ jobs:
             }
           }
       # actions/upload-artifact v4
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: matrix.architecture == 'x64' && github.event_name == 'push'
         with:
           name: LionPass-Windows-x64-Unsigned
@@ -271,7 +271,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Falha ao verificar $($artifact.Name) com Sigstore." }
           }
       # actions/upload-artifact v4
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: LionPass-Windows-x64-Setup
           path: |
